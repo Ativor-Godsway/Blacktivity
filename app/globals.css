@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   BLACKTIVITY DESIGN TOKENS — REVISION 01
+
+   The site is LIGHT-DOMINANT. Black is heavy punctuation, used for exactly
+   three full-bleed sections on the homepage and for the admin.
+
+   The ramp is warm-neutral, not pure greyscale. Nothing outside this list may
+   appear in UI chrome — photographs are the only source of colour.
+--------------------------------------------------------------------------- */
+@theme {
+  /* --- the literal palette. Nothing outside this list is permitted. --- */
+  --color-paper: #f2f1ee;        /* primary background — warm off-white, NEVER #FFF */
+  --color-paper-raised: #e8e7e3; /* cards, hovers, inset panels */
+  --color-ink: #0b0b0b;          /* primary text on paper */
+  --color-void: #000000;         /* full-bleed black punctuation ONLY */
+
+  --color-grey-70: #6e6c68;
+  --color-grey-45: #a8a6a1;
+  --color-grey-25: #c9c7c2;
+
+  /* --- semantic layer -----------------------------------------------------
+     Components address the GROUND they sit on, never a literal colour, so the
+     same component renders correctly on paper and inside .on-void. These are
+     the light-ground values; .on-void overrides them below.               --- */
+  --color-fg: #0b0b0b;           /* primary foreground   — 17.4:1 on paper */
+  --color-fg-muted: #6e6c68;     /* secondary copy       —  4.6:1, AA */
+  --color-fg-dim: #6e6c68;       /* labels, meta         —  4.6:1, AA */
+  --color-fg-faint: #a8a6a1;     /* DECORATIVE ONLY on paper — 2.2:1, never
+                                    small text; see the note below */
+  --color-bg: #f2f1ee;           /* the ground itself */
+  --color-bg-raised: #e8e7e3;    /* cards, inset panels */
+  --color-rule: rgba(11, 11, 11, 0.12);
+  --color-grid: rgba(11, 11, 11, 0.05);
+
+  /* CONTRAST: on paper only ink (17.4:1) and grey-70 (4.6:1) clear AA for
+     small text; grey-45 is 2.2:1 and grey-25 is 1.5:1. On void the reverse
+     holds — grey-70 is only 4.0:1 and fails. That is why the same semantic
+     token resolves to different greys on each ground. Do not "tidy" these
+     into one shared value. */
+  --color-rule-strong: rgba(11, 11, 11, 0.28);
+  --color-fill-subtle: rgba(11, 11, 11, 0.05);
+  --color-fill-strong: rgba(11, 11, 11, 0.1);
+
+  --font-display: var(--font-zodiak), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --spacing-section: 8rem;
+  --spacing-section-lg: 12rem;
+}
+
+:root {
+  --gutter: 1.25rem;
+  color-scheme: light;
+
+  /* HERO GEOMETRY.
+     The wordmark is 100vw wide at a 4.349:1 aspect, so it is 22.99vw tall, and
+     sits at bottom:-2.3vw from md up — 10% of its height below the fold, so its
+     top edge lands at (100svh - 20.69vw). 10% is a measured limit, not a
+     preference: the tail of the 'y' — the word's only descender — occupies the
+     bottom ~12%, so a deeper crop makes the mark read "blacktivitu".
+     Below md the clip drops to -1vw (~4%): the crop is proportional, and 10% of
+     an 83px-tall mark leaves too little of that tail to read.
+     --stack-bottom places the cover stack just past that line so it clips the
+     TOPS of the letterforms rather than covering the middle of the word. */
+  --stack-bottom: calc(21.99vw - 14px);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 2rem;
+    --stack-bottom: calc(20.69vw - 70px);
+  }
+}
+
+/**
+ * Any subtree on the black ground re-points the semantic tokens. This is the
+ * ONLY place the inversion is expressed — no component branches on ground.
+ */
+.on-void {
+  --color-fg: #f2f1ee;           /* 18.6:1 on void */
+  --color-fg-muted: #c9c7c2;     /* 12.4:1, AA */
+  --color-fg-dim: #a8a6a1;       /*  8.6:1, AA */
+  --color-fg-faint: #a8a6a1;     /*  8.6:1, AA */
+  --color-bg: #000000;
+  --color-bg-raised: #111111;
+  --color-rule: rgba(255, 255, 255, 0.14);
+  --color-grid: rgba(255, 255, 255, 0.05);
+  --color-rule-strong: rgba(255, 255, 255, 0.32);
+  --color-fill-subtle: rgba(255, 255, 255, 0.06);
+  --color-fill-strong: rgba(255, 255, 255, 0.12);
+
+  color-scheme: dark;
+  background-color: var(--color-void);
+  color: var(--color-fg);
+}
+
+* { border-color: var(--color-rule); }
+
+html {
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  overscroll-behavior-y: none;
+}
+
+::selection { background: var(--color-fg); color: var(--color-bg); }
+
+/* Visible keyboard focus, everywhere. */
+:focus-visible {
+  outline: 1px solid var(--color-fg);
+  outline-offset: 3px;
+}
+
+/* --- type roles ---------------------------------------------------------- */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .mono { font-size: 12px; }
+}
+
+/* --- the signature gesture: grayscale → colour ---------------------------
+   Implemented in RevealImage as a two-layer opacity crossfade, NOT an animated
+   filter — animating `filter` repaints the image every frame and is not
+   compositor-accelerated. The grey plate carries a contrast lift because
+   grayscale goes milky on a light ground. No CSS needed here; this note exists
+   so the old `.desat` approach is not reintroduced. */
+
+/* --- masked line reveal -------------------------------------------------- */
+.line-mask { display: block; overflow: hidden; }
+
+/* --- grain ---------------------------------------------------------------
+   A pre-rasterized tile at plain opacity. NOT mix-blend-mode: a fixed
+   full-viewport blended element cannot be GPU-cached, so the browser
+   re-composites the whole viewport on every scroll frame. That single
+   property was responsible for ~2.9s of rasterization per 4s of scrolling.
+   Dark speckle at low opacity reads the same on paper for no per-frame cost. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: url("/grain.png");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  opacity: 0.085;
+}
+
+/* The black sections need light speckle, not dark, to read at all. */
+.on-void .grain-invert { display: none; }
+
+/* --- long-form article body ---------------------------------------------- */
+.prose-editorial { max-width: 68ch; }
+.prose-editorial p {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--color-fg) 85%, transparent);
+  margin-block: 1.4em;
+}
+.prose-editorial h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-block: 2.2em 0.7em;
+  color: var(--color-fg);
+}
+.prose-editorial h3 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-block: 2em 0.6em;
+}
+.prose-editorial blockquote {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+  border-left: 1px solid var(--color-rule);
+  padding-left: 1.5rem;
+  margin-block: 2.5em;
+  max-width: none;
+}
+.prose-editorial blockquote p { font-size: inherit; line-height: inherit; color: inherit; }
+.prose-editorial strong {
+  /* Satoshi Bold is loaded separately and never preloaded — see lib/fonts.ts. */
+  font-family: var(--font-satoshi-bold), var(--font-satoshi), sans-serif;
+  font-weight: 700;
+}
+.prose-editorial a { color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; }
+.prose-editorial ul, .prose-editorial ol {
+  margin-block: 1.4em;
+  padding-left: 1.25rem;
+  color: color-mix(in srgb, var(--color-fg) 85%, transparent);
+}
+.prose-editorial ul { list-style: disc; }
+.prose-editorial ol { list-style: decimal; }
+.prose-editorial li { margin-block: 0.5em; }
+.prose-editorial figcaption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-fg-dim);
+  margin-top: 0.75rem;
+}
+
+.dropcap::first-letter {
+  font-family: var(--font-display);
+  float: left;
+  font-size: 4.2em;
+  line-height: 0.78;
+  padding-right: 0.1em;
+  margin-top: 0.05em;
+  color: var(--color-fg);
+}
+
+/* --- hero wordmark entrance ----------------------------------------------
+   TRANSFORM ONLY, and deliberately no opacity: the wordmark is the largest
+   element on the page and therefore the LCP candidate. Fading it in would gate
+   the largest paint on hydration and push LCP past 4s. A CSS transform runs
+   from first paint, needs no JS, and still counts as painted. */
+@keyframes wordmark-rise {
+  from { transform: translate3d(0, 14%, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+.wordmark-enter {
+  animation: wordmark-rise 900ms var(--ease-expo) 60ms both;
+}
+
+/* --- marquee ------------------------------------------------------------- */
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 40s linear infinite;
+}
+
+/* --- the guard ----------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee-track { animation: none; }
+}

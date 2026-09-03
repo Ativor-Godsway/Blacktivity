@@ -1,0 +1,37 @@
+import DisplayHeading from "@/components/motion/DisplayHeading";
+import MonoLabel from "@/components/ui/MonoLabel";
+import DrawLink from "@/components/site/DrawLink";
+
+/**
+ * Full-bleed black. Its job is rhythm and orientation, not exposition — the
+ * lead line, two or three sentences, and a way through to /about. The black
+ * break is doing structural work in the page, which is why the treatment stays
+ * even though the content changed.
+ */
+export function AboutSection() {
+  return (
+    <section className="on-void py-28 md:py-44">
+      <div className="mx-auto max-w-[1600px] px-(--gutter)">
+        <MonoLabel className="text-fg-muted">Who we are</MonoLabel>
+
+        <DisplayHeading
+          lines={["Your creativity", "belongs in the room."]}
+          className="mt-10 max-w-[18ch] text-[clamp(2.25rem,7vw,6rem)] text-fg"
+        />
+
+        <p className="mt-12 max-w-[56ch] text-lg text-fg-muted">
+          Blacktivity is a creative studio and publication in Accra, founded in
+          2025. We make images, we art-direct, and we put on nights where people
+          who make things stand in the same room. The publication grew out of
+          that, not the other way around.
+        </p>
+
+        <div className="mt-12">
+          <DrawLink href="/about">More about us →</DrawLink>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default AboutSection;

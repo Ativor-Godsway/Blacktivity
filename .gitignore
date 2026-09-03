@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.env.local
+.env*.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+.mongo-uri
+.shots
+assets/covers/*.jpg.bak
