@@ -15,7 +15,7 @@ import type { ImageRef } from "@/lib/types";
 // The editor pulls in ProseMirror — keep it out of the initial admin bundle.
 const Editor = dynamic(() => import("./Editor"), {
   ssr: false,
-  loading: () => <div className="min-h-[50vh] animate-pulse bg-[var(--admin-hover)]" />,
+  loading: () => <div className="min-h-[50vh] animate-pulse a-bg-hover" />,
 });
 
 const EMPTY_DOC = { type: "doc", content: [{ type: "paragraph" }] };
@@ -170,7 +170,7 @@ export function ArticleForm({
     <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_320px]">
       <div className="min-w-0">
         {restored ? (
-          <p className="a-meta mb-6 border border-[var(--admin-rule)] px-4 py-3 a-muted">
+          <p className="a-meta mb-6 border a-border px-4 py-3 a-muted">
             ↳ Restored an unsaved draft from this browser.
           </p>
         ) : null}
@@ -212,13 +212,13 @@ export function ArticleForm({
           </Field>
         </div>
 
-        <div className="mt-12 border-t border-[var(--admin-rule)] pt-6">
+        <div className="mt-12 border-t a-border pt-6">
           <div className="flex items-center justify-between">
             <MonoLabel dim>Body</MonoLabel>
             <button
               type="button"
               onClick={() => setPreview((p) => !p)}
-              className="a-meta a-muted hover:text-[var(--admin-ink)]"
+              className="a-meta a-muted hover:a-ink"
             >
               {preview ? "Back to editing" : "Preview ↗"}
             </button>
@@ -244,7 +244,7 @@ export function ArticleForm({
             onChange={(e) => set("category", e.target.value)}
           >
             {ARTICLE_CATEGORIES.map((c) => (
-              <option key={c} value={c} className="bg-[var(--admin-surface)]">
+              <option key={c} value={c} className="a-bg-surface">
                 {c}
               </option>
             ))}
@@ -283,12 +283,12 @@ export function ArticleForm({
         </label>
 
         {formError ? (
-          <p className="a-meta text-[var(--admin-ink)]" role="alert">
+          <p className="a-meta a-ink" role="alert">
             ↳ {formError}
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-3 border-t border-[var(--admin-rule)] pt-6">
+        <div className="flex flex-col gap-3 border-t a-border pt-6">
           <Button
             type="button"
             variant="outline"

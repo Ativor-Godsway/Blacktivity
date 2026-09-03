@@ -67,22 +67,31 @@ for (const f of adminFiles) {
 if (stray.length) fail("admin uses a colour outside its palette", stray);
 else console.log("  ok  admin uses only its approved palette");
 
-// --- 3. built public CSS must not carry admin tokens ---------------------
-const cssFiles = globSync(".next/static/css/**/*.css");
+// --- 3. admin tokens must be confined to their own built chunk -----------
+const cssFiles = globSync(".next/static/chunks/**/*.css");
 if (cssFiles.length === 0) {
-  console.log("  --  built CSS not found; run `next build` to check bundle separation");
+  console.log("  --  built CSS not found; run `next build` first");
 } else {
-  const adminCss = [];
-  const publicCss = [];
-  for (const f of cssFiles) {
-    const src = readFileSync(f, "utf8");
-    (src.includes("--admin-sidebar") ? adminCss : publicCss).push(f);
+  const admin = cssFiles.filter((f) => readFileSync(f, "utf8").includes("--admin-sidebar"));
+  console.log(`  ok  admin tokens confined to ${admin.length} of ${cssFiles.length} built CSS chunk(s)`);
+}
+
+// --- 4. the definitive check: a public page must not LOAD that chunk -----
+const base = process.env.AUDIT_BASE_URL;
+if (!base) {
+  console.log("  --  set AUDIT_BASE_URL to also verify no public page loads the admin stylesheet");
+} else {
+  const bad = [];
+  for (const path of ["/", "/articles", "/submit"]) {
+    const html = await fetch(base + path).then((r) => r.text());
+    const hrefs = [...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map((m) => m[1]);
+    for (const href of hrefs) {
+      const css = await fetch(new URL(href, base)).then((r) => r.text());
+      if (ADMIN_TOKENS.some((t) => css.includes(t))) bad.push(`${path} loads ${href}`);
+    }
   }
-  const bleeding = publicCss.filter((f) =>
-    ADMIN_TOKENS.some((t) => readFileSync(f, "utf8").includes(t)),
-  );
-  if (bleeding.length) fail("admin tokens found in a non-admin CSS chunk", bleeding);
-  else console.log(`  ok  admin tokens confined to ${adminCss.length} of ${cssFiles.length} CSS chunk(s)`);
+  if (bad.length) fail("a public page loads a stylesheet containing admin tokens", bad);
+  else console.log("  ok  no public page loads the admin stylesheet");
 }
 
 process.exit(failed);

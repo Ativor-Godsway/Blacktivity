@@ -85,7 +85,7 @@ export function ImageUploader({
 
       {value?.url ? (
         <div className="flex flex-wrap items-start gap-5">
-          <div className="relative h-40 w-32 shrink-0 overflow-hidden border border-[var(--admin-rule)]">
+          <div className="relative h-40 w-32 shrink-0 overflow-hidden border a-border">
             <Image
               src={value.url}
               alt={value.alt || "Selected image"}
@@ -107,7 +107,7 @@ export function ImageUploader({
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="a-meta self-start a-muted hover:text-[var(--admin-ink)]"
+              className="a-meta self-start a-muted hover:a-ink"
             >
               Remove
             </button>
@@ -131,7 +131,7 @@ export function ImageUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="a-meta border border-[var(--admin-rule)] px-5 py-3 text-[var(--admin-ink)] transition-colors duration-200 hover:border-[var(--admin-ink)] disabled:opacity-40"
+          className="a-meta border a-border px-5 py-3 a-ink transition-colors duration-200 hover:a-border-ink disabled:opacity-40"
         >
           {uploading ? "Uploading…" : value?.url ? "Replace image" : "Upload image"}
         </button>
@@ -157,7 +157,7 @@ export function ImageUploader({
       </div>
 
       {error ? (
-        <p className="a-meta text-[var(--admin-ink)]" role="alert">
+        <p className="a-meta a-ink" role="alert">
           ↳ {error}
         </p>
       ) : null}

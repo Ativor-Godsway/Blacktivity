@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { fontVariables } from "@/lib/fonts";
 import { SITE } from "@/lib/constants";
-import Grain from "@/components/ui/Grain";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -54,7 +53,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <Grain />
         {children}
       </body>
     </html>

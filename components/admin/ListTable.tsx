@@ -124,7 +124,7 @@ export function ListTable({
                       checked={allSelected}
                       onChange={toggleAll}
                       aria-label="Select all rows"
-                      className="size-3.5 align-middle accent-[var(--admin-ink)]"
+                      className="size-3.5 align-middle a-accent"
                     />
                   </th>
                   <th>Title</th>
@@ -143,7 +143,7 @@ export function ListTable({
                 {rows.map((row) => (
                   <tr
                     key={row.id}
-                    className={cn("cursor-pointer", openId === row.id && "bg-[var(--admin-hover)]")}
+                    className={cn("cursor-pointer", openId === row.id && "a-bg-hover")}
                     onClick={() => setOpenId(row.id)}
                   >
                     <td onClick={(e) => e.stopPropagation()}>
@@ -152,7 +152,7 @@ export function ListTable({
                         checked={selected.has(row.id)}
                         onChange={() => toggle(row.id)}
                         aria-label={`Select ${row.title}`}
-                        className="size-3.5 align-middle accent-[var(--admin-ink)]"
+                        className="size-3.5 align-middle a-accent"
                       />
                     </td>
 
@@ -177,7 +177,7 @@ export function ListTable({
                       <button
                         type="button"
                         onClick={() => setOpenId(row.id)}
-                        className="a-muted px-1 text-[16px] leading-none hover:text-[var(--admin-ink)]"
+                        className="a-muted px-1 text-[16px] leading-none hover:a-ink"
                         aria-label={`Open ${row.title}`}
                       >
                         ⋯

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 /**
  * Single-series line with area fill, crosshair and tooltip.
@@ -22,7 +22,6 @@ export function AreaChart({
   height?: number;
 }) {
   const gradientId = useId();
-  const wrapRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
 
   const W = 1000;
@@ -63,29 +62,8 @@ export function AreaChart({
 
   const active = hover === null ? null : coords[hover];
 
-  function onMove(e: React.MouseEvent<HTMLDivElement>) {
-    const el = wrapRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const ratio = (e.clientX - rect.left) / rect.width;
-    const svgX = ratio * W;
-    // Nearest point by x — cheap and stable, no layout reads per frame.
-    let best = 0;
-    let bestD = Infinity;
-    for (let i = 0; i < coords.length; i++) {
-      const d = Math.abs(coords[i]!.x - svgX);
-      if (d < bestD) { bestD = d; best = i; }
-    }
-    setHover(best);
-  }
-
   return (
-    <div
-      ref={wrapRef}
-      className="relative"
-      onMouseMove={onMove}
-      onMouseLeave={() => setHover(null)}
-    >
+    <div className="relative" onMouseLeave={() => setHover(null)}>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height }} role="img"
            aria-label={`${valueLabel} over time`}>
         <defs>
@@ -118,6 +96,21 @@ export function AreaChart({
                     stroke="var(--admin-surface)" strokeWidth="2" />
           </>
         ) : null}
+
+        {coords.map((c, i) => {
+          const half = coords.length > 1 ? (W - PAD.left - PAD.right) / (coords.length - 1) / 2 : W;
+          return (
+            <rect
+              key={`hit-${c.label}`}
+              x={c.x - half}
+              width={half * 2}
+              y={PAD.top}
+              height={H - PAD.top - PAD.bottom}
+              fill="transparent"
+              onMouseEnter={() => setHover(i)}
+            />
+          );
+        })}
 
         {coords.map((c, i) =>
           i === 0 || i === coords.length - 1 ? (

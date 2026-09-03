@@ -19,7 +19,8 @@
     "audit:perf": "node scripts/audit-perf.mjs",
     "build:grain": "node scripts/build/make-grain.mjs",
     "audit:images": "node scripts/audit-images.mjs",
-    "audit:admin-colour": "node scripts/audit-admin-colour.mjs"
+    "audit:admin-colour": "node scripts/audit-admin-colour.mjs",
+    "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",

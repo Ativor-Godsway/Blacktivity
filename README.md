@@ -74,6 +74,64 @@ display, so the mark is used in the nav as well as the hero and footer. There
 is no `CREATIVE STUDIO` sub-line in the supplied file, so nothing was stripped;
 the tagline is separate mono text beside the mark.
 
+## The admin
+
+**The admin has its own palette. The public site does not.**
+
+It is a light, dashboard-structured workspace — a dark left rail, a warm plane,
+white cards, and colour on status indicators so a queue can be scanned in one
+glance. That is a deliberate reversal of the site's monochrome rule, scoped
+strictly to `/admin/*`, because the admin is a tool rather than a brand surface.
+
+Tokens live in `app/admin/admin.css`, imported by `app/admin/layout.tsx` and
+nowhere else, and every declaration is additionally scoped under `.admin`.
+`npm run audit:admin-colour` proves the separation four ways: no public source
+references an admin token or class, the admin uses only its own palette, admin
+tokens are confined to their own built CSS chunk, and — with `AUDIT_BASE_URL`
+set — no public page loads that stylesheet.
+
+Two things learned building it:
+
+- **Tailwind arbitrary values leak.** `border-[var(--admin-rule)]` compiles into
+  the *shared* stylesheet, putting admin token names into the public site's CSS
+  even though they never resolve there. Admin styling uses real classes
+  (`.a-card`, `.a-border`, `.a-pill`) defined in `admin.css` instead.
+- **Grain is public-site brand texture.** It was mounted in the root layout and
+  was rendering over the admin's white cards; it now lives in the site layout.
+
+### Colour rules
+
+Status is **never hue alone**: every state is a tinted ground at 12%, a solid
+dot, and a label in ink. `#FAB219` is 1.83:1 as text on white — as a pill label
+in ink on its own tint it is 18.3:1.
+
+Categorical chart series are capped at **three** — slots blue `#2A78D6`, orange
+`#EB6834`, aqua `#1BAF7A`. A fourth category folds into "Other", it never
+becomes a fourth hue. Slot 3 is 2.82:1 on white, under the 3:1 bar, so every
+chart it appears in carries visible direct labels.
+
+`--admin-muted` (#898781) is **3.59:1 on white and therefore under AA for small
+text**. It is used only for chart axis ticks, where the value is always repeated
+in a tooltip or a direct label; anything a reader must actually read uses
+`--admin-ink-2` at 7.94:1.
+
+No dual-axis charts, no pie charts, no donut gauges. Two measures at different
+scales get two charts.
+
+### Structure
+
+Dashboard opens with **Needs attention** — pending submissions, drafts, and
+events inside seven days — because a publication with eight articles is a queue
+to work, not a dataset to analyse. Charts sit below it.
+
+Articles, Events and Submissions share one `ListTable`: filter chips with
+counts, 56px rows, a floating dark bulk bar once anything is selected, and a
+right-hand detail panel so reviewing an item never costs your place in the
+table. Submissions also have a card grid, since the work is visual.
+
+The editor (`/admin/articles/[id]`) collapses the rail to icons and drops the
+right rail — it is the one screen that wants width.
+
 ## Typography
 
 | Role | Font | Loaded via |

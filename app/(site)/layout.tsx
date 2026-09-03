@@ -6,10 +6,13 @@ import { HairlineGridFixed } from "@/components/ui/HairlineGrid";
 import Analytics from "@/components/Analytics";
 import WebVitals from "@/components/WebVitals";
 import SmoothScroll from "@/components/motion/SmoothScroll";
+import Grain from "@/components/ui/Grain";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <>
+      {/* Paper grain is public-site brand texture, not admin chrome. */}
+      <Grain />
       <SmoothScroll />
       <HairlineGridFixed />
       <Suspense fallback={null}>

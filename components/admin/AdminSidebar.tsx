@@ -87,7 +87,7 @@ export function AdminSidebar({
                 aria-current={active ? "page" : undefined}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
                   collapsed && "justify-center px-0",
                   active ? "bg-white/[0.14] text-white" : "text-white/60 hover:bg-white/[0.07] hover:text-white",
                 )}
@@ -99,8 +99,10 @@ export function AdminSidebar({
                 {item.badge && pendingCount > 0 ? (
                   <span
                     className={cn(
-                      "a-num rounded-full px-1.5 py-0.5 text-[10.5px] leading-none text-[#0b0b0b]",
-                      collapsed && "absolute translate-x-3 -translate-y-3",
+                      "a-num rounded-full text-[10.5px] leading-none text-[#0b0b0b]",
+                      collapsed
+                        ? "absolute top-1.5 right-1.5 size-4 grid place-items-center"
+                        : "px-1.5 py-0.5",
                     )}
                     style={{ background: "var(--status-wait)" }}
                   >

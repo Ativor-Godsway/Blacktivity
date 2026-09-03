@@ -32,7 +32,7 @@ export function RightRail({ title, children }: { title?: string; children: React
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="a-muted text-sm hover:text-[var(--admin-ink)]"
+            className="a-muted text-sm hover:a-ink"
           >
             <span aria-hidden="true">{open ? "»" : "«"}</span>
             <span className="sr-only">{open ? "Collapse panel" : "Expand panel"}</span>
