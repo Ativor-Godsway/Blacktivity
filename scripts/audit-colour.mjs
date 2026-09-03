@@ -41,9 +41,15 @@ function rgbIsToken(r, g, b) {
   return ALPHA_BASES.some(([R, G, B]) => R === r && G === g && B === b);
 }
 
+/**
+ * The admin is EXCLUDED, not exempted. It has its own palette (see
+ * app/admin/admin.css) because it is a tool, not a brand surface. The public
+ * site's one-colour rule is unchanged and still enforced everywhere else;
+ * `npm run audit:admin-colour` separately proves the two never mix.
+ */
 const files = globSync("{app,components,lib,data}/**/*.{ts,tsx,css}", {
   exclude: (p) => p.includes("node_modules"),
-});
+}).filter((f) => !f.startsWith("app/admin") && !f.startsWith("components/admin"));
 
 const problems = [];
 

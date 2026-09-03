@@ -1,69 +1,70 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import dbConnect from "@/lib/db";
 import EventModel from "@/models/Event";
-import { getSession } from "@/lib/session";
 import AdminShell from "@/components/admin/AdminShell";
-import MonoLabel from "@/components/ui/MonoLabel";
-import { ButtonLink } from "@/components/ui/Button";
-import EventRowActions from "@/components/admin/EventRowActions";
-import { formatDateMono, isUpcoming } from "@/lib/utils";
+import EventsList, { type EventListItem } from "@/components/admin/EventsList";
+import { getAdminContext } from "@/lib/admin-context";
 
 export const metadata: Metadata = { title: "Events" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminEventsPage() {
-  const session = await getSession();
+export default async function AdminEventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ when?: string }>;
+}) {
+  const { when } = await searchParams;
+  const active = when === "upcoming" || when === "past" ? when : "all";
 
+  const ctx = await getAdminContext();
   await dbConnect();
-  const docs = await EventModel.find().sort({ startDate: -1 }).limit(200).lean();
+
+  const now = new Date();
+  // Upcoming vs past is always derived from startDate, never stored.
+  const filter: Record<string, unknown> =
+    active === "upcoming"
+      ? { startDate: { $gte: now } }
+      : active === "past"
+        ? { startDate: { $lt: now } }
+        : {};
+
+  const [docs, all, upcoming] = await Promise.all([
+    EventModel.find(filter).sort({ startDate: -1 }).limit(200).lean(),
+    EventModel.countDocuments({}),
+    EventModel.countDocuments({ startDate: { $gte: now } }),
+  ]);
+
+  const items: EventListItem[] = docs.map((e) => ({
+    id: String(e._id),
+    title: e.title,
+    slug: e.slug,
+    venue: e.venue,
+    city: e.city ?? "",
+    starts: new Date(e.startDate as Date).toLocaleDateString("en-GB", {
+      day: "numeric", month: "short", year: "numeric",
+    }),
+    isUpcoming: new Date(e.startDate as Date) >= now,
+    description: e.description ?? "",
+    ticketUrl: e.ticketUrl ?? "",
+  }));
 
   return (
     <AdminShell
-      name={session?.name ?? "Admin"}
+      {...ctx}
       title="Events"
-      actions={<ButtonLink href="/admin/events/new">New event ↗</ButtonLink>}
+      subtitle={`${all} in total · ${upcoming} upcoming`}
+      actions={
+        <Link href="/admin/events/new" className="a-btn a-btn-primary">
+          New event
+        </Link>
+      }
     >
-      {docs.length === 0 ? (
-        <p className="mono text-fg-muted">No events yet.</p>
-      ) : (
-        <table className="w-full border-collapse text-left">
-          <thead>
-            <tr className="border-b border-rule">
-              {["Title", "Date", "Venue", "State", ""].map((h) => (
-                <th key={h} className="mono py-3 pr-4 font-normal text-fg-dim">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {docs.map((doc) => (
-              <tr key={String(doc._id)} className="border-b border-rule">
-                <td className="py-4 pr-4">
-                  {doc.title}
-                  {doc.featured ? <MonoLabel dim className="ml-3">★</MonoLabel> : null}
-                </td>
-                <td className="py-4 pr-4">
-                  <MonoLabel dim>{formatDateMono(doc.startDate)}</MonoLabel>
-                </td>
-                <td className="py-4 pr-4">
-                  <MonoLabel dim>
-                    {doc.venue}, {doc.city}
-                  </MonoLabel>
-                </td>
-                <td className="py-4 pr-4">
-                  <MonoLabel className={isUpcoming(doc.startDate) ? "text-fg" : "text-fg-dim"}>
-                    {isUpcoming(doc.startDate) ? "Upcoming" : "Past"}
-                  </MonoLabel>
-                </td>
-                <td className="py-4">
-                  <EventRowActions id={String(doc._id)} slug={doc.slug} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <EventsList
+        items={items}
+        counts={{ all, upcoming, past: all - upcoming }}
+        activeFilter={active}
+      />
     </AdminShell>
   );
 }

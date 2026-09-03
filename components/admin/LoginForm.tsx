@@ -60,7 +60,7 @@ export function LoginForm() {
       </Field>
 
       {error ? (
-        <p className="mono text-fg" role="alert">
+        <p className="a-meta text-[var(--admin-ink)]" role="alert">
           ↳ {error}
         </p>
       ) : null}

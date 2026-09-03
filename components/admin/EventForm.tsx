@@ -192,12 +192,12 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
         </label>
 
         {formError ? (
-          <p className="mono text-fg" role="alert">
+          <p className="a-meta text-[var(--admin-ink)]" role="alert">
             ↳ {formError}
           </p>
         ) : null}
 
-        <div className="border-t border-rule pt-6">
+        <div className="border-t border-[var(--admin-rule)] pt-6">
           <Button type="button" disabled={pending} onClick={save} className="w-full">
             {pending ? "Saving…" : id ? "Update event" : "Create event ↗"}
           </Button>

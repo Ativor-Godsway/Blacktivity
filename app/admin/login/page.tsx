@@ -13,8 +13,8 @@ export default function LoginPage() {
         <MonoLabel dim>
           {SITE.name} — Admin
         </MonoLabel>
-        <h1 className="display mt-6 text-5xl">Sign in.</h1>
-        <p className="mono mt-4 text-fg-dim">{SITE.established}</p>
+        <h1 className="text-[22px] font-medium tracking-[-0.01em] mt-6 text-5xl">Sign in.</h1>
+        <p className="a-meta mt-4 a-muted">{SITE.established}</p>
 
         <div className="mt-12">
           <Suspense fallback={null}>

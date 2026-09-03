@@ -26,10 +26,10 @@ function ToolbarButton({
       title={title}
       aria-pressed={active}
       className={cn(
-        "mono border px-3 py-2 transition-colors duration-200",
+        "a-meta border px-3 py-2 transition-colors duration-200",
         active
-          ? "border-fg bg-fg text-bg"
-          : "border-rule-strong text-fg-muted hover:border-fg hover:text-fg",
+          ? "border-[var(--admin-ink)] bg-[var(--admin-ink)] text-[var(--admin-plane)]"
+          : "border-[var(--admin-rule)] a-muted hover:border-[var(--admin-ink)] hover:text-[var(--admin-ink)]",
       )}
     >
       {children}
@@ -68,7 +68,7 @@ function Toolbar({ editor }: { editor: TiptapEditor }) {
   }, [editor]);
 
   return (
-    <div className="sticky top-16 z-20 flex flex-wrap gap-2 border-b border-rule bg-bg py-3">
+    <div className="sticky top-16 z-20 flex flex-wrap gap-2 border-b border-[var(--admin-rule)] bg-[var(--admin-surface)] py-3">
       <ToolbarButton
         title="Heading 2"
         active={editor.isActive("heading", { level: 2 })}
@@ -162,7 +162,7 @@ export function Editor({
   });
 
   if (!editor) {
-    return <div className="min-h-[50vh] animate-pulse bg-fill-subtle" />;
+    return <div className="min-h-[50vh] animate-pulse bg-[var(--admin-hover)]" />;
   }
 
   return (

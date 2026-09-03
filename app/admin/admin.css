@@ -1,0 +1,177 @@
+/* ===========================================================================
+   ADMIN DESIGN TOKENS — SCOPED TO /admin/* ONLY
+   ===========================================================================
+
+   This file is imported by app/admin/layout.tsx and nowhere else, so Next
+   code-splits it onto admin routes and none of these tokens reach the public
+   stylesheet. Every declaration is additionally scoped under `.admin`, so even
+   if the file were pulled in elsewhere nothing would apply.
+
+   The public site remains strictly paper/void monochrome. The admin is a tool,
+   not a brand surface: colour on status indicators lets a queue be scanned in
+   one glance.
+
+   Run `npm run audit:admin-colour` to check the separation still holds.
+   ------------------------------------------------------------------------- */
+
+.admin {
+  /* --- chrome ------------------------------------------------------------ */
+  --admin-sidebar: #0b0b0b;   /* dark rail, keeps brand black present */
+  --admin-plane: #f2f1ee;     /* page background — the public site's paper */
+  --admin-surface: #ffffff;   /* cards, tables, panels */
+  --admin-ink: #0b0b0b;
+  --admin-ink-2: #52514e;     /* secondary */
+  --admin-muted: #898781;     /* axis, labels, meta */
+  --admin-rule: #e1e0d9;      /* hairlines, gridlines */
+  --admin-hover: #f7f7f5;     /* row hover */
+
+  /* --- status ------------------------------------------------------------
+     Fixed. Never themed, never reused as a chart series.
+     NEVER used as text or as the sole signal: #fab219 is well under 3:1 on
+     white. Every status renders as dot + text label — see .a-pill.          */
+  --status-ok: #0ca30c;       /* published / approved */
+  --status-wait: #fab219;     /* draft / pending */
+  --status-bad: #d03b3b;      /* rejected / failed */
+
+  /* --- chart series ------------------------------------------------------
+     Validated on #ffffff across all pairs: CVD dE 9.2 worst case, normal
+     vision dE 24.0. Capped at three — a fourth category folds into "Other".
+     Slot 3 is 2.82:1 on white, under the 3:1 bar, so anywhere it appears the
+     chart must carry visible direct labels.                                 */
+  --series-1: #2a78d6;        /* blue */
+  --series-2: #eb6834;        /* orange */
+  --series-3: #1baf7a;        /* aqua */
+
+  background: var(--admin-plane);
+  color: var(--admin-ink);
+  color-scheme: light;
+  font-size: 14px;
+}
+
+/* --- surfaces ------------------------------------------------------------ */
+.a-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-rule);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(11, 11, 11, 0.04);
+}
+
+.a-rule { border-color: var(--admin-rule); }
+
+/* --- status pill ---------------------------------------------------------
+   Tinted ground at ~12% alpha, a solid dot in the status hue, and a label in
+   ink. The label carries the meaning; the hue is only ever reinforcement.  */
+.a-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.55rem 0.2rem 0.45rem;
+  border-radius: 999px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--admin-ink);
+  background: color-mix(in srgb, var(--pill-hue) 12%, transparent);
+}
+.a-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--pill-hue);
+  flex: none;
+}
+.a-pill[data-state="ok"] { --pill-hue: var(--status-ok); }
+.a-pill[data-state="wait"] { --pill-hue: var(--status-wait); }
+.a-pill[data-state="bad"] { --pill-hue: var(--status-bad); }
+.a-pill[data-state="idle"] { --pill-hue: var(--admin-muted); }
+
+/* --- tables -------------------------------------------------------------- */
+.a-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.a-table th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+  padding: 0 1rem 0.75rem;
+  border-bottom: 1px solid var(--admin-rule);
+}
+.a-table td {
+  padding: 0 1rem;
+  height: 56px;
+  border-bottom: 1px solid var(--admin-rule);
+  vertical-align: middle;
+}
+.a-table tbody tr:hover { background: var(--admin-hover); }
+.a-table tbody tr:last-child td { border-bottom: 0; }
+
+/* --- forms --------------------------------------------------------------- */
+.a-input {
+  width: 100%;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-rule);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 14px;
+  color: var(--admin-ink);
+}
+.a-input::placeholder { color: var(--admin-muted); }
+.a-input:focus { outline: 2px solid var(--admin-ink); outline-offset: -1px; }
+
+/* --- buttons ------------------------------------------------------------- */
+.a-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  white-space: nowrap;
+}
+.a-btn-primary { background: var(--admin-ink); color: var(--admin-plane); }
+.a-btn-primary:hover { background: #232320; }
+.a-btn-ghost { border-color: var(--admin-rule); background: var(--admin-surface); color: var(--admin-ink); }
+.a-btn-ghost:hover { background: var(--admin-hover); }
+.a-btn-danger { border-color: var(--admin-rule); background: var(--admin-surface); color: var(--status-bad); }
+.a-btn-danger:hover { background: color-mix(in srgb, var(--status-bad) 8%, transparent); }
+.a-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+/* --- filter chips -------------------------------------------------------- */
+.a-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--admin-rule);
+  background: var(--admin-surface);
+  padding: 0.35rem 0.7rem;
+  font-size: 12.5px;
+  color: var(--admin-ink-2);
+  white-space: nowrap;
+}
+.a-chip:hover { background: var(--admin-hover); }
+.a-chip[aria-pressed="true"] {
+  background: var(--admin-ink);
+  border-color: var(--admin-ink);
+  color: var(--admin-plane);
+}
+.a-chip-count { font-variant-numeric: tabular-nums; opacity: 0.6; }
+
+/* --- misc ---------------------------------------------------------------- */
+.a-muted { color: var(--admin-muted); }
+.a-ink2 { color: var(--admin-ink-2); }
+.a-num { font-variant-numeric: tabular-nums; }
+
+.a-meta {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+}
+
+/* The admin uses native scrolling — Lenis is mounted on the public site only. */

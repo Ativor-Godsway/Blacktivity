@@ -1,25 +1,32 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const RANGES = [7, 30, 90] as const;
 
-export function RangePicker({ active }: { active: number }) {
+export function RangePicker({ value }: { value: number }) {
+  const router = useRouter();
+  const params = useSearchParams();
+
+  function choose(days: number) {
+    const next = new URLSearchParams(params.toString());
+    next.set("range", String(days));
+    router.push(`?${next.toString()}`, { scroll: false });
+  }
+
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-1.5" role="group" aria-label="Date range">
       {RANGES.map((r) => (
-        <Link
+        <button
           key={r}
-          href={`/admin?range=${r}`}
-          aria-current={r === active ? "page" : undefined}
-          className={cn(
-            "mono pb-0.5",
-            r === active
-              ? "border-b border-fg text-fg"
-              : "border-b border-transparent text-fg-dim hover:text-fg",
-          )}
+          type="button"
+          onClick={() => choose(r)}
+          aria-pressed={value === r}
+          className={cn("a-chip")}
         >
-          {r}d
-        </Link>
+          {r} days
+        </button>
       ))}
     </div>
   );

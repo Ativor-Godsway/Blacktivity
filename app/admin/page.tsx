@@ -1,32 +1,23 @@
-import type { Metadata } from "next";
-import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 import AdminShell from "@/components/admin/AdminShell";
-import StatTile from "@/components/admin/StatTile";
-import Panel from "@/components/admin/Panel";
+import Card, { Empty } from "@/components/admin/ui/Card";
+import StatTile from "@/components/admin/ui/StatTile";
+import NeedsAttention from "@/components/admin/NeedsAttention";
 import RangePicker from "@/components/admin/RangePicker";
-import LineChart from "@/components/admin/charts/LineChart";
-import BarList from "@/components/admin/charts/BarList";
+import AreaChart from "@/components/admin/charts/AreaChart";
+import RankedBars from "@/components/admin/charts/RankedBars";
+import CategorySplit from "@/components/admin/charts/CategorySplit";
+import TopArticlesTable from "@/components/admin/TopArticlesTable";
 import VitalsPanel from "@/components/admin/VitalsPanel";
-import MonoLabel from "@/components/ui/MonoLabel";
+import { getSession } from "@/lib/session";
+import { getAdminContext } from "@/lib/admin-context";
 import { getDashboardData, type RangeDays } from "@/lib/analytics-queries";
+import { getNeedsAttention, titlesForPaths } from "@/lib/admin-queries";
 
-export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-function parseRange(value: string | undefined): RangeDays {
-  const n = Number(value);
-  return n === 7 || n === 30 || n === 90 ? n : 30;
-}
-
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  return `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
-}
-
-function shortDate(key: string): string {
-  const [, m, d] = key.split("-");
-  return `${d}.${m}`;
-}
+const RANGES: RangeDays[] = [7, 30, 90];
 
 export default async function AdminDashboard({
   searchParams,
@@ -34,127 +25,161 @@ export default async function AdminDashboard({
   searchParams: Promise<{ range?: string }>;
 }) {
   const session = await getSession();
+  if (!session) redirect("/admin/login");
+
   const { range: rawRange } = await searchParams;
-  const range = parseRange(rawRange);
+  const parsed = Number(rawRange);
+  const range: RangeDays = RANGES.includes(parsed as RangeDays) ? (parsed as RangeDays) : 30;
 
-  const data = await getDashboardData(range);
+  const [ctx, data, queue] = await Promise.all([
+    getAdminContext(),
+    getDashboardData(range),
+    getNeedsAttention(),
+  ]);
 
-  const deviceTotal =
-    data.devices.mobile + data.devices.tablet + data.devices.desktop || 1;
+  const titles = await titlesForPaths(data.topPaths.map((p) => p.path));
 
-  const changeLabel =
-    data.totals.viewsChangePct === null
-      ? "No prior period"
-      : `${data.totals.viewsChangePct >= 0 ? "+" : ""}${data.totals.viewsChangePct}% vs previous ${range}d`;
+  const articleRows = data.topPaths
+    .filter((p) => p.path.startsWith("/articles/"))
+    .slice(0, 8)
+    .map((p) => ({
+      path: p.path,
+      title: titles.get(p.path)?.title ?? p.path.replace("/articles/", ""),
+      views: p.views,
+      avgSeconds: p.avgSeconds,
+      published: titles.get(p.path)?.published ?? null,
+    }));
+
+  const mmss = (s: number) => `${Math.floor(s / 60)}m ${String(Math.round(s % 60)).padStart(2, "0")}s`;
+  const viewSeries = data.series.map((d) => d.views);
 
   return (
     <AdminShell
-      name={session?.name ?? "Admin"}
+      {...ctx}
       title="Dashboard"
-      actions={<RangePicker active={range} />}
-    >
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatTile
-          label="Pageviews"
-          value={data.totals.views.toLocaleString()}
-          detail={changeLabel}
-        />
-        <StatTile
-          label="Visitors"
-          value={data.totals.uniques.toLocaleString()}
-          detail={`${data.totals.sessions.toLocaleString()} sessions`}
-        />
-        <StatTile
-          label="Avg. time on page"
-          value={formatDuration(data.totals.avgSecondsOnPage)}
-          detail="Visible tab only"
-        />
-        <StatTile
-          label="Today"
-          value={data.today.views.toLocaleString()}
-          detail={`${data.today.uniques.toLocaleString()} visitors · live`}
-        />
-        <StatTile
-          label="Mobile share"
-          value={`${Math.round((data.devices.mobile / deviceTotal) * 100)}%`}
-          detail="Of all pageviews"
-        />
-      </div>
-
-      <div className="mt-6">
-        <Panel title="Traffic" note={`Last ${range} days`}>
-          <LineChart
-            labels={data.series.map((p) => shortDate(p.date))}
-            series={[
-              { label: "Pageviews", values: data.series.map((p) => p.views), variant: "primary" },
-              { label: "Visitors", values: data.series.map((p) => p.uniques), variant: "secondary" },
-            ]}
-          />
-        </Panel>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Panel title="Top pages" note="Views · avg. time">
-          <BarList
-            rows={data.topPaths.map((p) => ({ label: p.path, value: p.views }))}
-            secondary={(row) => {
-              const match = data.topPaths.find((p) => p.path === row.label);
-              return match ? formatDuration(match.avgSeconds) : "";
-            }}
-          />
-        </Panel>
-
-        <Panel title="Core Web Vitals" note="p75 · real readers">
-          <VitalsPanel vitals={data.vitals} />
-        </Panel>
-
-        <Panel title="Referrers" note="Where readers arrive from">
-          <BarList
-            rows={data.referrers.map((r) => ({
-              label: r.referrer || "Direct / none",
-              value: r.count,
-            }))}
-          />
-        </Panel>
-
-        <Panel title="Devices">
-          <BarList
-            rows={[
-              { label: "Mobile", value: data.devices.mobile },
-              { label: "Desktop", value: data.devices.desktop },
-              { label: "Tablet", value: data.devices.tablet },
-            ]}
-            secondary={(row) => `${Math.round((row.value / deviceTotal) * 100)}%`}
-          />
-        </Panel>
-
-        <Panel title="Countries">
-          <BarList rows={data.countries.map((c) => ({ label: c.country, value: c.count }))} />
-        </Panel>
-
-        <Panel title="Tracked clicks" note="data-track labels" >
-          <BarList
-            rows={data.clicks.map((c) => ({ label: c.label, value: c.count }))}
-            emptyLabel="No tracked clicks in this range."
-          />
-        </Panel>
-
-        <Panel title="How this works">
-          <div className="flex flex-col gap-4 text-sm leading-relaxed text-fg-muted">
-            <p>
-              Raw events expire automatically after 90 days. A nightly cron job at
-              02:00 UTC rolls each day into a single summary document, which is
-              what these charts read — so the dashboard stays fast no matter how
-              much traffic the site takes.
+      subtitle="What needs you, then how the last few weeks have gone."
+      actions={
+        <>
+          <Link href="/admin/articles/new" className="a-btn a-btn-primary">
+            New article
+          </Link>
+          <Link href="/" className="a-btn a-btn-ghost">
+            View site ↗
+          </Link>
+        </>
+      }
+      railTitle="Today"
+      rail={
+        <div className="flex flex-col gap-5">
+          <div>
+            <p className="a-meta">Views today</p>
+            <p className="a-num mt-1 text-[26px] leading-none font-medium">
+              {data.today.views.toLocaleString()}
             </p>
-            <p>
-              Visitors are counted with a daily-rotating hash of IP and browser.
-              No raw IP address is ever stored and nobody can be tracked across
-              days, which is why there is no cookie banner.
+            <p className="a-muted mt-1 text-[12px]">
+              {data.today.uniques.toLocaleString()} unique visitors
             </p>
-            <MonoLabel dim>Today&apos;s figures are computed live.</MonoLabel>
           </div>
-        </Panel>
+
+          <div className="border-t pt-4" style={{ borderColor: "var(--admin-rule)" }}>
+            <p className="a-meta mb-3">Tracked clicks</p>
+            <RankedBars
+              rows={data.clicks.slice(0, 5).map((c) => ({ label: c.label, value: c.count }))}
+              emptyLabel="No tracked clicks in this range."
+            />
+          </div>
+
+          <div className="border-t pt-4" style={{ borderColor: "var(--admin-rule)" }}>
+            <p className="a-meta mb-3">Where readers are</p>
+            <RankedBars
+              rows={data.countries.slice(0, 5).map((c) => ({ label: c.country, value: c.count }))}
+              emptyLabel="No country data yet."
+            />
+          </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        <Card title="Needs attention" note={queue.length ? `${queue.length} items` : undefined} padded={false}>
+          <NeedsAttention items={queue} />
+        </Card>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatTile
+            label="Pageviews"
+            value={data.totals.views.toLocaleString()}
+            deltaPct={data.totals.viewsChangePct}
+            note={`last ${range} days`}
+            series={viewSeries}
+          />
+          <StatTile
+            label="Unique visitors"
+            value={data.totals.uniques.toLocaleString()}
+            note={`${data.totals.sessions.toLocaleString()} sessions`}
+            series={data.series.map((d) => d.uniques)}
+          />
+          <StatTile
+            label="Avg. time on page"
+            value={mmss(data.totals.avgSecondsOnPage)}
+            note="visible tab only"
+          />
+          <StatTile
+            label="Pending submissions"
+            value={String(ctx.pendingCount)}
+            note={ctx.pendingCount === 0 ? "queue clear" : "awaiting review"}
+          />
+        </div>
+
+        <Card
+          title="Visitors over time"
+          note={`Pageviews, last ${range} days`}
+          action={<RangePicker value={range} />}
+        >
+          {data.series.length > 1 ? (
+            <AreaChart
+              points={data.series.map((d) => ({
+                // "2026-09-03" -> "3 Sep", which is what the axis and tooltip want.
+                label: new Date(d.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+                value: d.views,
+              }))}
+              valueLabel="pageviews"
+            />
+          ) : (
+            <Empty title="Not enough data yet" body="The chart appears once there are at least two days of traffic." />
+          )}
+        </Card>
+
+        <Card title="Top articles" note={`Last ${range} days`} padded={false}>
+          <div className="px-5 pt-4 pb-1">
+            <TopArticlesTable rows={articleRows} />
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card title="Referrers" note="Where readers arrive from">
+            <RankedBars
+              rows={data.referrers.slice(0, 6).map((r) => ({
+                label: r.referrer || "Direct / none",
+                value: r.count,
+              }))}
+              emptyLabel="No referrers recorded yet."
+            />
+          </Card>
+
+          <Card title="Device split" note="Share of pageviews">
+            <CategorySplit
+              rows={[
+                { label: "Mobile", value: data.devices.mobile },
+                { label: "Desktop", value: data.devices.desktop },
+                { label: "Tablet", value: data.devices.tablet },
+              ]}
+            />
+          </Card>
+        </div>
+
+        <Card title="Core Web Vitals" note="p75 · real readers">
+          <VitalsPanel vitals={data.vitals} />
+        </Card>
       </div>
     </AdminShell>
   );

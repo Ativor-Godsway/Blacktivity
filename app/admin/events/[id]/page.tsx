@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 import dbConnect from "@/lib/db";
 import EventModel from "@/models/Event";
-import { getSession } from "@/lib/session";
+import { getAdminContext } from "@/lib/admin-context";
 import AdminShell from "@/components/admin/AdminShell";
 import EventForm from "@/components/admin/EventForm";
 
@@ -24,14 +24,14 @@ export default async function EditEventPage({
   const { id } = await params;
   if (!isValidObjectId(id)) notFound();
 
-  const session = await getSession();
+  const ctx = await getAdminContext();
 
   await dbConnect();
   const doc = await EventModel.findById(id).lean();
   if (!doc) notFound();
 
   return (
-    <AdminShell name={session?.name ?? "Admin"} title="Edit event">
+    <AdminShell {...ctx} title="Edit event" collapsedRail>
       <EventForm
         id={id}
         initial={{

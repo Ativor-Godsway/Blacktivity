@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 import dbConnect from "@/lib/db";
 import Article from "@/models/Article";
-import { getSession } from "@/lib/session";
+import { getAdminContext } from "@/lib/admin-context";
 import AdminShell from "@/components/admin/AdminShell";
 import ArticleForm from "@/components/admin/ArticleForm";
 
@@ -18,14 +18,19 @@ export default async function EditArticlePage({
   const { id } = await params;
   if (!isValidObjectId(id)) notFound();
 
-  const session = await getSession();
+  const ctx = await getAdminContext();
 
   await dbConnect();
   const doc = await Article.findById(id).lean();
   if (!doc) notFound();
 
   return (
-    <AdminShell name={session?.name ?? "Admin"} title="Edit article">
+    <AdminShell
+      {...ctx}
+      title="Edit article"
+      subtitle="Autosaved locally as you type."
+      collapsedRail
+    >
       <ArticleForm
         id={id}
         initialStatus={doc.status === "published" ? "published" : "draft"}
