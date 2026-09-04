@@ -24,11 +24,10 @@ export function FeaturedArticles({ articles }: { articles: ArticleDTO[] }) {
       <div className="mx-auto mt-12 max-w-[1600px] px-(--gutter)">
         <div className="grid grid-cols-1 border-t border-l border-rule sm:grid-cols-2 lg:grid-cols-3">
           {articles.slice(0, 3).map((article) => (
-            <ArticleCell
-              key={article.id}
-              article={article}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
+            // No `sizes` override: this row and the /articles grid are the
+            // same 1/2/3-column grid in the same 1600px container, so the
+            // cell's own default already describes both.
+            <ArticleCell key={article.id} article={article} />
           ))}
         </div>
 

@@ -25,7 +25,12 @@ export function CategoryPill({ children }: { children: React.ReactNode }) {
 export function ArticleCell({
   article,
   className,
-  sizes = "(max-width: 640px) 46vw, (max-width: 1024px) 23vw, 15vw",
+  // The image fills the cell's content width, so `sizes` is the CELL width
+  // minus its padding — not a fraction of it. The grid is 1/2/3 columns inside
+  // a 1600px container, which caps a cell's content at ~470px however wide the
+  // monitor is; without that last clause a 3440px screen would request a
+  // 1000px+ file for a 470px box.
+  sizes = "(max-width: 640px) 92vw, (max-width: 1024px) 46vw, (max-width: 1728px) 31vw, 480px",
 }: {
   article: ArticleDTO;
   className?: string;
@@ -59,13 +64,15 @@ export function ArticleCell({
           height={article.coverImage.height}
           blurDataURL={article.coverImage.blurDataURL}
           sizes={sizes}
-          quality={70}
+          quality={75}
           // Grid cells rest grayscale and come to colour on hovering the CELL,
           // not on scroll-into-view — in a table, the hover is the event.
           colorOnView={false}
-          // A plate accompanying the text, not the cell's subject: the image
-          // takes a fraction of the cell width rather than its full measure.
-          className="mt-6 aspect-4/5 w-[46%] min-w-[120px]"
+          // FULL CELL WIDTH. A fractional width (this was 46%) leaves dead
+          // space down the right of every cell and breaks the grid's rhythm —
+          // the cells are all the same width, so a ranged-left plate inside one
+          // reads as a mistake rather than as a proportion.
+          className="mt-6 aspect-4/5 w-full"
         />
 
         {/* Satoshi Medium, not Zodiak — a high-contrast display serif falls

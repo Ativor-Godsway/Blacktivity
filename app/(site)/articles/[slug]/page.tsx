@@ -8,6 +8,7 @@ import ActionLink from "@/components/site/ActionLink";
 import ScrollProgress from "@/components/site/ScrollProgress";
 import ShareRow from "@/components/site/ShareRow";
 import TiptapContent from "@/lib/tiptap-render";
+import { splitOpening } from "@/lib/split-opening";
 import { getArticleBySlug, getAllArticleSlugs, getRelatedArticles } from "@/lib/queries";
 import { formatDateMono, absoluteUrl } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
@@ -68,6 +69,8 @@ export default async function ArticlePage({
   if (!article) notFound();
 
   const related = await getRelatedArticles(article, 3);
+  // The paragraphs that sit beside the cover, and everything after them.
+  const { opening, body } = splitOpening(article.content);
   const url = absoluteUrl(`/articles/${article.slug}`);
 
   const jsonLd = {
@@ -132,34 +135,36 @@ export default async function ArticlePage({
         </header>
 
         {/*
-          Cover at 4:5, matching the grid cards and the OG image, capped at
-          780px and ranged left in the editorial grid — type dominates,
-          photography is subordinate.
+          THE OPENING BLOCK — cover left, first paragraphs right, meta in the
+          margin. Below it, the body continues at the normal centred measure.
 
-          It used to be full-bleed at 100vw inside a 21/9 box, which forced a
-          portrait source through object-cover into a narrow horizontal band —
-          the subject's head was cropped off above the top edge. Full bleed also
-          served an enormous file on a wide monitor, working against the LCP
-          work. The focal point set in the admin decides what survives.
+          This is a two-column grid, NOT a float or a shape-outside wrap. A
+          float would put the whole article in one flow around the image, which
+          reflows unpredictably at intermediate widths and strands single lines
+          in the narrow gap beside the image's bottom edge. Two cells of one
+          grid row cannot overlap, and the row takes the height of the taller,
+          so a mis-estimated split costs white space and nothing else.
+
+          Cover geometry, unchanged: 4:5 matching the grid cards and the OG
+          image. It used to be full-bleed at 100vw inside a 21/9 box, which
+          forced a portrait source through object-cover into a narrow band and
+          cropped the subject's head off. The focal point set in the admin
+          decides what survives.
+
+          On mobile this is a single column and the DOM order — image, opening,
+          body — is exactly the stack it was before.
         */}
-        <div className="w-full max-w-[780px] px-(--gutter)">
-          <RevealImage
-            src={article.coverImage.url}
-            alt={article.coverImage.alt || article.title}
-            fill
-            blurDataURL={article.coverImage.blurDataURL}
-            focalX={article.coverImage.focalX}
-            focalY={article.coverImage.focalY}
-            sizes="(max-width: 768px) 92vw, 780px"
-            priority
-            className="aspect-4/5 w-full"
-          />
-        </div>
-
         <div className="mx-auto max-w-[1600px] px-(--gutter)">
-          <div className="grid grid-cols-4 gap-x-(--gutter) py-20 md:grid-cols-12">
+          {/* `items-start`: a grid stretches its cells by default, so the text
+              column would be exactly the image's height whatever it contained,
+              and the remainder below would start after that phantom height
+              rather than after the last line. */}
+          <div className="grid grid-cols-4 items-start gap-x-(--gutter) md:grid-cols-12">
             {/* Hanging mono metadata in the margin. */}
-            <aside className="col-span-4 mb-10 md:col-span-2 md:mb-0">
+            {/* `order-2` on mobile keeps the stack as it was: cover, then the
+                edition and tags, then the text. In source order the aside comes
+                first because at md+ it is the left-hand margin column. */}
+            <aside className="order-2 col-span-4 mt-10 mb-0 md:order-none md:col-span-2 md:mt-0">
               <MonoLabel dim className="block">
                 {SITE.edition}
               </MonoLabel>
@@ -174,8 +179,53 @@ export default async function ArticlePage({
               ) : null}
             </aside>
 
-            <div className="prose-editorial dropcap col-span-4 md:col-span-8 md:col-start-4">
-              <TiptapContent content={article.content} />
+            <div className="order-1 col-span-4 md:order-none md:col-span-4 md:col-start-4">
+              <RevealImage
+                src={article.coverImage.url}
+                alt={article.coverImage.alt || article.title}
+                fill
+                blurDataURL={article.coverImage.blurDataURL}
+                focalX={article.coverImage.focalX}
+                focalY={article.coverImage.focalY}
+                sizes="(max-width: 768px) 92vw, 440px"
+                priority
+                className="aspect-4/5 w-full"
+              />
+            </div>
+
+            {opening ? (
+              // Top-aligned with the image: the first paragraph's top margin is
+              // removed so the two columns start on the same line.
+              <div className="prose-editorial prose-opening dropcap order-3 col-span-4 mt-10 [&>*:first-child]:mt-0 md:order-none md:col-span-4 md:col-start-9 md:mt-0">
+                <TiptapContent content={opening} />
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-[1600px] px-(--gutter)">
+          <div className="grid grid-cols-4 gap-x-(--gutter) pb-20 md:grid-cols-12">
+            {/*
+              The remainder, at the standard measure.
+
+              THE SEAM. These are two blocks, so their margins sit end to end
+              instead of collapsing, and on mobile — where the columns stack
+              into one flow — the join would show as a double space. The fix is
+              to drop the OPENING block's last bottom margin (above) and let
+              this block's first element keep its own top margin, so whatever
+              element lands here gets the gap it would have had in one flow.
+
+              Doing it the other way round — zeroing the first margin here —
+              looks identical while the body happens to start with a paragraph
+              and is wrong the moment it starts with a heading, which in this
+              library is nearly always: an h2 carries a 2.2em top margin and
+              would have been given a paragraph's 1.4em.
+
+              `dropcap` is deliberately absent: it belongs to the article's
+              first paragraph, which is up in the opening block.
+            */}
+            <div className="prose-editorial col-span-4 md:col-span-8 md:col-start-4">
+              {body ? <TiptapContent content={body} /> : null}
               <div className="mt-16 not-prose">
                 <ShareRow url={url} title={article.title} />
               </div>

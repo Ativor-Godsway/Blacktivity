@@ -244,6 +244,24 @@ body {
   margin-top: 0.75rem;
 }
 
+/*
+ * THE ARTICLE OPENING BLOCK'S LAST MARGIN.
+ *
+ * The opening paragraphs and the rest of the body are two separate elements —
+ * see the article page — so their margins sit end to end instead of collapsing
+ * as they would in one flow. Dropping the last bottom margin here lets the next
+ * block's own top margin be the whole gap, which is what a single flow would
+ * have produced.
+ *
+ * This lives in globals.css rather than as a Tailwind `[&>*:last-child]:mb-0`
+ * variant because that utility and `.prose-editorial p` have identical
+ * specificity, and this file is emitted after the utilities layer, so the
+ * paragraph rule won and the margins stacked anyway. `npm run check:opening`
+ * measures the join against the following element's computed margin and fails
+ * if that happens again.
+ */
+.prose-opening > :last-child { margin-bottom: 0; }
+
 .dropcap::first-letter {
   font-family: var(--font-display);
   float: left;

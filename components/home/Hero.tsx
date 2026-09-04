@@ -1,15 +1,15 @@
 import MonoLabel from "@/components/ui/MonoLabel";
 import Wordmark from "@/components/brand/Wordmark";
-import AdinkraMark from "./AdinkraMark";
 import { SITE } from "@/lib/constants";
 
 /**
  * THE HERO.
  *
- * Two elements: the wordmark, and an animated Adinkra mark right of centre.
- * The magazine cover stack it replaced carried cycling state, scroll wiring and
- * drag handling; none of that survives, so this is a server component with no
- * client JavaScript beyond the mark's own draw-on.
+ * Type alone: the wordmark, the edition line, and the statement. The magazine
+ * cover stack this replaced carried cycling state, scroll wiring and drag
+ * handling, and the Adinkra mark that replaced THAT has now been removed too
+ * (see below), so this is a server component that ships no client JavaScript
+ * at all.
  *
  * WORDMARK GEOMETRY — read before changing either number.
  *
@@ -48,10 +48,17 @@ export function Hero() {
         </div>
       </div>
 
-      {/* The mark, right of centre and vertically centred. */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-[58%] md:left-[60%]">
-        <AdinkraMark className="w-[clamp(120px,17vw,210px)] text-ink" />
-      </div>
+      {/*
+        An animated Adinkra mark sat here, right of centre and vertically
+        centred. It has been taken out of the composition, not out of the tree:
+        the component is `components/home/AdinkraMark.tsx` and its path data is
+        `data/adinkra.ts`, both intact, both still compiling, and the
+        reduced-motion handling and SVG config live with the component.
+
+        There is deliberately no flag guarding this. An unused boolean is a
+        thing that gets flipped by accident; a component nobody imports states
+        its own status.
+      */}
 
       {/*
         The wordmark, ranged left in the SAME editorial grid as every other

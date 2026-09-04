@@ -27,8 +27,11 @@
     "audit:text": "node scripts/audit-text.mjs",
     "check:sparks": "node scripts/visual/spark-check.mjs",
     "check:text": "node scripts/visual/text-copy-check.mjs",
-    "audit:all": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run audit:text && npm run audit:navigation && npm run test:render && npm run check:wordmark && npm run check:text && npm run check:raf",
-    "audit:navigation": "node scripts/audit-navigation.mjs"
+    "audit:all": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run audit:text && npm run audit:navigation && npm run test:render && npm run check:wordmark && npm run check:text && npm run check:raf && npm run check:cards && npm run check:opening",
+    "audit:navigation": "node scripts/audit-navigation.mjs",
+    "check:opening": "node scripts/visual/check-opening.mjs",
+    "check:cards": "node scripts/visual/check-cards.mjs",
+    "check:console": "node scripts/visual/console-sweep.mjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",
