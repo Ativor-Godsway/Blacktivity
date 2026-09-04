@@ -27,7 +27,10 @@ export function Hero() {
       aria-label="Blacktivity"
       className="relative flex h-[100svh] flex-col overflow-hidden"
     >
-      <div className="pointer-events-none absolute inset-0 z-20 p-(--gutter)">
+      {/* All hero micro-type shares the wordmark's grid, so nothing is
+          stranded against the viewport edge on a wide screen. */}
+      <div className="pointer-events-none absolute inset-0 z-20">
+        <div className="mx-auto h-full w-full max-w-[1600px] px-(--gutter) py-(--gutter)">
         <div className="hidden justify-end pt-8 md:flex md:pt-9">
           <MonoLabel className="text-right leading-relaxed">
             {SITE.edition}
@@ -36,11 +39,12 @@ export function Hero() {
           </MonoLabel>
         </div>
 
-        <div className="absolute top-[38%] left-(--gutter) hidden max-w-[22ch] md:block">
+        <div className="absolute top-[38%] hidden max-w-[22ch] md:block">
           <p className="text-fg-muted">
             A creative studio and publication in Accra, documenting Black
             creativity.
           </p>
+        </div>
         </div>
       </div>
 
@@ -49,9 +53,18 @@ export function Hero() {
         <AdinkraMark className="w-[clamp(120px,17vw,210px)] text-ink" />
       </div>
 
-      {/* The wordmark, ranged left, sitting on the fold. */}
-      <div className="mt-auto w-full px-(--gutter) pb-[6vh]">
-        <Wordmark className="w-[92vw] max-w-[1800px] text-ink" title={SITE.name} />
+      {/*
+        The wordmark, ranged left in the SAME editorial grid as every other
+        section — max-w-[1600px] centred, gutter padding — rather than hugging
+        the viewport edge.
+
+        It used to be 92vw pinned to a fixed 32px gutter, which on a 2560px
+        screen left the glyph 32px from the edge: under 2% of the viewport, and
+        visually stranded against it while a thousand pixels sat empty on the
+        right. `npm run check:wordmark` asserts real clearance on every edge.
+      */}
+      <div className="mx-auto mt-auto w-full max-w-[1600px] px-(--gutter) pb-[6vh]">
+        <Wordmark className="w-full text-ink" title={SITE.name} />
       </div>
     </section>
   );

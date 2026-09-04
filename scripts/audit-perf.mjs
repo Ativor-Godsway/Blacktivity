@@ -72,4 +72,79 @@ for (const [label, re] of RULES) {
   }
 }
 
+/**
+ * PHASE 2 — the rendered page, not the source.
+ *
+ * Everything above greps source text, which is a proxy: it cannot see a
+ * property injected at runtime by a library, an inline style written by
+ * Motion, or a rule from a dependency's own stylesheet. The property actually
+ * wanted is "no element on the page uses these", so when a base URL is given
+ * the same rules are checked against computed styles.
+ *
+ *   AUDIT_BASE_URL=http://localhost:3111 node scripts/audit-perf.mjs
+ */
+const base = process.env.AUDIT_BASE_URL;
+if (!base) {
+  console.log("  --  set AUDIT_BASE_URL to also check computed styles on the rendered pages");
+} else {
+  const puppeteer = (await import("puppeteer-core")).default;
+  const browser = await puppeteer.launch({
+    executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    headless: "new", args: ["--no-sandbox", "--disable-gpu"],
+  });
+
+  const PAGES = ["/", "/articles", "/articles/tailors-of-makola", "/events"];
+  const runtimeHits = [];
+
+  for (const path of PAGES) {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1440, height: 900 });
+    await page.goto(base + path, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await new Promise((r) => setTimeout(r, 2000));
+    // Scroll so anything mounted on scroll has run.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+    await new Promise((r) => setTimeout(r, 900));
+
+    const found = await page.evaluate(() => {
+      const bad = [];
+      for (const el of document.querySelectorAll("body *")) {
+        const cs = getComputedStyle(el);
+        const id = el.tagName.toLowerCase() + "." + String(el.className || "").slice(0, 34);
+
+        if (cs.mixBlendMode && cs.mixBlendMode !== "normal") bad.push(`mix-blend-mode: ${cs.mixBlendMode} on ${id}`);
+        if (cs.backdropFilter && cs.backdropFilter !== "none") bad.push(`backdrop-filter on ${id}`);
+        if (cs.willChange && cs.willChange !== "auto") bad.push(`will-change: ${cs.willChange} on ${id}`);
+        if (/filter/.test(cs.transitionProperty)) bad.push(`transitions filter on ${id}`);
+        /**
+         * `fill` is the CSS initial value and computes on EVERY element, so
+         * checking it broadly flags every div, and then every canvas and svg,
+         * none of which are being distorted. Only a raster <img>/<video> is
+         * actually stretched by it.
+         *
+         * scripts/visual/image-audit.mjs is the DIRECT measurement — it
+         * compares each image's rendered box ratio against its intrinsic ratio
+         * — and this is only the cheap guard.
+         */
+        if (cs.objectFit === "fill" && /^(img|video)$/.test(el.tagName.toLowerCase())) {
+          bad.push(`object-fit: fill on ${id}`);
+        }
+      }
+      return bad;
+    });
+
+    for (const f of found) runtimeHits.push(`${path}: ${f}`);
+    await page.close();
+  }
+
+  await browser.close();
+
+  if (runtimeHits.length) {
+    failed = 1;
+    console.error("FAIL  banned property found on a rendered page");
+    for (const h of [...new Set(runtimeHits)].slice(0, 10)) console.error("        " + h);
+  } else {
+    console.log(`  ok  computed styles clean across ${PAGES.length} rendered pages`);
+  }
+}
+
 process.exit(failed);

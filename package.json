@@ -26,7 +26,9 @@
     "check:raf": "node scripts/visual/raf-check.mjs",
     "audit:text": "node scripts/audit-text.mjs",
     "check:sparks": "node scripts/visual/spark-check.mjs",
-    "check:transition": "node scripts/visual/transition-check.mjs"
+    "check:transition": "node scripts/visual/transition-check.mjs",
+    "check:text": "node scripts/visual/text-copy-check.mjs",
+    "audit:all": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run audit:text && npm run test:render && npm run check:wordmark && npm run check:text && npm run check:raf"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",

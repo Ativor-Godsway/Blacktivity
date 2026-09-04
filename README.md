@@ -410,6 +410,26 @@ Also enforced, and checked by the greps in `npm run audit:perf`:
   reads a MotionValue and sets state only when the derived card index actually
   changes.
 
+## Checks must assert the property, not a proxy
+
+Three checks on this project passed while the thing they guarded was broken.
+Each encoded something that merely correlated with the property wanted:
+
+| check | asserted | should have asserted |
+|---|---|---|
+| `check:wordmark` | zero pixels clipped | a real **margin** inside each edge — flush is the failing state, because the viewBox is tight to the glyph |
+| `check:raf` | an absolute callback count | a **delta against a known-idle baseline** — 180/3s is Lenis doing its job, and the check blamed ClickSpark |
+| `check:text` | `getClientRects().length` for line count | **distinct vertical positions** of the word spans — a block element returns one rect however many lines it renders |
+
+`audit:perf` had the same shape of gap: it grepped source text, which cannot see
+a property injected at runtime by a library or written inline by Motion. It now
+also reads **computed styles on four rendered pages**, and that phase is proven
+to catch an injected `mix-blend-mode` a grep never would.
+
+The rule: **a check that encodes the wrong invariant is worse than no check**,
+because it converts an open question into false confidence. Every check here has
+a negative test — it is run against a deliberately broken state and must fail.
+
 ## Readable at rest
 
 **No content may be invisible in its resting state.** Every animated text block
