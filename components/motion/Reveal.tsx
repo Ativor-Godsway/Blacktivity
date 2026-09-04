@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { ElementType, ReactNode } from "react";
 import { DURATION, EASE_EXPO, VIEWPORT } from "./motion-config";
@@ -22,10 +23,18 @@ export function Reveal({
   as?: ElementType;
 }) {
   const reduced = useReducedMotion();
+  const [ready, setReady] = useState(false);
   const Tag = as;
   const MotionTag = motion(Tag as ElementType);
 
-  if (reduced) return <Tag className={className}>{children}</Tag>;
+  useEffect(() => setReady(true), []);
+
+  // Motion writes `initial` into the server markup, so an `opacity: 0` start
+  // means the content is invisible to anything that does not run JavaScript —
+  // a failed script, a bot, a reader with it turned off. The animated element
+  // is therefore only mounted after hydration; the server sends the finished
+  // state. `npm run audit:text` enforces this.
+  if (reduced || !ready) return <Tag className={className}>{children}</Tag>;
 
   return (
     <MotionTag

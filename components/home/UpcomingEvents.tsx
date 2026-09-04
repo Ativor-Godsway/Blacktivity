@@ -1,4 +1,4 @@
-import DrawLink from "@/components/site/DrawLink";
+import ActionLink from "@/components/site/ActionLink";
 import EventCard from "@/components/site/EventCard";
 import MonoLabel from "@/components/ui/MonoLabel";
 import type { EventDTO } from "@/lib/types";
@@ -12,7 +12,7 @@ export function UpcomingEvents({ events }: { events: EventDTO[] }) {
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <div className="flex items-baseline justify-between border-b border-rule pb-4">
           <MonoLabel>Upcoming</MonoLabel>
-          <DrawLink href="/events">All events ↗</DrawLink>
+          <ActionLink href="/events">All events</ActionLink>
         </div>
       </div>
 

@@ -1,9 +1,10 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import RevealImage from "@/components/ui/RevealImage";
 import MonoLabel from "@/components/ui/MonoLabel";
 import ArticleCell from "@/components/site/ArticleCell";
-import DrawLink from "@/components/site/DrawLink";
+import ActionLink from "@/components/site/ActionLink";
 import ScrollProgress from "@/components/site/ScrollProgress";
 import ShareRow from "@/components/site/ShareRow";
 import TiptapContent from "@/lib/tiptap-render";
@@ -92,7 +93,21 @@ export default async function ArticlePage({
       <article>
         <header className="px-(--gutter) pt-16 pb-12 md:pt-24">
           <div className="mx-auto max-w-[1600px]">
-            <div className="flex items-baseline justify-between border-b border-rule pb-4">
+            {/* A persistent way out. An article should never be a dead end. */}
+            <Link
+              href="/articles"
+              className="mono group inline-flex items-center gap-2 text-fg-muted transition-colors hover:text-fg focus-visible:text-fg"
+            >
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-300 ease-[var(--ease-expo)] group-hover:-translate-x-1 group-focus-visible:-translate-x-1"
+              >
+                ←
+              </span>
+              All articles
+            </Link>
+
+            <div className="mt-8 flex items-baseline justify-between border-b border-rule pb-4">
               <MonoLabel>{article.category}</MonoLabel>
               <MonoLabel dim>
                 {article.publishedAt ? formatDateMono(article.publishedAt) : ""}
@@ -173,7 +188,6 @@ export default async function ArticlePage({
         <section className="mx-auto max-w-[1600px] px-(--gutter) pb-8">
           <div className="flex items-baseline justify-between gap-6">
             <MonoLabel>Keep reading</MonoLabel>
-            <DrawLink href="/articles">All articles →</DrawLink>
           </div>
 
           <div className="mt-8 grid grid-cols-1 border-t border-l border-rule sm:grid-cols-2 lg:grid-cols-3">
@@ -183,6 +197,16 @@ export default async function ArticlePage({
           </div>
         </section>
       ) : null}
+
+      {/* The route onward, present whether or not there are related pieces. */}
+      <section className="mx-auto max-w-[1600px] px-(--gutter) pb-24">
+        <div className="flex flex-wrap items-center gap-3 border-t border-rule pt-10">
+          <ActionLink href="/articles" arrow="←" back>
+            Back to all articles
+          </ActionLink>
+          <ActionLink href="/">Home</ActionLink>
+        </div>
+      </section>
     </>
   );
 }

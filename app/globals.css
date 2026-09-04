@@ -267,6 +267,39 @@ body {
   animation: wordmark-rise 900ms var(--ease-expo) 60ms both;
 }
 
+/* --- article reveal ------------------------------------------------------
+   View-transition choreography. Under 700ms end to end: the outgoing index
+   fades and lifts slightly, the incoming article rises underneath.
+
+   Transform and opacity only, and driven entirely by the browser's own
+   snapshot compositing — no JavaScript runs per frame.                      */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: article-out 260ms var(--ease-expo) both;
+  }
+  ::view-transition-new(root) {
+    animation: article-in 420ms var(--ease-expo) 120ms both;
+  }
+}
+
+/* An explicit reduced-motion stop: instant navigation, no cross-fade at all. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes article-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-1.5vh); }
+}
+@keyframes article-in {
+  from { opacity: 0; transform: translateY(2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* --- the hero mark -------------------------------------------------------
    Draw-on via stroke-dashoffset, then a slow ambient rotation. Transform and
    stroke-dashoffset only; nothing here repaints per frame.

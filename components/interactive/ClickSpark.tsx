@@ -39,9 +39,8 @@ export function ClickSpark({
       const ctx = canvas?.getContext("2d");
       if (!canvas || !ctx) return;
 
+      // The context is pre-scaled by dpr, so every unit below is a CSS pixel.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const dpr = window.devicePixelRatio || 1;
       sparks.current = sparks.current.filter((s) => now - s.start < duration);
 
       for (const s of sparks.current) {
@@ -52,15 +51,12 @@ export function ClickSpark({
 
         ctx.globalAlpha = 1 - t;
         ctx.strokeStyle = sparkColor;
-        ctx.lineWidth = 1.5 * dpr;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(
-          (s.x + Math.cos(s.angle) * dist) * dpr,
-          (s.y + Math.sin(s.angle) * dist) * dpr,
-        );
+        ctx.moveTo(s.x + Math.cos(s.angle) * dist, s.y + Math.sin(s.angle) * dist);
         ctx.lineTo(
-          (s.x + Math.cos(s.angle) * (dist + len)) * dpr,
-          (s.y + Math.sin(s.angle) * (dist + len)) * dpr,
+          s.x + Math.cos(s.angle) * (dist + len),
+          s.y + Math.sin(s.angle) * (dist + len),
         );
         ctx.stroke();
       }
@@ -83,10 +79,31 @@ export function ClickSpark({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    /**
+     * The canvas is a fixed, untransformed, viewport-sized overlay, so
+     * `e.clientX/clientY` ARE its coordinates — there is deliberately no
+     * getBoundingClientRect anywhere in this component. A rect is measured
+     * after any ancestor transform while the backing store is not, which is
+     * what makes sparks drift under a transformed wrapper.
+     *
+     * Scaling the context by dpr once means everything drawn below is in CSS
+     * pixels and matches clientX/clientY directly.
+     */
+    let mq: MediaQueryList | null = null;
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      const ctx = canvas.getContext("2d");
+      if (ctx) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(dpr, dpr); }
+
+      // Zooming changes devicePixelRatio without firing `resize` on every
+      // platform, so re-arm a listener bound to the current ratio.
+      mq?.removeEventListener("change", resize);
+      mq = window.matchMedia(`(resolution: ${dpr}dppx)`);
+      mq.addEventListener("change", resize);
     };
     resize();
     window.addEventListener("resize", resize);
@@ -108,6 +125,7 @@ export function ClickSpark({
 
     return () => {
       window.removeEventListener("resize", resize);
+      mq?.removeEventListener("change", resize);
       window.removeEventListener("click", onClick);
       if (raf.current !== null) cancelAnimationFrame(raf.current);
       raf.current = null;
@@ -121,7 +139,7 @@ export function ClickSpark({
       aria-hidden="true"
       // Fixed and pointer-events-none so it can never affect the page's own
       // height or intercept a click.
-      className="pointer-events-none fixed inset-0 z-[70] h-screen w-screen"
+      className="pointer-events-none fixed inset-0 z-[70]"
     />
   );
 }

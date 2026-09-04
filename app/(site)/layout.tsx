@@ -1,13 +1,13 @@
 import { Suspense, type ReactNode } from "react";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
-import PageTransition from "@/components/motion/PageTransition";
 import { HairlineGridFixed } from "@/components/ui/HairlineGrid";
 import Analytics from "@/components/Analytics";
 import WebVitals from "@/components/WebVitals";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import Grain from "@/components/ui/Grain";
 import ClickSpark from "@/components/interactive/ClickSpark";
+import ViewTransitions from "@/components/motion/ViewTransitions";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,6 +16,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       <Grain />
       {/* Ink on the paper ground — never a hue. */}
       <ClickSpark sparkColor="#0B0B0B" />
+      <ViewTransitions />
       <SmoothScroll />
       <HairlineGridFixed />
       <Suspense fallback={null}>
@@ -24,11 +25,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       </Suspense>
       <div className="relative z-10 flex min-h-dvh flex-col">
         <Header />
-        <PageTransition>
           <main id="main" className="flex-1">
             {children}
           </main>
-        </PageTransition>
         <Footer />
       </div>
     </>

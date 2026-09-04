@@ -82,15 +82,21 @@ export function TextType({
   if (reduced) return <Tag className={className}>{text}</Tag>;
 
   return (
-    <Tag className={cn("relative inline-block", className)}>
-      {/* Reserves the exact final box — no reflow as characters arrive. */}
+    // ONE text node, split in place: the characters already typed, then the
+    // remainder rendered invisibly. The full string is therefore always present
+    // — the box never reflows as characters arrive, a selection copies the line
+    // exactly once, and with JavaScript disabled the whole line is simply
+    // visible. An earlier version kept a separate hidden copy for the box and a
+    // third for screen readers, which is what made copying return it twice.
+    <Tag className={cn("inline-block", className)}>
+      {text.slice(0, shown)}
+      {typing ? (
+        <span aria-hidden="true" className="animate-pulse">
+          |
+        </span>
+      ) : null}
       <span aria-hidden="true" className="invisible">
-        {text}
-      </span>
-      <span className="sr-only">{text}</span>
-      <span aria-hidden="true" className="absolute inset-0">
-        {text.slice(0, shown)}
-        {typing ? <span className="animate-pulse">|</span> : null}
+        {text.slice(shown)}
       </span>
     </Tag>
   );

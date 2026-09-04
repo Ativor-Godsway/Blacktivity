@@ -8,28 +8,28 @@ import { EASE_EXPO } from "./motion-config";
  * Word-by-word reveal for SHORT DISPLAY TEXT ONLY — section headings, the
  * About lead line, the submission CTA. Never article body copy.
  *
- * BUILT ON MOTION, NOT GSAP + ScrollTrigger. Motion is already in the bundle
- * and already shares the site's single frame loop with Lenis, which removes
- * three of the four defects in the proposed component outright:
+ * THE RESTING STATE IS FULLY READABLE. This is the rule the component exists to
+ * respect, and the one it previously broke twice:
  *
- *  - No `filter: blur()` anywhere. Animated filters are not
- *    compositor-accelerated and `audit:perf` forbids them; the audit does not
- *    get relaxed for a component. This animates transform and opacity only.
- *  - No global teardown. The proposed cleanup called
- *    `ScrollTrigger.getAll().forEach(t => t.kill())`, which destroys every
- *    other component's triggers too. There is no shared registry here.
- *  - No second rAF and no Lenis desync, because there is no second library.
+ *   - `baseOpacity: 0.1` + `blur(10px)` leaves text invisible if the trigger
+ *     never advances.
+ *   - Translating a word 110% inside an `overflow-hidden` mask is worse: the
+ *     word is *entirely outside its own box* until the animation runs. If the
+ *     observer never fires, nothing is on screen at all — which is exactly what
+ *     happened, and the text could still be selected and copied.
  *
- * The fourth defect is fixed twice over. `baseOpacity: 0.1` leaves text
- * unreadable if the trigger never fires — a JS failure, a scroll-container
- * mismatch, a bot — and Lighthouse scores the resting state, so a faded start
- * is a real contrast failure, not a theoretical one. So: OPACITY IS NEVER
- * ANIMATED HERE. Each word is masked by an overflow-hidden box and translated
- * into place at full opacity, which is the same vocabulary the display
- * headings already use. On top of that the animated spans mount only after
- * hydration, so the server sends the finished sentence.
+ * So the animation is a SMALL TRANSLATE, from visible to visible: 0.22em, no
+ * mask, no opacity change, no blur. If the observer never runs, the reader sees
+ * the sentence sitting a fraction low. That is the whole failure mode.
  *
- * Takes a string, deliberately: rendered rich content is not valid input.
+ * THE TEXT EXISTS ONCE IN THE DOM. An `aria-label` on the container carries the
+ * accessible name and the word spans are `aria-hidden`, so screen readers get
+ * one clean string and a selection copies the sentence once. The previous
+ * version rendered a visually-hidden copy alongside the animated one, so
+ * copying returned everything twice.
+ *
+ * Spaces live BETWEEN the word wrappers, in normal flow — never inside them,
+ * where an inline-block would swallow them and run the words together.
  */
 export function ScrollReveal({
   text,
@@ -48,31 +48,29 @@ export function ScrollReveal({
 
   useEffect(() => setReady(true), []);
 
-  // The server — and any client without JS — gets the finished sentence.
+  // The server — and any client without JS — gets the plain sentence.
   if (reduced || !ready) return <Tag className={className}>{text}</Tag>;
 
   return (
+    // No aria-label and nothing aria-hidden: the word spans are the real text,
+    // and adjacent inline spans are announced as continuous prose. An
+    // aria-label here would also be invalid on a bare <span>, which has no
+    // implicit role.
     <Tag className={className}>
-      {/* One accessible copy of the whole line; the animated words are hidden
-          from assistive technology so it is not read one word at a time. */}
-      <span className="sr-only">{text}</span>
-
-      <span aria-hidden="true">
-        {words.map((word, i) => (
-          <span key={`${word}-${i}`} className="inline-block overflow-hidden align-bottom">
-            <motion.span
-              className="inline-block"
-              initial={{ y: "110%" }}
-              whileInView={{ y: "0%" }}
-              viewport={{ once: true, margin: "-12% 0px -12% 0px" }}
-              transition={{ duration: 0.55, ease: EASE_EXPO, delay: i * stagger }}
-            >
-              {word}
-            </motion.span>
-            {i < words.length - 1 ? " " : null}
-          </span>
-        ))}
-      </span>
+      {words.map((word, i) => (
+        <motion.span
+          key={`${word}-${i}`}
+          className="inline-block"
+          initial={{ y: "0.22em" }}
+          whileInView={{ y: "0em" }}
+          viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+          transition={{ duration: 0.5, ease: EASE_EXPO, delay: i * stagger }}
+        >
+          {word}
+          {/* The space is outside the animated box, so it always renders. */}
+          {i < words.length - 1 ? " " : null}
+        </motion.span>
+      ))}
     </Tag>
   );
 }

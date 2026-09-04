@@ -1,7 +1,7 @@
 import ScrollReveal from "@/components/motion/ScrollReveal";
 import TextType from "@/components/motion/TextType";
 import MonoLabel from "@/components/ui/MonoLabel";
-import DrawLink from "@/components/site/DrawLink";
+import ActionLink from "@/components/site/ActionLink";
 
 /**
  * Full-bleed black. Its job is rhythm and orientation, not exposition — the
@@ -32,7 +32,7 @@ export function AboutSection() {
         </p>
 
         <div className="mt-12">
-          <DrawLink href="/about">More about us →</DrawLink>
+          <ActionLink href="/about">More about us</ActionLink>
         </div>
       </div>
     </section>

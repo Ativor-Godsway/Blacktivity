@@ -1,6 +1,6 @@
 import ScrollReveal from "@/components/motion/ScrollReveal";
 import ArticleCell from "@/components/site/ArticleCell";
-import DrawLink from "@/components/site/DrawLink";
+import ActionLink from "@/components/site/ActionLink";
 import type { ArticleDTO } from "@/lib/types";
 
 /**
@@ -33,7 +33,7 @@ export function FeaturedArticles({ articles }: { articles: ArticleDTO[] }) {
         </div>
 
         <div className="mt-10">
-          <DrawLink href="/articles">See all articles →</DrawLink>
+          <ActionLink href="/articles">See all articles</ActionLink>
         </div>
       </div>
     </section>

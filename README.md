@@ -410,6 +410,35 @@ Also enforced, and checked by the greps in `npm run audit:perf`:
   reads a MotionValue and sets state only when the derived card index actually
   changes.
 
+## Readable at rest
+
+**No content may be invisible in its resting state.** Every animated text block
+must read correctly if JavaScript fails, if an observer never fires, or if a bot
+never scrolls. `npm run audit:text` enforces it across five pages, with JS on and
+off: nothing may compute below 0.5 effective opacity, nothing may sit translated
+outside an `overflow-hidden` ancestor, and no string may render twice.
+
+This has been broken three separate ways, which is why it is now a check rather
+than a convention:
+
+- `PageTransition` server-rendered a full-viewport black panel over content at
+  `opacity: 0`.
+- `ScrollReveal` translated each word 110% inside a mask, so the words sat
+  entirely outside their own boxes — selectable, copyable, invisible.
+- `Reveal` and `DisplayHeading` wrote Motion's `initial` (`opacity: 0`, or a
+  masked line) into the server markup.
+
+The rule that came out of it: **Motion writes `initial` into SSR**, so any
+component whose start state is hidden must mount after hydration and let the
+server send the finished content. All four now do.
+
+Animated text also exists **once** in the DOM. A visually-hidden "accessible
+copy" beside an animated one means selecting a heading copies it twice, which is
+what a reader actually reported. `TextType` splits a single string into typed
+and not-yet-typed halves — the box stays reserved because the whole string is
+always present — and `ScrollReveal`'s word spans are the real text, with spaces
+between the spans rather than inside them.
+
 ## Interactive components
 
 Three are in use; the fourth was rejected.
