@@ -38,9 +38,19 @@ const fail = (msg, rows = []) => {
 const publicFiles = globSync("{app,components,lib,data}/**/*.{ts,tsx,css}")
   .filter((f) => !f.startsWith("app/admin") && !f.startsWith("components/admin"));
 
+/**
+ * Comments are stripped first. Documentation naturally quotes these token
+ * names — the README explaining the leak was itself scanned by Tailwind and
+ * produced one, and a code comment describing the rule should not fail it.
+ */
+const stripComments = (src) =>
+  src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    .replace(/^(\s*)\/\/.*$/gm, (_m, indent) => indent);
+
 const leaks = [];
 for (const f of publicFiles) {
-  const src = readFileSync(f, "utf8");
+  const src = stripComments(readFileSync(f, "utf8"));
   for (const t of ADMIN_TOKENS) if (src.includes(t)) leaks.push(`${f}: ${t}`);
   for (const m of src.matchAll(/\ba-(pill|card|table|chip|btn|input|meta|muted|ink2|num)\b/g)) {
     leaks.push(`${f}: ${m[0]}`);

@@ -116,16 +116,28 @@ export default async function ArticlePage({
           </div>
         </header>
 
-        {/* Cover, full bleed. */}
-        <RevealImage
-          src={article.coverImage.url}
-          alt={article.coverImage.alt || article.title}
-          fill
-          blurDataURL={article.coverImage.blurDataURL}
-          sizes="100vw"
-          priority
-          className="aspect-4/5 w-full md:aspect-21/9"
-        />
+        {/*
+          Cover at a CONSTRAINED 4:5, matching the grid cards and the OG image.
+
+          It used to be full-bleed at 100vw inside a 21/9 box, which forced a
+          portrait source through object-cover into a narrow horizontal band —
+          the subject's head was cropped off above the top edge. Full bleed also
+          served an enormous file on a wide monitor, working against the LCP
+          work. The focal point set in the admin decides what survives.
+        */}
+        <div className="mx-auto w-full max-w-[1100px] px-(--gutter)">
+          <RevealImage
+            src={article.coverImage.url}
+            alt={article.coverImage.alt || article.title}
+            fill
+            blurDataURL={article.coverImage.blurDataURL}
+            focalX={article.coverImage.focalX}
+            focalY={article.coverImage.focalY}
+            sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+            priority
+            className="aspect-4/5 w-full"
+          />
+        </div>
 
         <div className="mx-auto max-w-[1600px] px-(--gutter)">
           <div className="grid grid-cols-4 gap-x-(--gutter) py-20 md:grid-cols-12">

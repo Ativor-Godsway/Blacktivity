@@ -74,6 +74,66 @@ display, so the mark is used in the nav as well as the hero and footer. There
 is no `CREATIVE STUDIO` sub-line in the supplied file, so nothing was stripped;
 the tagline is separate mono text beside the mark.
 
+## Article content and images
+
+**The public renderer must never throw.** `lib/tiptap-render.tsx` validates the
+shape of every node and renders an unrecognised or broken one as nothing. This
+is not defensive decoration: a single image node pasted from Pinterest returned
+**500 on the public article in dev**, and a single structurally malformed node
+**failed the entire production build** —
+`TypeError: a.map is not a function` while prerendering one article, aborting
+the export. Published content is written by a human through an editor; it is
+data, not a contract.
+
+`npm run test:render` renders one fixture per toolbar node type plus fifteen
+deliberately malformed ones and asserts none of them throw. Add a branch to the
+renderer, add a case there.
+
+### Image hosts
+
+`next/image` throws for a hostname absent from `images.remotePatterns`, so the
+allowlist is the crash surface. `lib/image-hosts.ts` is the single source of
+truth and is enforced in three places:
+
+1. the editor rejects a bad paste in front of the author,
+2. the Zod schema rejects it at the API,
+3. the renderer skips it as a backstop for content stored before either.
+
+Keep it in sync with `images.remotePatterns`. Everything uploaded through the
+admin is served from Cloudinary, so the list is deliberately short.
+
+### Uploads
+
+Files go straight from the browser to Cloudinary using a signature minted
+server-side — the API secret never reaches the client and the bytes never pass
+through a lambda. Cloudinary does the resizing and format conversion on
+delivery, so we never upload a resized copy. JPEG, PNG, WebP and AVIF up to
+10MB, checked before a byte is sent.
+
+Inline images accept a file picker, drag-and-drop, or a pasted screenshot, and
+store `width`, `height`, `publicId` and `blurDataURL` on the node. **Alt text is
+required on insert.** Without stored dimensions the article shifts as images
+load, which breaks the zero-CLS criterion.
+
+### Cropping and distortion
+
+Covers are **4:5 in all three places they appear** — article hero, grid card,
+OG image — so the grid never goes ragged.
+
+The hero is **constrained to 1100px, not full-bleed at 100vw**. It used to be
+`100vw` inside a `21/9` box, which pushed a 4:5 portrait through
+`object-fit: cover` into a narrow horizontal band and cut the subject's head
+off, while also serving a much larger file on a wide monitor.
+
+Where a crop is unavoidable it is deliberate: a **focal point** stored on the
+image drives `object-position`. Note that it only moves the axis that actually
+overflows — a landscape source in a portrait box crops horizontally, so
+`focalX` is the live axis there and `focalY` does nothing.
+
+Inline body images are **never cropped**: the stored dimensions set a true
+`aspect-ratio`, `object-fit` is `contain`, and height is capped at `85vh`.
+`object-fit: fill` is banned outright and checked by `npm run audit:perf`.
+
 ## The admin
 
 **The admin has its own palette. The public site does not.**
@@ -92,10 +152,13 @@ set — no public page loads that stylesheet.
 
 Two things learned building it:
 
-- **Tailwind arbitrary values leak.** `border-[var(--admin-rule)]` compiles into
-  the *shared* stylesheet, putting admin token names into the public site's CSS
-  even though they never resolve there. Admin styling uses real classes
-  (`.a-card`, `.a-border`, `.a-pill`) defined in `admin.css` instead.
+- **Tailwind arbitrary values leak.** An arbitrary utility referencing an admin
+  token compiles into the *shared* stylesheet, putting admin token names into
+  the public site's CSS even though they never resolve there. Admin styling uses
+  real classes (`.a-card`, `.a-border`, `.a-pill`) defined in `admin.css`
+  instead. Tailwind also scans markdown, so this very paragraph reintroduced the
+  leak once it named the class — `globals.css` now carries
+  `@source not "../**/*.md"`, and the audit strips comments before scanning.
 - **Grain is public-site brand texture.** It was mounted in the root layout and
   was rendering over the admin's white cards; it now lives in the site layout.
 

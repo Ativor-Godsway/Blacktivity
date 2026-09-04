@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isAllowedImageUrl } from "@/lib/image-hosts";
 import { ARTICLE_CATEGORIES, ARTICLE_STATUSES, DISCIPLINES, SUBMISSION_STATUSES } from "./constants";
 
 const optionalUrl = z
@@ -32,12 +33,21 @@ export const submissionSchema = z.object({
 export type SubmissionInput = z.infer<typeof submissionSchema>;
 
 export const imageSchema = z.object({
-  url: z.string().url(),
+  // Only hosts next/image is configured for — anything else throws on the
+  // public route, which is how a pasted Pinterest URL took an article down.
+  url: z
+    .string()
+    .url()
+    .refine((u) => isAllowedImageUrl(u), {
+      message: "That image host isn't allowed. Upload the file instead.",
+    }),
   publicId: z.string().default(""),
   alt: z.string().default(""),
   width: z.number().int().positive().default(1200),
   height: z.number().int().positive().default(1600),
   blurDataURL: z.string().default(""),
+  focalX: z.number().min(0).max(100).default(50),
+  focalY: z.number().min(0).max(100).default(50),
 });
 
 export const articleSchema = z.object({

@@ -15,13 +15,38 @@ const RULES = [
   ["scroll listener", /addEventListener\(\s*["']scroll["']/],
   ["layout read in code", /getBoundingClientRect|\.offsetTop\b|\.scrollHeight\b/],
   ["will-change", /will-change|willChange/],
+
+  /**
+   * Never distort an image. `object-fit: fill` stretches; setting both width
+   * and height in CSS without an aspect-ratio does the same thing more subtly.
+   * Cropping (`cover`) and stretching look superficially similar and this is
+   * the one that is always a bug.
+   */
+  ["object-fit: fill", /object-fit:\s*fill|\bobject-fill\b/],
 ];
 
-/** Removes /* *\/ blocks, // line comments and {/* *\/} JSX comments. */
+/**
+ * Blanks out comments while PRESERVING line count, so reported line numbers
+ * match the file. Deleting block comments outright shifted every subsequent
+ * line number and made the exemption pragma below line up with the wrong line.
+ */
 function stripComments(src) {
   return src
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/^\s*\/\/.*$/gm, "");
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    .replace(/^(\s*)\/\/.*$/gm, (_m, indent) => indent);
+}
+
+const PRAGMA = /\/\/\s*layout-read-ok:\s*\S+/;
+
+function exemptLines(src) {
+  const out = new Set();
+  src.split("\n").forEach((line, i) => {
+    if (PRAGMA.test(line)) {
+      out.add(i + 1); // the pragma line itself
+      out.add(i + 2); // and the line it annotates
+    }
+  });
+  return out;
 }
 
 const files = globSync("{app,components}/**/*.{ts,tsx,css}");
@@ -30,8 +55,11 @@ let failed = 0;
 for (const [label, re] of RULES) {
   const hits = [];
   for (const file of files) {
-    const lines = stripComments(readFileSync(file, "utf8")).split("\n");
+    const raw = readFileSync(file, "utf8");
+    const exempt = exemptLines(raw);
+    const lines = stripComments(raw).split("\n");
     lines.forEach((line, i) => {
+      if (exempt.has(i + 1)) return;
       if (re.test(line)) hits.push(`${file}:${i + 1}  ${line.trim().slice(0, 90)}`);
     });
   }

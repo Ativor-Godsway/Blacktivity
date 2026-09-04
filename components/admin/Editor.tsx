@@ -3,9 +3,11 @@
 import { useEditor, EditorContent, type Editor as TiptapEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import ImageExt from "@tiptap/extension-image";
+import ArticleImage from "./editor-image-extension";
 import Embed from "./embed-extension";
-import { useCallback } from "react";
+import ImageInsertDialog, { type InsertPayload } from "./ImageInsertDialog";
+import { useCallback, useState } from "react";
+import { validateFile } from "@/lib/upload-client";
 import { cn } from "@/lib/utils";
 
 function ToolbarButton({
@@ -37,7 +39,7 @@ function ToolbarButton({
   );
 }
 
-function Toolbar({ editor }: { editor: TiptapEditor }) {
+function Toolbar({ editor, onImage }: { editor: TiptapEditor; onImage: () => void }) {
   const setLink = useCallback(() => {
     const previous = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("Link URL", previous ?? "https://");
@@ -47,14 +49,6 @@ function Toolbar({ editor }: { editor: TiptapEditor }) {
       return;
     }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [editor]);
-
-  const addImage = useCallback(() => {
-    const url = window.prompt("Image URL");
-    if (!url) return;
-    const alt = window.prompt("Alt text") ?? "";
-    const title = window.prompt("Caption (optional)") ?? "";
-    editor.chain().focus().setImage({ src: url, alt, title }).run();
   }, [editor]);
 
   const addEmbed = useCallback(() => {
@@ -127,7 +121,7 @@ function Toolbar({ editor }: { editor: TiptapEditor }) {
       >
         ——
       </ToolbarButton>
-      <ToolbarButton title="Image" onClick={addImage}>
+      <ToolbarButton title="Image" onClick={onImage}>
         Image
       </ToolbarButton>
       <ToolbarButton title="Embed" onClick={addEmbed}>
@@ -144,12 +138,15 @@ export function Editor({
   content: unknown;
   onChange: (json: unknown) => void;
 }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false, // required for SSR
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3, 4] } }),
       Link.configure({ openOnClick: false, autolink: true }),
-      ImageExt.configure({ inline: false }),
+      ArticleImage.configure({ inline: false }),
       Embed,
     ],
     content: (content as object) ?? { type: "doc", content: [{ type: "paragraph" }] },
@@ -157,9 +154,66 @@ export function Editor({
       attributes: {
         class: "prose-editorial min-h-[50vh] focus:outline-none",
       },
+
+      /**
+       * Dropping an image file onto the canvas opens the same insert dialog as
+       * the toolbar button, so every route into the document goes through
+       * upload, validation and the required alt text.
+       */
+      handleDrop(_view, event) {
+        const file = (event as DragEvent).dataTransfer?.files?.[0];
+        if (!file || !file.type.startsWith("image/")) return false;
+        event.preventDefault();
+        setPendingFile(file);
+        setDialogOpen(true);
+        return true;
+      },
+
+      /** Pasting a screenshot straight in should just work. */
+      handlePaste(_view, event) {
+        const items = (event as ClipboardEvent).clipboardData?.items;
+        if (!items) return false;
+        for (const item of items) {
+          if (item.kind !== "file" || !item.type.startsWith("image/")) continue;
+          const file = item.getAsFile();
+          if (!file) continue;
+          // Reject early rather than uploading and failing.
+          if (validateFile(file)) return false;
+          event.preventDefault();
+          setPendingFile(file);
+          setDialogOpen(true);
+          return true;
+        }
+        return false;
+      },
     },
     onUpdate: ({ editor: e }) => onChange(e.getJSON()),
   });
+
+  const insert = useCallback(
+    (payload: InsertPayload) => {
+      editor
+        ?.chain()
+        .focus()
+        .setImage({
+          src: payload.url,
+          alt: payload.alt,
+          title: payload.caption || undefined,
+        })
+        .updateAttributes("image", {
+          width: payload.width || null,
+          height: payload.height || null,
+          publicId: payload.publicId || null,
+          blurDataURL: payload.blurDataURL || null,
+          widthMode: payload.widthMode,
+        })
+        .run();
+
+      setDialogOpen(false);
+      setPendingFile(null);
+    },
+    [editor],
+  );
 
   if (!editor) {
     return <div className="min-h-[50vh] animate-pulse a-bg-hover" />;
@@ -167,8 +221,24 @@ export function Editor({
 
   return (
     <div>
-      <Toolbar editor={editor} />
+      <Toolbar
+        editor={editor}
+        onImage={() => {
+          setPendingFile(null);
+          setDialogOpen(true);
+        }}
+      />
       <EditorContent editor={editor} className="py-8" />
+
+      <ImageInsertDialog
+        open={dialogOpen}
+        initialFile={pendingFile}
+        onClose={() => {
+          setDialogOpen(false);
+          setPendingFile(null);
+        }}
+        onInsert={insert}
+      />
     </div>
   );
 }

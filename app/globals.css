@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/*
+ * Do not scan documentation for class names.
+ *
+ * The README documents the admin/public colour split and quotes
+ * `border-[var(--admin-rule)]` as an example of what NOT to do — and Tailwind
+ * scanned the prose, generated that utility, and put an admin token into the
+ * public stylesheet. The write-up caused the leak it was describing.
+ */
+@source not "../**/*.md";
+
 /* ---------------------------------------------------------------------------
    BLACKTIVITY DESIGN TOKENS — REVISION 01
 

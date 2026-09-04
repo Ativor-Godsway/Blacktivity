@@ -27,6 +27,8 @@ export function RevealImage({
   className,
   colorOnView = true,
   fill = false,
+  focalX,
+  focalY,
 }: {
   src: string;
   alt: string;
@@ -39,6 +41,9 @@ export function RevealImage({
   className?: string;
   colorOnView?: boolean;
   fill?: boolean;
+  /** Percentage focal point — keeps the subject when a crop is unavoidable. */
+  focalX?: number;
+  focalY?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -61,6 +66,13 @@ export function RevealImage({
     return () => io.disconnect();
   }, [colorOnView]);
 
+  // Only emitted when a focal point was actually set, so the CSS default
+  // (50% 50%) still applies everywhere else.
+  const objectPosition =
+    focalX === undefined && focalY === undefined
+      ? undefined
+      : { objectPosition: `${focalX ?? 50}% ${focalY ?? 50}%` };
+
   const dims = fill
     ? ({ fill: true } as const)
     : ({ width: width ?? 1200, height: height ?? 1600 } as const);
@@ -80,6 +92,7 @@ export function RevealImage({
         placeholder={blurDataURL ? "blur" : "empty"}
         blurDataURL={blurDataURL}
         className="h-full w-full object-cover"
+        style={objectPosition}
       />
 
       {/* Static grey plate. Only its opacity animates. */}
@@ -98,6 +111,7 @@ export function RevealImage({
           "group-hover/img:opacity-0 group-hover:opacity-0 motion-reduce:opacity-0",
           inView ? "opacity-0" : "opacity-100",
         )}
+        style={objectPosition}
       />
     </div>
   );

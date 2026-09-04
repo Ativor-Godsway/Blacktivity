@@ -7,6 +7,12 @@ export type ImageRef = {
   width: number;
   height: number;
   blurDataURL?: string;
+  /**
+   * Where the crop must stay anchored, as a percentage. Covers are cropped to
+   * 4:5 in three places; without this, faces get cut off.
+   */
+  focalX?: number;
+  focalY?: number;
 };
 
 export type ArticleDTO = {

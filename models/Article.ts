@@ -9,6 +9,9 @@ const ImageSchema = new Schema(
     width: { type: Number, default: 1200 },
     height: { type: Number, default: 1600 },
     blurDataURL: { type: String, default: "" },
+    // Drives object-position so a deliberate crop keeps the subject.
+    focalX: { type: Number, default: 50 },
+    focalY: { type: Number, default: 50 },
   },
   { _id: false },
 );
