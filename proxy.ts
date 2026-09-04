@@ -2,10 +2,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_COOKIE, verifySessionToken } from "@/lib/auth";
 
 /**
- * Edge middleware only VERIFIES the JWT — it cannot run Mongoose or bcrypt.
- * Anything needing the database happens in Node route handlers.
+ * The admin auth guard. Renamed from `middleware.ts` by
+ * `@next/codemod middleware-to-proxy` — Next 16 deprecates the middleware file
+ * convention in favour of this one.
+ *
+ * It only VERIFIES the JWT: this runs on the Edge runtime, which cannot run
+ * Mongoose or bcrypt. Anything needing the database happens in Node route
+ * handlers.
  */
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const token = req.cookies.get(AUTH_COOKIE)?.value;
