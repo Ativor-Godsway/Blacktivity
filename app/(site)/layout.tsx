@@ -7,7 +7,7 @@ import WebVitals from "@/components/WebVitals";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import Grain from "@/components/ui/Grain";
 import ClickSpark from "@/components/interactive/ClickSpark";
-import ViewTransitions from "@/components/motion/ViewTransitions";
+import PageTransition from "@/components/motion/PageTransition";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,7 +16,6 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       <Grain />
       {/* Ink on the paper ground — never a hue. */}
       <ClickSpark sparkColor="#0B0B0B" />
-      <ViewTransitions />
       <SmoothScroll />
       <HairlineGridFixed />
       <Suspense fallback={null}>
@@ -25,9 +24,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       </Suspense>
       <div className="relative z-10 flex min-h-dvh flex-col">
         <Header />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
+        <main id="main" className="flex-1">
+          <PageTransition>{children}</PageTransition>
+        </main>
         <Footer />
       </div>
     </>

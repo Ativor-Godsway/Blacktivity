@@ -410,6 +410,41 @@ Also enforced, and checked by the greps in `npm run audit:perf`:
   reads a MotionValue and sets state only when the derived card index actually
   changes.
 
+## Scroll position on navigation
+
+Lenis owns the scroll offset, and Next's App Router resets scroll by calling
+`window.scrollTo` — which Lenis does not observe, so its internal position
+survived a navigation and new pages opened wherever the last one was left.
+
+Forward navigations go to the top; **back and forward restore the previous
+position**, because a reader who opens an article from halfway down the index
+expects to land back where they were. `history.scrollRestoration` is set to
+`manual` only while Lenis is mounted; on touch and under reduced motion Lenis is
+not mounted at all and the browser's own restoration is left alone.
+
+The outgoing offset is captured **on the click**, in the capture phase before
+`<Link>` starts navigating. Two other places were tried and both silently
+returned zero: reading `lenis.scroll` in the pathname effect (Next's reset has
+often already landed by then) and listening to Lenis' `scroll` emitter (it only
+fires for scrolling Lenis itself drives). One layout read per click is fine —
+what `audit:perf` forbids is a read per scroll event.
+
+## The check that catches hidden content
+
+`npm run audit:navigation` asserts that **every public route renders visible
+text on its first screen**, loaded directly and clicked through from another
+page, and that forward navigation lands at the top while back restores position.
+
+It exists because three separate regressions have now hidden real content behind
+a decorative layer — a server-rendered black panel, headings parked outside
+their masks, and a page transition that left pages blank — and every one of
+those pages was structurally correct, fast, and passed every other audit. What
+they lacked was text a reader could see.
+
+It counts only text that is rendered, opaque, inside the viewport, above the
+fold, and not covered by something painted over it. Verified to fail when a page
+is deliberately covered.
+
 ## Checks must assert the property, not a proxy
 
 Three checks on this project passed while the thing they guarded was broken.
