@@ -6,7 +6,7 @@
  */
 import { readFileSync } from "node:fs";
 
-const SOURCES = ["data/seed-content.ts", "data/team.ts", "data/covers.ts"];
+const SOURCES = ["data/seed-content.ts", "data/team.ts"];
 
 const urls = new Set();
 for (const file of SOURCES) {

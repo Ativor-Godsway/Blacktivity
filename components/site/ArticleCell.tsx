@@ -25,7 +25,7 @@ export function CategoryPill({ children }: { children: React.ReactNode }) {
 export function ArticleCell({
   article,
   className,
-  sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
+  sizes = "(max-width: 640px) 46vw, (max-width: 1024px) 23vw, 15vw",
 }: {
   article: ArticleDTO;
   className?: string;
@@ -63,7 +63,9 @@ export function ArticleCell({
           // Grid cells rest grayscale and come to colour on hovering the CELL,
           // not on scroll-into-view — in a table, the hover is the event.
           colorOnView={false}
-          className="mt-6 aspect-4/5 w-full"
+          // A plate accompanying the text, not the cell's subject: the image
+          // takes a fraction of the cell width rather than its full measure.
+          className="mt-6 aspect-4/5 w-[46%] min-w-[120px]"
         />
 
         {/* Satoshi Medium, not Zodiak — a high-contrast display serif falls

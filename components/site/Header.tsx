@@ -43,11 +43,17 @@ export function Header() {
           href="/"
           className="flex flex-col gap-1.5 text-fg"
           onClick={() => setOpen(false)}
-          aria-label={`${SITE.name} — home`}
         >
-          {/* 160px keeps the hairline "tivity" strokes above one device pixel
-              on a standard-density display; below ~120px they break up. */}
-          <Wordmark className="w-[140px] md:w-[160px]" />
+          {/*
+            The mark carries the accessible name. An aria-label of
+            "Blacktivity — home" overrode the visible tagline text and failed
+            label-content-name-mismatch: a speech-input user saying what they
+            can see would not match the name.
+
+            160px keeps the hairline "tivity" strokes above one device pixel on
+            a standard-density display; below ~120px they break up.
+          */}
+          <Wordmark className="w-[140px] md:w-[160px]" title={SITE.name} />
           <span className="mono text-fg-muted">
             {SITE.tagline}
             {overlay ? ` — ${SITE.established}` : ""}

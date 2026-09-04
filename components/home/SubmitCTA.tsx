@@ -1,5 +1,5 @@
 import Link from "next/link";
-import DisplayHeading from "@/components/motion/DisplayHeading";
+import ScrollReveal from "@/components/motion/ScrollReveal";
 import MonoLabel from "@/components/ui/MonoLabel";
 
 /**
@@ -12,9 +12,10 @@ export function SubmitCTA() {
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <MonoLabel className="text-fg-muted">#IGotBlacktivity</MonoLabel>
 
-        <DisplayHeading
-          lines={["Send us", "what you're", "making."]}
-          className="mt-10 text-[clamp(2.5rem,9vw,7.5rem)] text-fg"
+        <ScrollReveal
+          as="h2"
+          text="Send us what you're making."
+          className="display mt-10 block max-w-[14ch] text-[clamp(2.5rem,9vw,7.5rem)] text-fg"
         />
 
         <p className="mt-10 max-w-[44ch] text-fg-muted">

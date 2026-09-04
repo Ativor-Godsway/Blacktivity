@@ -109,10 +109,10 @@ export default async function SettingsPage() {
             <code className="rounded px-1" style={{ background: "var(--admin-hover)" }}>
               data/team.ts
             </code>
-            . Edit that file and redeploy to change it. The hero cover stack is the
+            . Edit that file and redeploy to change it. The hero mark's geometry is the
             same:{" "}
             <code className="rounded px-1" style={{ background: "var(--admin-hover)" }}>
-              data/covers.ts
+              data/adinkra.ts
             </code>
             .
           </p>

@@ -1,4 +1,5 @@
-import DisplayHeading from "@/components/motion/DisplayHeading";
+import ScrollReveal from "@/components/motion/ScrollReveal";
+import TextType from "@/components/motion/TextType";
 import MonoLabel from "@/components/ui/MonoLabel";
 import DrawLink from "@/components/site/DrawLink";
 
@@ -12,11 +13,15 @@ export function AboutSection() {
   return (
     <section className="on-void py-28 md:py-44">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
-        <MonoLabel className="text-fg-muted">Who we are</MonoLabel>
+        <MonoLabel className="text-fg-muted">
+          <TextType text="Who we are" />
+        </MonoLabel>
 
-        <DisplayHeading
-          lines={["Your creativity", "belongs in the room."]}
-          className="mt-10 max-w-[18ch] text-[clamp(2.25rem,7vw,6rem)] text-fg"
+        {/* Short display text — the only place ScrollReveal is permitted. */}
+        <ScrollReveal
+          as="h2"
+          text="Your creativity belongs in the room."
+          className="display mt-10 block max-w-[18ch] text-[clamp(2.25rem,7vw,6rem)] text-fg"
         />
 
         <p className="mt-12 max-w-[56ch] text-lg text-fg-muted">

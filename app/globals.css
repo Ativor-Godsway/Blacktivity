@@ -267,6 +267,32 @@ body {
   animation: wordmark-rise 900ms var(--ease-expo) 60ms both;
 }
 
+/* --- the hero mark -------------------------------------------------------
+   Draw-on via stroke-dashoffset, then a slow ambient rotation. Transform and
+   stroke-dashoffset only; nothing here repaints per frame.
+
+   pathLength is normalised to 1 by the dasharray/dashoffset pair below, so a
+   single rule works for every path regardless of its real length.            */
+.adinkra path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  /* Each path carries pathLength="1", so these dash units are fractions of the
+     path and one rule fits every layer regardless of its real length. */
+  transition: stroke-dashoffset 1.6s var(--ease-expo);
+}
+.adinkra-drawn path { stroke-dashoffset: 0; }
+
+@keyframes adinkra-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.adinkra-spin {
+  transform-origin: 50% 50%;
+  animation-name: adinkra-spin;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 /* --- marquee ------------------------------------------------------------- */
 @keyframes marquee-x {
   from { transform: translate3d(0, 0, 0); }

@@ -19,6 +19,7 @@ export function Wordmark({ title, ...props }: SVGProps<SVGSVGElement> & { title?
       viewBox="239.73 534.55 1059.14 243.56"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
+      data-wordmark=""
       role={title ? "img" : "presentation"}
       aria-hidden={title ? undefined : true}
       focusable="false"

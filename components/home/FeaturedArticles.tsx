@@ -1,4 +1,4 @@
-import DisplayHeading from "@/components/motion/DisplayHeading";
+import ScrollReveal from "@/components/motion/ScrollReveal";
 import ArticleCell from "@/components/site/ArticleCell";
 import DrawLink from "@/components/site/DrawLink";
 import type { ArticleDTO } from "@/lib/types";
@@ -14,9 +14,10 @@ export function FeaturedArticles({ articles }: { articles: ArticleDTO[] }) {
   return (
     <section className="mt-(--spacing-section-lg)">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
-        <DisplayHeading
-          lines={["Selected writing"]}
-          className="text-[clamp(2.25rem,6vw,4.5rem)]"
+        <ScrollReveal
+          as="h2"
+          text="Selected writing"
+          className="display block text-[clamp(2.25rem,6vw,4.5rem)]"
         />
       </div>
 

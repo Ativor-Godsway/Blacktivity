@@ -145,13 +145,10 @@ function renderNode(node: unknown, key: string): ReactNode {
       const mode: keyof typeof WIDTHS =
         rawWidth === "wide" || rawWidth === "full"
           ? rawWidth
-          : rawWidth === "column"
-            ? "column"
-            : // Sensible default: portrait sits at the text measure, landscape
-              // breaks out slightly.
-              height > width
-              ? "column"
-              : "wide";
+          : // Column is the default. Wide and full-bleed are deliberate
+            // opt-ins chosen in the editor, never inferred from the source's
+            // orientation — the page is typographic first.
+            "column";
 
       return (
         <figure className={cn("my-14", WIDTHS[mode])}>

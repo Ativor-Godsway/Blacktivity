@@ -21,7 +21,9 @@
     "audit:images": "node scripts/audit-images.mjs",
     "audit:admin-colour": "node scripts/audit-admin-colour.mjs",
     "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run test:render",
-    "test:render": "tsx --tsconfig tests/tsconfig.json tests/tiptap-render.test.tsx"
+    "test:render": "tsx --tsconfig tests/tsconfig.json tests/tiptap-render.test.tsx",
+    "check:wordmark": "node scripts/visual/wordmark-check.mjs",
+    "check:raf": "node scripts/visual/raf-check.mjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",

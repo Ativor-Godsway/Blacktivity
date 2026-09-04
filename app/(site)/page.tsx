@@ -2,7 +2,6 @@ import Hero from "@/components/home/Hero";
 import AboutSection from "@/components/home/AboutSection";
 import FeaturedArticles from "@/components/home/FeaturedArticles";
 import UpcomingEvents from "@/components/home/UpcomingEvents";
-import TeamSection from "@/components/home/TeamSection";
 import SubmitCTA from "@/components/home/SubmitCTA";
 import { getPublishedArticles, getUpcomingEvents } from "@/lib/queries";
 
@@ -20,7 +19,6 @@ export default async function HomePage() {
       <AboutSection />
       <FeaturedArticles articles={articles} />
       <UpcomingEvents events={upcomingEvents} />
-      <TeamSection />
       <SubmitCTA />
     </>
   );

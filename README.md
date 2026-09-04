@@ -213,41 +213,31 @@ the same folder are for Satori, which renders the OG cards and cannot read
 
 ## The hero
 
-A **cover stack**: the magazine covers treated as physical objects.
+Two elements: the wordmark, and an animated **Adinkra mark** right of centre.
+The magazine cover stack it replaced carried cycling state, scroll wiring and
+drag handling; none of that survives, so the hero is now a server component.
 
-- **Layer 0** — the wordmark, spanning the full viewport width with its bottom
-  edge clipped by the fold. The largest element on the site.
-- **Layer 1** — the covers, offset to 60% of the viewport width so they clip the
-  *tops* of the letterforms rather than the middle of the word.
-- **Layer 2** — mono micro type at the edges, plus a rotated `01 — 06` counter.
+The mark is inline SVG animated with transform, opacity and `stroke-dashoffset`
+only — no canvas, no WebGL, no library. Rotation is a CSS keyframe, so the
+compositor drives it and it costs nothing per frame. Under
+`prefers-reduced-motion` it rests fully drawn and completely still.
 
-**The hero is never pinned, on any breakpoint.** It is exactly `100svh` and the
-stack cycles from how far the hero has scrolled out of view
-(`useScroll`, `offset: ['start start', 'end start']`). The previous build used a
-600vh section with a sticky inner container; measured against a production
-build, that sticky container alone accounted for a ~6x increase in
-rasterization during scroll. Pinning also fights the collapsing URL bar on iOS
-Safari. `svh` rather than `vh` for the same reason — `vh` is measured against
-the expanded viewport and shifts the layout when the bar collapses.
+**Its geometry is data.** `data/adinkra.ts` holds the paths, stroke widths and
+spin rates; the client's real glyph drops in there without touching the
+animation. What ships today is a deliberately generic placeholder.
 
-Mobile renders 3 cards rather than 6: fewer large composited layers.
+### The wordmark
 
-Two hero numbers are measured, not chosen, and both are in the code comments:
+It is **92vw, ranged left, with its descender fully visible**.
 
-- The wordmark is **exactly 100vw**. The viewBox is tight to the glyph bounds,
-  so any horizontal bleed slices the tail off the `y`.
-- The bottom clip is **10%** from `md` up, not the third originally specified.
-  `y` is the word's only descender and its tail occupies the bottom ~12%;
-  clipping a third renders the mark as "blacktivitu". Legibility is what the
-  deeper crop was meant to buy, so it wins. Below `md` the clip drops to ~4%:
-  the crop is proportional, and 10% of an 83px-tall mark leaves too little of
-  that tail to read.
+Earlier builds ran it at 100vw with the bottom 10% clipped. The viewBox is tight
+to the glyph bounds, so a box touching the viewport edge means the glyph touches
+it too: the `y` sat flush against the right edge with its tail sliced off and
+the mark read as **"blacktivitu"**. A box-geometry check passed that state,
+because the box was fine — it was the glyph that wasn't.
 
-Reduced motion gets a static fanned stack with no cycling.
-
-The stack contents live in `data/covers.ts`. **When the real Instagram artwork
-arrives, replace `image` and set `placeholder: false`** — that switches off the
-generated masthead overlay and renders the artwork clean. Nothing else changes.
+`npm run check:wordmark` now asserts zero clipping on every edge at eight
+widths from 360 to 3440.
 
 ## Article display
 
@@ -419,6 +409,41 @@ Also enforced, and checked by the greps in `npm run audit:perf`:
   no `will-change` anywhere. Scroll position never enters React state: the hero
   reads a MotionValue and sets state only when the derived card index actually
   changes.
+
+## Interactive components
+
+Three are in use; the fourth was rejected.
+
+**ClickSpark** — a click burst on the paper ground, ink-coloured, never a hue.
+Its loop starts on click and **stops when the last spark expires**; the stock
+component schedules rAF unconditionally and burns a frame callback for the life
+of the page. `npm run check:raf` proves it: with Lenis unmounted the page issues
+**zero** rAF callbacks at rest.
+
+**ScrollReveal** — short display text only (section headings, the About lead,
+the submission CTA), never article body. Built on **Motion rather than GSAP +
+ScrollTrigger**, which removes three of its four defects outright: no
+`filter: blur()` (an animated filter, which `audit:perf` forbids), no global
+`ScrollTrigger.getAll().kill()` tearing down other components' triggers, and no
+second rAF to desync from Lenis. The fourth defect — `baseOpacity: 0.1` leaving
+text unreadable if the trigger never fires — is fixed twice: **opacity is never
+animated** (each word is masked and translated at full opacity, the same
+vocabulary the display headings use), and the animated spans mount only after
+hydration so the server sends the finished sentence. Lighthouse scores the
+resting state, so a faded start is a real contrast failure, not a theoretical
+one — it cost 4 accessibility points before this was fixed.
+
+**TextType** — one short line, never an `h1` or anything SEO depends on, since
+it renders client-side. The box is reserved by a hidden full-width copy so
+typing cannot reflow the page, a visually-hidden copy carries the full string
+for screen readers, `loop` is off, and the caret only exists while typing.
+Without JavaScript the whole line is simply present.
+
+**ElasticMesh — not used.** It replaces the `<img>` with a `<canvas>`, and the
+article cover is the LCP element with alt text, a blur placeholder and the AVIF
+pipeline; a canvas has none of those. Its loop also never stops, and one WebGL
+context per grid card would exhaust the browser's limit. The hero slot it was
+proposed for is now the SVG mark, which costs nothing.
 
 ## Motion rules
 

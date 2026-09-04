@@ -57,8 +57,8 @@ export function ImageInsertDialog({
     try {
       const result = await uploadImage(file, setProgress);
       setUploaded(result);
-      // Sensible default: portrait at column width, landscape breaks out.
-      setWidthMode(result.height > result.width ? "column" : "wide");
+      // Column by default; wide and full-bleed are deliberate choices.
+      setWidthMode("column");
       setProgress(null);
       // Alt is required, so put the cursor where the author must type.
       requestAnimationFrame(() => altRef.current?.focus());

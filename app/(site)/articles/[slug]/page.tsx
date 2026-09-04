@@ -117,7 +117,9 @@ export default async function ArticlePage({
         </header>
 
         {/*
-          Cover at a CONSTRAINED 4:5, matching the grid cards and the OG image.
+          Cover at 4:5, matching the grid cards and the OG image, capped at
+          780px and ranged left in the editorial grid — type dominates,
+          photography is subordinate.
 
           It used to be full-bleed at 100vw inside a 21/9 box, which forced a
           portrait source through object-cover into a narrow horizontal band —
@@ -125,7 +127,7 @@ export default async function ArticlePage({
           served an enormous file on a wide monitor, working against the LCP
           work. The focal point set in the admin decides what survives.
         */}
-        <div className="mx-auto w-full max-w-[1100px] px-(--gutter)">
+        <div className="w-full max-w-[780px] px-(--gutter)">
           <RevealImage
             src={article.coverImage.url}
             alt={article.coverImage.alt || article.title}
@@ -133,7 +135,7 @@ export default async function ArticlePage({
             blurDataURL={article.coverImage.blurDataURL}
             focalX={article.coverImage.focalX}
             focalY={article.coverImage.focalY}
-            sizes="(max-width: 768px) 100vw, min(1100px, 92vw)"
+            sizes="(max-width: 768px) 92vw, 780px"
             priority
             className="aspect-4/5 w-full"
           />
