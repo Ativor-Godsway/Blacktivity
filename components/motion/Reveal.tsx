@@ -25,7 +25,8 @@ export function Reveal({
   const reduced = useReducedMotion();
   const [ready, setReady] = useState(false);
   const Tag = as;
-  const MotionTag = motion(Tag as ElementType);
+  // motion() is deprecated in favour of motion.create().
+  const MotionTag = motion.create(Tag as ElementType);
 
   useEffect(() => setReady(true), []);
 

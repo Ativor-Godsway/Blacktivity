@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent, type Editor as TiptapEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
 import ArticleImage from "./editor-image-extension";
 import Embed from "./embed-extension";
 import ImageInsertDialog, { type InsertPayload } from "./ImageInsertDialog";
@@ -144,8 +143,13 @@ export function Editor({
   const editor = useEditor({
     immediatelyRender: false, // required for SSR
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3, 4] } }),
-      Link.configure({ openOnClick: false, autolink: true }),
+      // StarterKit ships its own Link extension; configuring it here rather
+      // than importing a second one avoids "Duplicate extension names found:
+      // ['link']", which makes link behaviour in the editor unpredictable.
+      StarterKit.configure({
+        heading: { levels: [2, 3, 4] },
+        link: { openOnClick: false, autolink: true },
+      }),
       ArticleImage.configure({ inline: false }),
       Embed,
     ],

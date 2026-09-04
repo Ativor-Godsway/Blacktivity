@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    /**
+     * Cloudinary images are served from Cloudinary's CDN with the
+     * transformation in the URL; everything else falls back to the built-in
+     * optimizer. See lib/image-loader.ts for why.
+     */
+    loader: "custom",
+    loaderFile: "./lib/image-loader.ts",
+
     formats: ["image/avif", "image/webp"],
 
     /**
