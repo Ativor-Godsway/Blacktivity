@@ -12,8 +12,8 @@ await page.setCookie({ name: "blacktivity_session", value: token, domain: "local
 for (const [name, path] of [["dash","/admin"],["editor","/admin/articles/new"],["subs","/admin/submissions"]]) {
   await page.goto("http://localhost:3111" + path, { waitUntil: "networkidle0", timeout: 60000 });
   await new Promise(r => setTimeout(r, 1500));
-  const bg = await page.evaluate(() => getComputedStyle(document.querySelector(".on-void")).backgroundColor);
-  console.log(name.padEnd(8), path.padEnd(22), "on-void bg =", bg);
+  const bg = await page.evaluate(() => getComputedStyle(document.querySelector(".on-espresso")).backgroundColor);
+  console.log(name.padEnd(8), path.padEnd(22), "on-espresso bg =", bg);
   await page.screenshot({ path: `${OUT}/admin-${name}.png` });
 }
 await browser.close();

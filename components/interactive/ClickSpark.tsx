@@ -12,11 +12,11 @@ type Spark = { x: number; y: number; angle: number; start: number };
  * entire life of the page; here the loop starts on click and stops itself the
  * moment the last spark expires, so it costs nothing at rest.
  *
- * Monochrome by contract — `sparkColor` takes ink on paper and paper on the
+ * Monochrome by contract — `sparkColor` takes ink on sand and sand on the
  * black sections, never a hue.
  */
 export function ClickSpark({
-  sparkColor = "#0B0B0B",
+  sparkColor = "#2A211A",
   sparkCount = 7,
   sparkRadius = 14,
   sparkLength = 8,

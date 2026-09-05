@@ -8,7 +8,7 @@ import MonoLabel from "@/components/ui/MonoLabel";
  */
 export function SubmitCTA() {
   return (
-    <section className="on-void mt-(--spacing-section-lg) pt-28 pb-24 md:pt-44 md:pb-32">
+    <section className="on-espresso mt-(--spacing-section-lg) pt-28 pb-24 md:pt-44 md:pb-32">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <MonoLabel className="text-fg-muted">#IGotBlacktivity</MonoLabel>
 

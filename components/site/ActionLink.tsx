@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
  * everywhere, so the affordance is learnable.
  *
  * On a page where every label is mono uppercase, a hairline underline does not
- * read as clickable. This is a bordered box that inverts to solid ink on hover
+ * read as clickable. This is a bordered box that inverts to solid fg on hover
  * AND on keyboard focus — the inversion is unmistakable and costs a single
  * background-color transition.
  *
@@ -20,15 +20,12 @@ export function ActionLink({
   className,
   arrow = "→",
   back = false,
-  tone = "ink",
   ...rest
 }: ComponentProps<typeof Link> & {
   children: ReactNode;
   arrow?: string | null;
   /** Renders the arrow before the label and reverses its hover travel. */
   back?: boolean;
-  /** `paper` inverts the pair for use on the black sections. */
-  tone?: "ink" | "paper";
 }) {
   return (
     <Link
@@ -39,9 +36,10 @@ export function ActionLink({
         "transition-colors duration-300 ease-[var(--ease-expo)]",
         // Focus-visible gets the same inversion as hover — this must never be
         // hover-only.
-        tone === "ink"
-          ? "border-fg text-fg hover:bg-fg hover:text-bg focus-visible:bg-fg focus-visible:text-bg"
-          : "border-fg text-fg hover:bg-fg hover:text-bg focus-visible:bg-fg focus-visible:text-bg",
+        // No ground-specific branch: `fg` and `bg` already resolve per ground
+        // via .on-espresso, so this inverts correctly on sand and on espresso
+        // alike. A `tone` prop used to sit here with two identical arms.
+        "border-fg text-fg hover:bg-fg hover:text-bg focus-visible:bg-fg focus-visible:text-bg",
         className,
       )}
     >

@@ -43,7 +43,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
           <motion.div
             key={pathname}
             aria-hidden="true"
-            className="pointer-events-none fixed inset-0 z-50 bg-void"
+            className="pointer-events-none fixed inset-0 z-50 bg-espresso"
             initial={{ scaleY: 1, originY: 0 }}
             animate={{ scaleY: 0, originY: 0 }}
             exit={{ scaleY: 0 }}

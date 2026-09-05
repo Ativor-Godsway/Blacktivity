@@ -237,7 +237,7 @@ export default async function ArticlePage({
       {related.length > 0 ? (
         <section className="mx-auto max-w-[1600px] px-(--gutter) pb-8">
           <div className="flex items-baseline justify-between gap-6">
-            <MonoLabel>Keep reading</MonoLabel>
+            <MonoLabel as="h2">Keep reading</MonoLabel>
           </div>
 
           <div className="mt-8 grid grid-cols-1 border-t border-l border-rule sm:grid-cols-2 lg:grid-cols-3">

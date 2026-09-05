@@ -18,9 +18,17 @@ const ADMIN_TOKENS = [
   "--series-1", "--series-2", "--series-3",
 ];
 
-/** Every hex the admin is allowed to contain. */
+/**
+ * Every hex the admin is allowed to contain.
+ *
+ * The neutrals were warmed in revision 12 to match the public site. The STATUS
+ * and CHART hues below were not, and neither was --admin-surface (#ffffff):
+ * those three groups were contrast-validated against a white card, and warming
+ * the card underneath would invalidate every one of those numbers without
+ * changing a single line that looks like a contrast decision.
+ */
 const ADMIN_ALLOWED = new Set([
-  "#0b0b0b", "#f2f1ee", "#ffffff", "#52514e", "#898781", "#e1e0d9", "#f7f7f5",
+  "#2a211a", "#241c16", "#ede7db", "#ffffff", "#52514e", "#898781", "#ded6c8", "#f7f4ee",
   "#0ca30c", "#fab219", "#d03b3b",
   "#2a78d6", "#eb6834", "#1baf7a",
   "#232320", // a-btn-primary hover

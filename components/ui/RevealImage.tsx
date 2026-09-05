@@ -1,19 +1,31 @@
-"use client";
-
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * THE SIGNATURE GESTURE — grayscale resting, full colour on hover / in view.
+ * A single photograph, in its own colours.
  *
- * Implemented as a TWO-LAYER CROSSFADE, not an animated filter. Animating
- * `filter` is not compositor-accelerated: every frame of the transition
- * repaints the image. Here the filter is applied statically to the top layer
- * and rasterized once, and only `opacity` animates — which the compositor
- * handles on its own thread.
+ * WHAT WAS HERE, AND WHY IT IS GONE
  *
- * The colour layer carries the alt text; the grey layer is decorative.
+ * This component used to render the image TWICE — a colour layer and a
+ * grayscale plate stacked on top of it — and crossfade their opacity on hover
+ * or on scroll into view. That was the site's signature gesture. Revision 12
+ * removes it: photography now renders in its own colours everywhere, because a
+ * site where article covers are colour and portraits are grey reads as a bug
+ * rather than a decision.
+ *
+ * Do not reintroduce the plate. If selective desaturation is ever wanted it is
+ * a deliberate, explicit choice on specific images, not a default that every
+ * photograph has to opt out of.
+ *
+ * The removal also took with it: the aria-hidden duplicate <img>, a second
+ * decode of every photograph on the page, the IntersectionObserver that drove
+ * the in-view variant, and this component's "use client" boundary — with no
+ * state left it is a server component again.
+ *
+ * THE HOVER AFFORDANCE MOVED, IT DID NOT DISAPPEAR. Cards signal that they are
+ * clickable through their own ground, title and arrow — see `.card-hover` in
+ * globals.css. Deliberately nothing here: a transform on the image or a scale
+ * on the card would break the bordered grid's alignment.
  */
 export function RevealImage({
   src,
@@ -25,7 +37,6 @@ export function RevealImage({
   priority = false,
   quality,
   className,
-  colorOnView = true,
   fill = false,
   focalX,
   focalY,
@@ -39,33 +50,11 @@ export function RevealImage({
   priority?: boolean;
   quality?: number;
   className?: string;
-  colorOnView?: boolean;
   fill?: boolean;
   /** Percentage focal point — keeps the subject when a crop is unavoidable. */
   focalX?: number;
   focalY?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    if (!colorOnView) return;
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.35 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [colorOnView]);
-
   // Only emitted when a focal point was actually set, so the CSS default
   // (50% 50%) still applies everywhere else.
   const objectPosition =
@@ -78,10 +67,7 @@ export function RevealImage({
     : ({ width: width ?? 1200, height: height ?? 1600 } as const);
 
   return (
-    <div
-      ref={ref}
-      className={cn("group/img relative overflow-hidden bg-fill-subtle", className)}
-    >
+    <div className={cn("relative overflow-hidden bg-fill-subtle", className)}>
       <Image
         src={src}
         alt={alt}
@@ -92,25 +78,6 @@ export function RevealImage({
         placeholder={blurDataURL ? "blur" : "empty"}
         blurDataURL={blurDataURL}
         className="h-full w-full object-cover"
-        style={objectPosition}
-      />
-
-      {/* Static grey plate. Only its opacity animates. */}
-      <Image
-        src={src}
-        alt=""
-        aria-hidden="true"
-        {...dims}
-        sizes={sizes}
-        priority={priority}
-        quality={quality}
-        className={cn(
-          "absolute inset-0 h-full w-full object-cover grayscale contrast-[1.08]",
-          "transition-opacity duration-[600ms] ease-[var(--ease-expo)]",
-          // Reveals on hovering the image itself OR the card that wraps it.
-          "group-hover/img:opacity-0 group-hover:opacity-0 motion-reduce:opacity-0",
-          inView ? "opacity-0" : "opacity-100",
-        )}
         style={objectPosition}
       />
     </div>

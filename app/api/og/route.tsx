@@ -26,15 +26,23 @@ async function loadFonts() {
   return fontCache;
 }
 
-/** Must match the tokens in globals.css — the cards are the site, shrunk. */
-const PAPER = "#F2F1EE";
-const INK = "#0B0B0B";
-const GREY_70 = "#6E6C68";
+/**
+ * Must match the tokens in globals.css — the cards are the site, shrunk.
+ *
+ * These are literals rather than CSS variables because Satori resolves no
+ * cascade, so this is the one place in the public site where the palette is
+ * duplicated. `npm run audit:colour` reads this file against the same token
+ * list as everything else, so a drift here fails the build rather than shipping
+ * the wrong brand to every link preview.
+ */
+const SAND = "#EDE7DB";
+const INK = "#2A211A";
+const MUTED = "#6B5D50";
 
 /**
- * Monochrome OG cards mirroring the magazine-cover layout: mono labels top and
- * bottom, oversized serif headline, a barcode rule. Every shared link becomes
- * brand collateral.
+ * Warm-neutral OG cards mirroring the magazine-cover layout: mono labels top
+ * and bottom, oversized serif headline, a barcode rule. Every shared link
+ * becomes brand collateral.
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -58,7 +66,7 @@ export async function GET(req: NextRequest) {
           justifyContent: "space-between",
           width: "100%",
           height: "100%",
-          backgroundColor: PAPER,
+          backgroundColor: SAND,
           color: INK,
           padding: "56px 64px",
           fontFamily: "Zodiak",
@@ -72,7 +80,7 @@ export async function GET(req: NextRequest) {
             fontSize: 20,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: GREY_70,
+            color: MUTED,
           }}
         >
           <div style={{ display: "flex" }}>
@@ -98,7 +106,7 @@ export async function GET(req: NextRequest) {
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
-            borderTop: "1px solid rgba(11,11,11,0.18)",
+            borderTop: "1px solid rgba(42,33,26,0.18)",
             paddingTop: 28,
           }}
         >
@@ -109,7 +117,7 @@ export async function GET(req: NextRequest) {
               fontSize: 20,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
-              color: GREY_70,
+              color: MUTED,
             }}
           >
             {SITE.edition} — ACCRA, GHANA

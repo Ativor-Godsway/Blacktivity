@@ -12,29 +12,31 @@
 import { readFileSync } from "node:fs";
 import { globSync } from "node:fs";
 
-/** Everything permitted in UI chrome, lowercased, no alpha. */
+/**
+ * Everything permitted in UI chrome, lowercased, no alpha. REVISION 12: this is
+ * the warm-neutral palette, and it REPLACED the monochrome list rather than
+ * being widened to accept both. Pure black and pure white are no longer on it
+ * in any form — not as a colour, not as an alpha base — because the whole point
+ * of the change is that the neutrals themselves carry the warmth.
+ */
 const ALLOWED_HEX = new Set([
-  "#f2f1ee", // paper
-  "#e8e7e3", // paper-raised
-  "#0b0b0b", // ink
-  "#000000", "#000", // void
-  "#6e6c68", // grey-70
-  "#a8a6a1", // grey-45
-  "#c9c7c2", // grey-25
-  "#4a4844", // grey-25 equivalent on the void ground
-  "#111111", // bg-raised on void
-  "#ffffff", "#fff", // permitted ONLY as an alpha base for rules/fills on black
+  "#ede7db", // sand — page ground
+  "#e2d9c8", // sand-raised
+  "#c9b79c", // tan — decorative on light grounds only
+  "#2a211a", // ink
+  "#574a3e", // ink-2
+  "#6b5d50", // muted
+  "#a2937f", // muted-dark
+  "#241c16", // espresso
 ]);
 
 /**
  * rgb()/rgba() is only permitted as an alpha of a token — that is how the
- * hairline and fill tokens are built (`rgba(11,11,11,0.12)` is ink at 12%).
+ * hairline and fill tokens are built (`rgba(42,33,26,0.16)` is ink at 16%).
  */
 const ALPHA_BASES = [
-  [0, 0, 0], // void
-  [255, 255, 255], // the white used for rules and fills on the black ground
-  [11, 11, 11], // ink
-  [242, 241, 238], // paper
+  [42, 33, 26], // ink — rules and fills on the light grounds
+  [237, 231, 219], // sand — rules and fills inside .on-espresso
 ];
 
 function rgbIsToken(r, g, b) {
@@ -77,9 +79,12 @@ for (const file of files) {
       }
     }
 
-    // Named CSS colours and any hue-bearing utility would both break the rule.
+    // Hue-bearing utilities break the token rule; `black` and `white` break the
+    // warm-neutral rule, which is a different thing and just as important —
+    // revision 12 removed pure black and pure white from the system entirely.
+    // The admin is excluded from this file, so its dark rail keeps them.
     for (const m of code.matchAll(
-      /\b(?:bg|text|border|fill|stroke|from|via|to|ring|shadow|accent|decoration|outline)-(red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone)-\d{2,3}\b/g,
+      /\b(?:bg|text|border|fill|stroke|from|via|to|ring|shadow|accent|decoration|outline)-(black|white|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone)(-\d{2,3})?(\/\[?[0-9.]+\]?)?\b/g,
     )) {
       problems.push(`${file}:${i + 1}  ${m[0]}  (Tailwind palette colour)`);
     }

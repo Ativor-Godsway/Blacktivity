@@ -11,7 +11,7 @@ import ActionLink from "@/components/site/ActionLink";
  */
 export function AboutSection() {
   return (
-    <section className="on-void py-28 md:py-44">
+    <section className="on-espresso py-28 md:py-44">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <MonoLabel className="text-fg-muted">
           <TextType text="Who we are" />

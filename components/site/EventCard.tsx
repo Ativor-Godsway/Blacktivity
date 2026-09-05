@@ -7,15 +7,22 @@ import type { EventDTO } from "@/lib/types";
 export function EventCard({
   event,
   className,
+  headingLevel = 3,
 }: {
   event: EventDTO;
   className?: string;
+  /** See ArticleCell — 2 on the index page, 3 under a section heading. */
+  headingLevel?: 2 | 3;
 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   const upcoming = isUpcoming(event.startDate);
   const date = new Date(event.startDate);
 
   return (
-    <article className={cn("group", className)}>
+    // Same `.card-hover` trio as the article and creatives grids — ground,
+    // title, 4px arrow. The whole card is one link, so the ground lift is
+    // honest about what is clickable.
+    <article className={cn("card-hover -m-4 p-4", className)}>
       <Link href={`/events/${event.slug}`} className="block">
         <div className="mb-4 flex items-baseline justify-between border-b border-rule pb-3">
           <MonoLabel dim>{upcoming ? "UPCOMING" : "PAST"}</MonoLabel>
@@ -37,10 +44,11 @@ export function EventCard({
           {String(date.getUTCMonth() + 1).padStart(2, "0")}
         </p>
 
-        <h3 className="mt-2 text-lg leading-snug">{event.title}</h3>
+        <Heading className="card-title mt-2 text-lg leading-snug">{event.title}</Heading>
 
-        <p className="mono mt-3 text-fg-muted">
+        <p className="mono mt-3 flex items-center gap-2 text-fg-muted">
           {formatDateMono(event.startDate)} — {event.venue}
+          <span aria-hidden="true" className="card-arrow inline-block">→</span>
         </p>
       </Link>
     </article>

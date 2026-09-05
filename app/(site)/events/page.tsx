@@ -27,7 +27,7 @@ export default async function EventsPage() {
       <div className="mx-auto max-w-[1600px] px-(--gutter) py-20">
         <section>
           <div className="flex items-baseline justify-between border-b border-rule pb-4">
-            <MonoLabel>Upcoming</MonoLabel>
+            <MonoLabel as="h2">Upcoming</MonoLabel>
             <MonoLabel dim>{String(upcoming.length).padStart(2, "0")}</MonoLabel>
           </div>
 
@@ -49,7 +49,7 @@ export default async function EventsPage() {
         {past.length > 0 ? (
           <section className="mt-(--spacing-section)">
             <div className="flex items-baseline justify-between border-b border-rule pb-4">
-              <MonoLabel>Past</MonoLabel>
+              <MonoLabel as="h2">Past</MonoLabel>
               <MonoLabel dim>{String(past.length).padStart(2, "0")}</MonoLabel>
             </div>
             <div className="mt-14 grid grid-cols-4 gap-x-(--gutter) gap-y-16 md:grid-cols-12">

@@ -99,7 +99,7 @@ export function AdminSidebar({
                 {item.badge && pendingCount > 0 ? (
                   <span
                     className={cn(
-                      "a-num rounded-full text-[10.5px] leading-none text-[#0b0b0b]",
+                      "a-num rounded-full text-[10.5px] leading-none text-[#2a211a]",
                       collapsed
                         ? "absolute top-1.5 right-1.5 size-4 grid place-items-center"
                         : "px-1.5 py-0.5",

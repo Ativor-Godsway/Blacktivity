@@ -33,7 +33,10 @@ export default async function CreativesPage() {
               key={member.igHandle}
               as="li"
               delay={(i % 3) * 0.05}
-              className="group col-span-2 md:col-span-4"
+              // `.card-hover` as on the other two grids. Note the ground lift
+              // responds to the whole card while only the Instagram link is
+              // clickable — the link carries the title and arrow treatment.
+              className="card-hover col-span-2 -m-4 p-4 md:col-span-4"
             >
                 <div className="mb-4 flex items-baseline justify-between border-b border-rule pb-3">
                   <MonoLabel dim>
@@ -48,11 +51,10 @@ export default async function CreativesPage() {
                   width={1200}
                   height={1600}
                   sizes="(max-width: 768px) 50vw, 30vw"
-                  colorOnView={false}
                   className="aspect-3/4 w-full"
                 />
 
-                <h2 className="display mt-5 text-[clamp(1.5rem,2.5vw,2.25rem)]">
+                <h2 className="card-title display mt-5 text-[clamp(1.5rem,2.5vw,2.25rem)]">
                   {member.name}
                 </h2>
                 {member.bio ? (
@@ -64,9 +66,10 @@ export default async function CreativesPage() {
                   target="_blank"
                   rel="noreferrer noopener"
                   data-track="creative-instagram"
-                  className="mono mt-4 inline-block text-fg-muted transition-colors duration-300 hover:text-fg"
+                  className="mono mt-4 inline-flex items-center gap-2 text-fg-muted transition-colors duration-300 hover:text-fg"
                 >
-                  @{member.igHandle} ↗
+                  @{member.igHandle}
+                  <span aria-hidden="true" className="card-arrow inline-block">↗</span>
                 </a>
             </Reveal>
           ))}

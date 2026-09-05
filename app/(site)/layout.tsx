@@ -14,8 +14,8 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
     <>
       {/* Paper grain is public-site brand texture, not admin chrome. */}
       <Grain />
-      {/* Ink on the paper ground — never a hue. */}
-      <ClickSpark sparkColor="#0B0B0B" />
+      {/* Ink on the sand ground — never a hue. */}
+      <ClickSpark sparkColor="#2A211A" />
       <SmoothScroll />
       <HairlineGridFixed />
       <Suspense fallback={null}>

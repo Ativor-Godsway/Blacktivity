@@ -65,7 +65,7 @@ export function ArticleIndex({ articles }: { articles: ArticleDTO[] }) {
         ) : (
           <div className="mt-12 grid grid-cols-1 border-t border-l border-rule sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((article) => (
-              <ArticleCell key={article.id} article={article} />
+              <ArticleCell key={article.id} article={article} headingLevel={2} />
             ))}
           </div>
         )}

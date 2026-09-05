@@ -2,7 +2,7 @@ import type { SVGProps } from "react";
 
 /**
  * The Blacktivity wordmark, inlined so it inherits `currentColor` and can flip
- * between --ink on paper and --paper on the black sections. An <img> could not
+ * between --ink on sand and --sand on the espresso sections. An <img> could not
  * do that.
  *
  * The source file declares a 1500-square viewBox with the artwork floating

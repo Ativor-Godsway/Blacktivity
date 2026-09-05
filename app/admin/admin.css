@@ -16,10 +16,16 @@
 
 .admin {
   /* --- chrome ------------------------------------------------------------ */
-  --admin-sidebar: #0b0b0b;   /* dark rail, keeps brand black present */
-  --admin-plane: #f2f1ee;     /* page background — the public site's paper */
-  --admin-surface: #ffffff;   /* cards, tables, panels */
-  --admin-ink: #0b0b0b;
+  /* Warmed to the public site's revision-12 palette, but ONLY the tokens that
+     no validated pairing depends on. --admin-surface stays #ffffff: the status
+     hues and the three chart series were contrast-checked against a white card,
+     and warming the card under them would silently invalidate every one of
+     those numbers. The neutrals a reader sees at a glance — rail, page ground,
+     hairline, row hover — carry the warmth instead. */
+  --admin-sidebar: #241c16;   /* dark rail — espresso, was pure black */
+  --admin-plane: #ede7db;     /* page background — the public site's sand */
+  --admin-surface: #ffffff;   /* cards, tables, panels — see the note above */
+  --admin-ink: #2a211a;
   --admin-ink-2: #52514e;     /* secondary */
   /* CONTRAST: --admin-muted is 3.59:1 on white, under the 4.5 bar for small
      text. It is therefore used ONLY where the value is also conveyed another
@@ -27,8 +33,8 @@
      label. Anything a reader must actually read uses --admin-ink-2 (7.94:1).
      See `node scripts/audit-admin-colour.mjs` and the contrast note in README. */
   --admin-muted: #898781;     /* chart axis ticks only */
-  --admin-rule: #e1e0d9;      /* hairlines, gridlines */
-  --admin-hover: #f7f7f5;     /* row hover */
+  --admin-rule: #ded6c8;      /* hairlines, gridlines — warmed */
+  --admin-hover: #f7f4ee;     /* row hover — warmed */
 
   /* --- status ------------------------------------------------------------
      Fixed. Never themed, never reused as a chart series.

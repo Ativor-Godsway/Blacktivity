@@ -11,47 +11,64 @@
 @source not "../**/*.md";
 
 /* ---------------------------------------------------------------------------
-   BLACKTIVITY DESIGN TOKENS — REVISION 01
+   BLACKTIVITY DESIGN TOKENS — REVISION 12, WARM NEUTRAL
 
-   The site is LIGHT-DOMINANT. Black is heavy punctuation, used for exactly
-   three full-bleed sections on the homepage and for the admin.
+   The scheme is a THREE-VALUE WARM NEUTRAL: a sand ground with espresso type,
+   or the inverse. It is not monochrome with a tint applied — there is no pure
+   black and no pure white anywhere in the system, and the neutrals themselves
+   carry the warmth. That distinction is the whole point: adding beige on top of
+   black and white reads as a monochrome site wearing a filter.
 
-   The ramp is warm-neutral, not pure greyscale. Nothing outside this list may
-   appear in UI chrome — photographs are the only source of colour.
+   The site is LIGHT-DOMINANT. Espresso is heavy punctuation, used for three
+   full-bleed sections on the homepage and for nothing else.
+
+   CONTRAST. Every pairing below is measured, and two values are load-bearing:
+
+     --muted (#6B5D50) is the LIGHTEST tone that still clears AA on BOTH light
+     grounds — 5.16 on sand, 4.53 on sand-raised. Mono labels appear on cards
+     all over this site, so the sand-raised figure is the binding one. Moving
+     this value lighter fails every card on the site at once.
+
+     --muted-dark (#A2937F) exists because --muted reaches only 2.64 on
+     espresso. Labels inside dark sections MUST use it. The semantic layer does
+     this automatically — see .on-espresso — so no component should ever name
+     either value directly.
+
+     --tan (1.59 on sand) is DECORATIVE ONLY on light grounds: never type,
+     never a border that carries state. On espresso it is 8.57 and safe.
+
+   `npm run audit:colour` re-derives all of these from the built stylesheet and
+   fails on drift, so the table is checked rather than asserted.
 --------------------------------------------------------------------------- */
 @theme {
   /* --- the literal palette. Nothing outside this list is permitted. --- */
-  --color-paper: #f2f1ee;        /* primary background — warm off-white, NEVER #FFF */
-  --color-paper-raised: #e8e7e3; /* cards, hovers, inset panels */
-  --color-ink: #0b0b0b;          /* primary text on paper */
-  --color-void: #000000;         /* full-bleed black punctuation ONLY */
-
-  --color-grey-70: #6e6c68;
-  --color-grey-45: #a8a6a1;
-  --color-grey-25: #c9c7c2;
+  --color-sand: #ede7db;         /* page ground — never #FFF */
+  --color-sand-raised: #e2d9c8;  /* cards, hovers, inset panels */
+  --color-tan: #c9b79c;          /* the cover tone — accents on dark only */
+  --color-ink: #2a211a;          /* all primary type */
+  --color-ink-2: #574a3e;        /* secondary text, excerpts */
+  --color-muted: #6b5d50;        /* mono labels on light grounds */
+  --color-muted-dark: #a2937f;   /* mono labels inside espresso sections */
+  --color-espresso: #241c16;     /* full-bleed dark punctuation ONLY */
 
   /* --- semantic layer -----------------------------------------------------
      Components address the GROUND they sit on, never a literal colour, so the
-     same component renders correctly on paper and inside .on-void. These are
-     the light-ground values; .on-void overrides them below.               --- */
-  --color-fg: #0b0b0b;           /* primary foreground   — 17.4:1 on paper */
-  --color-fg-muted: #6e6c68;     /* secondary copy       —  4.6:1, AA */
-  --color-fg-dim: #6e6c68;       /* labels, meta         —  4.6:1, AA */
-  --color-fg-faint: #a8a6a1;     /* DECORATIVE ONLY on paper — 2.2:1, never
-                                    small text; see the note below */
-  --color-bg: #f2f1ee;           /* the ground itself */
-  --color-bg-raised: #e8e7e3;    /* cards, inset panels */
-  --color-rule: rgba(11, 11, 11, 0.12);
-  --color-grid: rgba(11, 11, 11, 0.05);
-
-  /* CONTRAST: on paper only ink (17.4:1) and grey-70 (4.6:1) clear AA for
-     small text; grey-45 is 2.2:1 and grey-25 is 1.5:1. On void the reverse
-     holds — grey-70 is only 4.0:1 and fails. That is why the same semantic
-     token resolves to different greys on each ground. Do not "tidy" these
-     into one shared value. */
-  --color-rule-strong: rgba(11, 11, 11, 0.28);
-  --color-fill-subtle: rgba(11, 11, 11, 0.05);
-  --color-fill-strong: rgba(11, 11, 11, 0.1);
+     same component renders correctly on sand and inside .on-espresso. These
+     are the light-ground values; .on-espresso overrides them below.       --- */
+  --color-fg: #2a211a;           /* primary foreground   — 12.81 on sand */
+  --color-fg-muted: #574a3e;     /* secondary copy       —  6.95, AA */
+  --color-fg-dim: #6b5d50;       /* labels, meta         —  5.16, AA */
+  --color-fg-faint: #6b5d50;     /* smallest legible tone —  5.16, AA.
+                                    NOT --tan: at 1.59 on sand it is
+                                    decorative, and this token reaches type. */
+  --color-bg: #ede7db;           /* the ground itself */
+  --color-bg-raised: #e2d9c8;    /* cards, inset panels */
+  --color-rule: rgba(42, 33, 26, 0.16);
+  --color-rule-soft: rgba(42, 33, 26, 0.08);
+  --color-grid: rgba(42, 33, 26, 0.05);
+  --color-rule-strong: rgba(42, 33, 26, 0.28);
+  --color-fill-subtle: rgba(42, 33, 26, 0.05);
+  --color-fill-strong: rgba(42, 33, 26, 0.1);
 
   --font-display: var(--font-zodiak), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
@@ -88,38 +105,42 @@
 }
 
 /**
- * Any subtree on the black ground re-points the semantic tokens. This is the
+ * Any subtree on the espresso ground re-points the semantic tokens. This is the
  * ONLY place the inversion is expressed — no component branches on ground.
+ *
+ * Note --color-fg-dim: on this ground it resolves to --muted-dark, NOT --muted.
+ * --muted is 2.64 here and would fail every mono label inside a dark section.
+ * That is the reason this indirection exists at all.
  */
-.on-void {
-  --color-fg: #f2f1ee;           /* 18.6:1 on void */
-  --color-fg-muted: #c9c7c2;     /* 12.4:1, AA */
-  --color-fg-dim: #a8a6a1;       /*  8.6:1, AA */
-  --color-fg-faint: #a8a6a1;     /*  8.6:1, AA */
-  --color-bg: #000000;
-  --color-bg-raised: #111111;
-  --color-rule: rgba(255, 255, 255, 0.14);
-  --color-grid: rgba(255, 255, 255, 0.05);
-  --color-rule-strong: rgba(255, 255, 255, 0.32);
-  --color-fill-subtle: rgba(255, 255, 255, 0.06);
-  --color-fill-strong: rgba(255, 255, 255, 0.12);
+.on-espresso {
+  --color-fg: #ede7db;           /* 13.61 on espresso */
+  --color-fg-muted: #e2d9c8;     /* 12.28, AA */
+  --color-fg-dim: #a2937f;       /*  5.60, AA — muted-dark, not muted */
+  --color-fg-faint: #a2937f;     /*  5.60, AA */
+  --color-bg: #241c16;
+  --color-bg-raised: #2a211a;
+  --color-rule: rgba(237, 231, 219, 0.16);
+  --color-grid: rgba(237, 231, 219, 0.05);
+  --color-rule-strong: rgba(237, 231, 219, 0.32);
+  --color-fill-subtle: rgba(237, 231, 219, 0.06);
+  --color-fill-strong: rgba(237, 231, 219, 0.12);
 
   color-scheme: dark;
-  background-color: var(--color-void);
+  background-color: var(--color-espresso);
   color: var(--color-fg);
 }
 
 * { border-color: var(--color-rule); }
 
 html {
-  background: var(--color-paper);
+  background: var(--color-sand);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--color-paper);
+  background: var(--color-sand);
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -155,12 +176,64 @@ body {
   .mono { font-size: 12px; }
 }
 
-/* --- the signature gesture: grayscale → colour ---------------------------
-   Implemented in RevealImage as a two-layer opacity crossfade, NOT an animated
-   filter — animating `filter` repaints the image every frame and is not
-   compositor-accelerated. The grey plate carries a contrast lift because
-   grayscale goes milky on a light ground. No CSS needed here; this note exists
-   so the old `.desat` approach is not reintroduced. */
+/* --- photography renders in its own colours ------------------------------
+   The grayscale-to-colour reveal is GONE, along with the two-layer crossfade
+   that animated it. Do not reintroduce either: a site where article covers are
+   colour and portraits are grey reads as a bug rather than a decision, and
+   selective desaturation is a choice to make explicitly if it is ever wanted.
+
+   The gesture it provided — the signal that a card is clickable — moved into
+   the card itself: ground lifts to sand-raised, title darkens to ink, arrow
+   travels 4px. No transform on the image and no scale on the card, because the
+   grid's hairlines have to stay aligned. See `.card-hover` below. */
+
+/* --- the card hover affordance ---------------------------------------------
+   This replaces the grayscale-to-colour reveal, which was how a card announced
+   it was clickable. Three simultaneous changes, all colour or a 4px translate:
+
+     ground   sand -> sand-raised
+     title    ink-2 -> ink
+     arrow    travels 4px
+
+   NO transform on the image and NO scale on the card. The article, events and
+   creatives grids are continuous hairline tables; scaling a cell moves its
+   borders out of line with its neighbours', and the whole table visibly breaks
+   for the duration of the transition.
+
+   `:focus-within` carries the same treatment, so the affordance exists for the
+   keyboard too — the old crossfade was hover-only.
+
+   One class on all three grids, so the interaction is a single learnable
+   pattern rather than three near-misses. */
+.card-hover {
+  transition: background-color 300ms var(--ease-expo);
+}
+.card-hover .card-title {
+  color: var(--color-fg-muted);
+  transition: color 300ms var(--ease-expo);
+}
+.card-hover .card-arrow {
+  transition: transform 300ms var(--ease-expo);
+}
+.card-hover:hover,
+.card-hover:focus-within {
+  background-color: var(--color-bg-raised);
+}
+.card-hover:hover .card-title,
+.card-hover:focus-within .card-title {
+  color: var(--color-fg);
+}
+.card-hover:hover .card-arrow,
+.card-hover:focus-within .card-arrow {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The colour changes stay — they are the affordance. Only the travel goes. */
+  .card-hover .card-arrow { transition: none; }
+  .card-hover:hover .card-arrow,
+  .card-hover:focus-within .card-arrow { transform: none; }
+}
 
 /* --- masked line reveal -------------------------------------------------- */
 .line-mask { display: block; overflow: hidden; }
@@ -170,7 +243,7 @@ body {
    full-viewport blended element cannot be GPU-cached, so the browser
    re-composites the whole viewport on every scroll frame. That single
    property was responsible for ~2.9s of rasterization per 4s of scrolling.
-   Dark speckle at low opacity reads the same on paper for no per-frame cost. */
+   Dark speckle at low opacity reads the same on sand for no per-frame cost. */
 .grain {
   position: fixed;
   inset: 0;
@@ -183,7 +256,7 @@ body {
 }
 
 /* The black sections need light speckle, not dark, to read at all. */
-.on-void .grain-invert { display: none; }
+.on-espresso .grain-invert { display: none; }
 
 /* --- long-form article body ---------------------------------------------- */
 .prose-editorial { max-width: 68ch; }
