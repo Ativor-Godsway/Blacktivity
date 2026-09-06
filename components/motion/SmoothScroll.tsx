@@ -46,7 +46,80 @@ import Lenis from "lenis";
  *
  * If this ever stops feeling right, delete it. Native scroll that is instant
  * beats smooth scroll that lags.
+ *
+ * HASH ARRIVALS (Revision 14 §3)
+ *
+ * The homepage's three doors link to /rotation#new-music, #chart and #curation.
+ * The native anchor jump works on its own with JavaScript disabled — that is
+ * the baseline, and it is not negotiable — but LENIS FIGHTS IT. Lenis
+ * initialises after paint with an internal position of 0, so the browser lands
+ * on the section and Lenis immediately yanks the page back to the top. The same
+ * happens on a client-side navigation, where the effect below would otherwise
+ * scroll to 0 unconditionally.
+ *
+ * So both paths check the hash and re-apply the target through Lenis itself.
+ *
+ * `immediate: true`, deliberately: the reader asked to ARRIVE at a section, not
+ * to watch a 600ms flight past two sections they did not choose. Arriving
+ * instantly is the correct behaviour here, and it is what reduced motion would
+ * demand anyway.
+ *
+ * `anchors: true` handles SAME-PAGE anchor clicks, which do animate normally —
+ * only the cross-page arrival is immediate.
+ *
+ * The hash is set on entry and then LEFT ALONE. There is deliberately no
+ * scroll-spy here: rewriting the hash as the reader scrolls turns the back
+ * button into a scroll-position undo, which is the single most annoying thing
+ * a long page can do.
  */
+/**
+ * Sends Lenis to the element named by the current hash, if there is one and it
+ * exists. Returns whether it did, so callers can fall back to their own target.
+ *
+ * `scroll-margin-top` on the target is honoured by Lenis, so the section
+ * heading clears the top of the viewport by the same amount here as it does on
+ * the native jump.
+ */
+function scrollToHash(lenis: Lenis): boolean {
+  const hash = window.location.hash;
+  if (!hash || hash.length < 2) return false;
+
+  let el: Element | null = null;
+  try {
+    el = document.querySelector(hash);
+  } catch {
+    // A hash that is not a valid selector is not an error, just not a target.
+    return false;
+  }
+  if (!(el instanceof HTMLElement)) return false;
+
+  lenis.scrollTo(el, { immediate: true });
+
+  /**
+   * AND AGAIN ONCE THE FONTS HAVE SWAPPED.
+   *
+   * The first call measures the element against the FALLBACK font's metrics.
+   * The masthead headline is display serif at up to 9rem, so when Zodiak swaps
+   * in, everything below it moves — #curation landed 77px short of its mark on
+   * exactly this. The browser re-anchors a native fragment jump on its own;
+   * Lenis, which has taken the scroll position over, does not.
+   *
+   * Both calls are `immediate`, so this reads as arriving in the right place
+   * rather than as a correction — and it only ever fires while the reader is
+   * still at the position the first call set, never mid-scroll.
+   */
+  if (typeof document !== "undefined" && "fonts" in document) {
+    const settled = lenis.scroll;
+    void document.fonts.ready.then(() => {
+      // If the reader has already started scrolling, their position wins.
+      if (Math.abs(lenis.scroll - settled) > 4) return;
+      lenis.scrollTo(el as HTMLElement, { immediate: true });
+    });
+  }
+
+  return true;
+}
+
 export function SmoothScroll() {
   const pathname = usePathname();
   const lenisRef = useRef<Lenis | null>(null);
@@ -85,13 +158,21 @@ export function SmoothScroll() {
       smoothWheel: true,
       syncTouch: false,
       autoRaf: false,
+      // Same-page anchors animate; the cross-page arrival below does not.
+      anchors: true,
     });
     lenisRef.current = lenis;
 
     const update = (data: { timestamp: number }) => lenis.raf(data.timestamp);
     frame.update(update, true);
 
+    // A direct load of /rotation#chart: the browser has already jumped, and
+    // Lenis is about to undo it. Re-apply the target through Lenis so the two
+    // agree, after the first frame so layout and fonts have settled.
+    const hashFrame = requestAnimationFrame(() => scrollToHash(lenis));
+
     return () => {
+      cancelAnimationFrame(hashFrame);
       window.removeEventListener("popstate", onPop);
       document.removeEventListener("click", onClick, true);
       cancelFrame(update);
@@ -113,9 +194,17 @@ export function SmoothScroll() {
 
     // After the new route has committed and painted.
     const id = requestAnimationFrame(() => {
+      const lenis = lenisRef.current;
       // Only meaningful while Lenis is mounted; otherwise the browser has
       // already handled it.
-      lenisRef.current?.scrollTo(target, { immediate: true });
+      if (!lenis) return;
+
+      // A forward navigation carrying a hash lands at that section, not at the
+      // top. A back/forward restores its recorded offset regardless — the
+      // reader's previous position beats the URL's opinion.
+      if (!wasPop && scrollToHash(lenis)) return;
+
+      lenis.scrollTo(target, { immediate: true });
     });
 
     return () => cancelAnimationFrame(id);

@@ -11,7 +11,7 @@ const token = (() => { try { return readFileSync("/tmp/bt-token.txt","utf8").tri
 const b = await puppeteer.launch({ executablePath:"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless:"new", args:["--no-sandbox","--disable-gpu"]});
 let total = 0;
 
-for (const path of ["/", "/articles", "/articles/tailors-of-makola", "/about", "/events", "/creatives", "/submit", "/admin"]) {
+for (const path of ["/", "/articles", "/articles/tailors-of-makola", "/rotation", "/rotation/archive", "/about", "/events", "/creatives", "/submit", "/admin"]) {
   const p = await b.newPage();
   const msgs = [];
   p.on("console", (m) => { const t = m.type(); if (t === "error" || t === "warning") msgs.push(`[${t}] ${m.text()}`); });

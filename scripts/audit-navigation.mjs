@@ -23,7 +23,7 @@
 import puppeteer from "puppeteer-core";
 
 const BASE = process.env.AUDIT_BASE_URL ?? "http://localhost:3111";
-const ROUTES = ["/", "/articles", "/events", "/creatives", "/about", "/submit"];
+const ROUTES = ["/", "/articles", "/rotation", "/events", "/creatives", "/about", "/submit"];
 const MIN_VISIBLE_CHARS = 40;
 
 const browser = await puppeteer.launch({

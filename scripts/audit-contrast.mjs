@@ -59,6 +59,40 @@ const PAIRINGS = [
   ["--color-sand", "--color-espresso", 13.61, AA],
   ["--color-muted-dark", "--color-espresso", 5.60, AA],
   ["--color-tan", "--color-espresso", 8.57, AA],
+
+  /* --- REVISION 14 -------------------------------------------------------
+     Every pairing the new tokens are actually allowed to form. The three
+     combinations that FAIL are asserted separately below, as bans rather than
+     as pairings, because a passing number is not what needs protecting there. */
+  ["--color-ink", "--color-sand-deep", 10.03, AA],
+  ["--color-ink-2", "--color-sand-deep", 5.44, AA],
+  ["--color-ink", "--color-tan", 8.07, AA],
+  ["--color-espresso", "--color-tan", 8.57, AA],
+  ["--color-sand", "--color-cocoa", 10.64, AA],
+  ["--color-tan", "--color-cocoa", 6.70, AA],
+  ["--color-sand", "--color-espresso-deep", 15.32, AA],
+  ["--color-tan", "--color-espresso-deep", 9.65, AA],
+  ["--color-muted-dark", "--color-espresso-deep", 6.30, AA],
+];
+
+/**
+ * THE THREE BANNED COMBINATIONS, and THE GRADIENT RULE.
+ *
+ * Each of these is a pairing someone would reasonably reach for — the same
+ * mono-label-on-a-tinted-ground shape that produced --muted-dark in Revision
+ * 12 — and each lands between 4.04 and 4.38: large-text-only, while mono
+ * labels are 11-12px. They are asserted as bans so that "it looked fine" can
+ * never quietly ship one.
+ *
+ * The gradient entry is the important one. Contrast on a gradient is measured
+ * at its LIGHTEST point, never its average, so --cocoa is the ground every
+ * text colour on the Rotation gradient is checked against. Checking a midpoint
+ * passes a label that is unreadable across the top third of the section.
+ */
+const BANNED_PAIRINGS = [
+  ["--color-muted", "--color-sand-deep", "mono labels on sand-deep must use --ink-2"],
+  ["--color-ink-2", "--color-tan", "the tan strip carries --ink or --espresso only"],
+  ["--color-muted-dark", "--color-cocoa", "labels on the gradient must use --tan or --sand"],
 ];
 
 let failed = 0;
@@ -74,6 +108,23 @@ for (const [fg, bg, claimed, floor] of PAIRINGS) {
   if (Math.abs(r - claimed) > 0.05) fail(`${label}: ${r.toFixed(2)}, but the palette documents ${claimed}`);
   else if (r < floor) fail(`${label}: ${r.toFixed(2)}, under the ${floor} bar`);
   else console.log(`  ok   ${label.padEnd(28)} ${r.toFixed(2)}  (${f} on ${b})`);
+}
+
+/* --- Revision 14: the banned combinations must stay under the bar -------- */
+
+for (const [fg, bg, why] of BANNED_PAIRINGS) {
+  const f = token(fg), b = token(bg);
+  if (!f || !b) { fail(`${fg} on ${bg}: token missing from the built CSS`); continue; }
+  const r = ratio(f, b);
+  const label = `${fg.replace("--color-", "")} on ${bg.replace("--color-", "")}`;
+  if (r >= AA) {
+    // Not a pass. If this became true the restriction would have lost its
+    // reason to exist and someone would rightly delete it — so surface it and
+    // make the call deliberately, exactly as with --muted on espresso.
+    fail(`${label} now clears AA (${r.toFixed(2)}) — re-examine the rule: ${why}`);
+  } else {
+    console.log(`  ok   ${("banned: " + label).padEnd(28)} ${r.toFixed(2)}  under AA — ${why}`);
+  }
 }
 
 /* --- the two load-bearing facts ----------------------------------------- */
@@ -113,6 +164,7 @@ const OWNED = [
   "--color-ink-2", "--color-muted", "--color-muted-dark", "--color-espresso",
   "--color-fg", "--color-fg-muted", "--color-fg-dim", "--color-fg-faint",
   "--color-bg", "--color-bg-raised",
+  "--color-sand-deep", "--color-cocoa", "--color-espresso-deep",
 ];
 const BANNED = new Set(["#000000", "#ffffff", "#000", "#fff"]);
 for (const name of OWNED) {

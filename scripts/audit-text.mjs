@@ -19,7 +19,7 @@
 import puppeteer from "puppeteer-core";
 
 const BASE = process.env.AUDIT_BASE_URL ?? "http://localhost:3111";
-const PAGES = ["/", "/articles", "/about", "/events", "/submit"];
+const PAGES = ["/", "/articles", "/rotation", "/about", "/events", "/submit"];
 const MIN_OPACITY = 0.5;
 
 const browser = await puppeteer.launch({

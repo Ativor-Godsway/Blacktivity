@@ -41,4 +41,25 @@ export function signUpload(params: Record<string, string | number>) {
   };
 }
 
+/**
+ * Deletes one asset. Used when artwork is replaced or a track is deleted —
+ * without it the account fills with orphans whose only handle, the public id,
+ * was just overwritten in the database.
+ *
+ * Never throws: losing an old file is not a reason to fail the edit that
+ * replaced it, and the caller has already committed.
+ */
+export async function destroyAsset(publicId: string): Promise<boolean> {
+  if (!publicId || !isCloudinaryConfigured()) return false;
+  // Only ever our own folder — a stray id must not reach the destroy API.
+  if (!publicId.startsWith(`${CLOUDINARY_FOLDER}/`)) return false;
+
+  try {
+    const res = await cloudinary.uploader.destroy(publicId);
+    return res?.result === "ok";
+  } catch {
+    return false;
+  }
+}
+
 export default cloudinary;

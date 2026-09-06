@@ -36,6 +36,7 @@ const nextConfig: NextConfig = {
   // The OG route reads these TTFs at runtime — trace them into the bundle.
   outputFileTracingIncludes: {
     "/api/og": ["./assets/fonts/**"],
+    "/api/og/rotation": ["./assets/fonts/**"],
   },
 };
 

@@ -28,6 +28,10 @@ const ALLOWED_HEX = new Set([
   "#6b5d50", // muted
   "#a2937f", // muted-dark
   "#241c16", // espresso
+  // REVISION 14 — exactly three new tokens, and no others.
+  "#d8cdb8", // sand-deep — tints and the 01 chart row
+  "#3b2e25", // cocoa — the gradient's light end
+  "#16100b", // espresso-deep — the gradient's dark end
 ]);
 
 /**

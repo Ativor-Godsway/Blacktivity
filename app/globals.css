@@ -51,6 +51,34 @@
   --color-muted-dark: #a2937f;   /* mono labels inside espresso sections */
   --color-espresso: #241c16;     /* full-bleed dark punctuation ONLY */
 
+  /* --- REVISION 14: three steps that extend the ramp at both ends ---------
+     The section needed depth without leaving the browns. Each has exactly one
+     job, and each brings a restriction that is NOT optional:
+
+       --sand-deep   third light step — the tinted strip and the 01 chart row.
+                     MONO LABELS ON IT USE --ink-2, NEVER --muted: --muted is
+                     4.04 here, under the bar, and mono labels are 11-12px.
+                     Same situation that produced --muted-dark in Revision 12.
+
+       --cocoa       the gradient's LIGHT end, and dark row tints. Mono labels
+                     on it use --tan (6.70) or --sand, never --muted-dark,
+                     which is 4.38 and large-text-only.
+
+       --espresso-deep  the gradient's dark end.
+
+     THE GRADIENT RULE. Contrast on a gradient is measured at its LIGHTEST
+     point, not its average — so every text colour on the Rotation gradient
+     must clear AA against --cocoa, not against some midpoint that never
+     actually sits behind a glyph. This is the exact check a gradient invites
+     people to skip. `npm run audit:contrast` asserts it.
+
+     --tan as TYPE on dark grounds was always allowed (8.57 on espresso);
+     Revision 12's "decorative only" restriction was scoped to LIGHT grounds
+     and still is — it is 1.24 on sand-deep, so it never becomes type there. */
+  --color-sand-deep: #d8cdb8;    /* third light step — tints, the 01 row */
+  --color-cocoa: #3b2e25;        /* gradient's light end; dark row tints */
+  --color-espresso-deep: #16100b;/* gradient's dark end */
+
   /* --- semantic layer -----------------------------------------------------
      Components address the GROUND they sit on, never a literal colour, so the
      same component renders correctly on sand and inside .on-espresso. These
@@ -127,6 +155,71 @@
 
   color-scheme: dark;
   background-color: var(--color-espresso);
+  color: var(--color-fg);
+}
+
+/**
+ * THE ROTATION GRADIENT — the only gradient on the site.
+ *
+ * Plain CSS, deliberately: no image, no canvas, and no mix-blend-mode, which
+ * Revision 06 forbids because a blended full-viewport layer cannot be
+ * GPU-cached and re-composites the viewport every scroll frame.
+ *
+ * The semantic tokens are re-pointed for this ground exactly as .on-espresso
+ * does, so no component branches on which ground it is sitting on. Note
+ * --color-fg-dim resolves to --tan here, NOT --muted-dark: muted-dark is 4.38
+ * against --cocoa, the gradient's lightest point, and that is where the
+ * measurement has to be taken.
+ */
+.on-gradient {
+  --color-fg: #ede7db;           /* 10.64 on cocoa, 15.32 on espresso-deep */
+  --color-fg-muted: #e2d9c8;     /*  9.35 on cocoa, AA */
+  --color-fg-dim: #c9b79c;       /*  6.70 on cocoa — tan, not muted-dark */
+  --color-fg-faint: #c9b79c;     /*  6.70 on cocoa, AA */
+  --color-bg: #3b2e25;
+  --color-bg-raised: #3b2e25;
+  --color-rule: rgba(237, 231, 219, 0.16);
+  --color-grid: rgba(237, 231, 219, 0.05);
+  --color-rule-strong: rgba(237, 231, 219, 0.32);
+  --color-fill-subtle: rgba(237, 231, 219, 0.06);
+  --color-fill-strong: rgba(237, 231, 219, 0.12);
+
+  color-scheme: dark;
+  background-image: linear-gradient(180deg, var(--color-cocoa) 0%, var(--color-espresso-deep) 100%);
+  color: var(--color-fg);
+}
+
+/**
+ * The --sand-deep ground: the chart's 01 row and the masthead strip's
+ * neighbours. --color-fg-dim resolves to --ink-2, never --muted, which is 4.04
+ * here. This class is the ONLY thing standing between a tinted row and a
+ * failing mono label, so mono type inside it must go through the token.
+ */
+.on-sand-deep {
+  --color-fg: #2a211a;           /* 10.03 on sand-deep */
+  --color-fg-muted: #574a3e;     /*  5.44, AA */
+  --color-fg-dim: #574a3e;       /*  5.44 — ink-2, NOT muted (4.04) */
+  --color-fg-faint: #574a3e;
+  --color-bg: #d8cdb8;
+  --color-bg-raised: #d8cdb8;
+
+  background-color: var(--color-sand-deep);
+  color: var(--color-fg);
+}
+
+/**
+ * The masthead strip: --tan ground carries --ink or --espresso type and
+ * nothing else — they are the only two that clear AA on it (8.07 and 8.57).
+ * --ink-2 is 4.37 and --muted is 3.25, so neither may appear here.
+ */
+.on-tan {
+  --color-fg: #2a211a;           /* 8.07 on tan */
+  --color-fg-muted: #2a211a;
+  --color-fg-dim: #2a211a;
+  --color-fg-faint: #2a211a;
+  --color-bg: #c9b79c;
+
+  background-color: var(--color-tan);
   color: var(--color-fg);
 }
 
@@ -233,6 +326,31 @@ body {
   .card-hover .card-arrow { transition: none; }
   .card-hover:hover .card-arrow,
   .card-hover:focus-within .card-arrow { transform: none; }
+}
+
+/* --- the chart's two-column grid ------------------------------------------
+   Reference B's structure: five rows per column on desktop, one column below
+   900px. `grid-auto-flow: column` with an explicit row count is what puts 01-05
+   in the left column and 06-10 in the right while keeping ONE <ol> in DOM and
+   reading order — splitting it into two lists would tell a screen reader there
+   are two charts.
+
+   The row count is passed as --chart-rows rather than hard-coded at five, so a
+   volume holding fewer than ten entries still balances across the two columns
+   instead of leaving a hole in the second.
+
+   900px, not a Tailwind breakpoint: it is where a 72px thumbnail, a display
+   serif artist name and three mono link labels stop fitting on one line at
+   half width, which is a property of this row and not of the site's grid. */
+@media (min-width: 900px) {
+  .chart-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(var(--chart-rows, 5), auto);
+  }
+  /* One vertical hairline between the columns, drawn by the second column. */
+  .chart-grid > li.chart-col-2 { border-left: 1px solid var(--color-rule); }
 }
 
 /* --- masked line reveal -------------------------------------------------- */

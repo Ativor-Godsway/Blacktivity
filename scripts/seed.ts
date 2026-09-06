@@ -10,9 +10,21 @@ import EventModel from "../models/Event";
 import Submission from "../models/Submission";
 import AdminUser from "../models/AdminUser";
 import AnalyticsEvent from "../models/AnalyticsEvent";
+import Track from "../models/Track";
+import ChartVolume from "../models/ChartVolume";
 import DailyStat from "../models/DailyStat";
 import { SEED_ARTICLES, SEED_EVENTS, SEED_SUBMISSIONS } from "./seed-data";
+import { SEED_TRACKS, seedRotation } from "./seed-rotation";
+import { trackSlug } from "../lib/rotation";
 import { PLACEHOLDER_IMAGES, NEUTRAL_BLUR } from "../data/seed-content";
+
+/**
+ * 90 days of synthetic traffic is demo furniture. It is right for a local
+ * dashboard and wrong for production, where it permanently mixes invented
+ * numbers into real ones. Opt out with SEED_ANALYTICS=no (or --no-analytics).
+ */
+const SEED_ANALYTICS =
+  process.env.SEED_ANALYTICS !== "no" && !process.argv.includes("--no-analytics");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -122,6 +134,23 @@ async function seedSubmissions() {
   console.log(`  submissions   ${SEED_SUBMISSIONS.length}`);
 }
 
+/**
+ * Four volumes, Vol. 04 to Vol. 07, sharing ONE Track document per song. That
+ * sharing is the whole point: movement, weeks-on-chart and peak are derived by
+ * following the same _id across volumes, so seeding a fresh track per volume
+ * would produce four "NEW" entries and prove nothing.
+ *
+ * The writer itself lives in ./seed-rotation beside its data, because
+ * `npm run seed:rotation` needs it too — that entry point is additive and safe
+ * to point at a database holding real content, where this script is not.
+ */
+async function seedRotationStep() {
+  const r = await seedRotation(Track, ChartVolume, { reset: true });
+  console.log(
+    `  rotation      ${r.volumesInserted} volumes, ${r.tracksInserted} tracks, ${r.curations} curations`,
+  );
+}
+
 async function seedAdmin() {
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
@@ -191,6 +220,16 @@ async function seedAnalytics() {
     "event-tickets",
     "creative-instagram",
     "footer-instagram",
+    /**
+     * Rotation link opens, so the "most opened, last volume" panel and the
+     * editor's right rail have something real to rank. These are the same
+     * labels the delegated data-track listener emits on the volume pages.
+     */
+    ...SEED_TRACKS.slice(0, 14).flatMap((t) =>
+      t.platforms.map(
+        (platform) => `rotation:track:${trackSlug(t.artist, t.title)}:${platform}`,
+      ),
+    ),
   ];
 
   const docs = [];
@@ -359,8 +398,14 @@ async function main() {
   await seedArticles();
   await seedEvents();
   await seedSubmissions();
+  await seedRotationStep();
   await seedAdmin();
-  await seedAnalytics();
+
+  if (SEED_ANALYTICS) {
+    await seedAnalytics();
+  } else {
+    console.log("  analytics     skipped (SEED_ANALYTICS=no)");
+  }
 
   await mongoose.disconnect();
   console.log("\nDone.");

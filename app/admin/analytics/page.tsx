@@ -8,10 +8,12 @@ import RankedBars from "@/components/admin/charts/RankedBars";
 import CategorySplit from "@/components/admin/charts/CategorySplit";
 import TopArticlesTable from "@/components/admin/TopArticlesTable";
 import VitalsPanel from "@/components/admin/VitalsPanel";
+import RotationClicksTable from "@/components/admin/RotationClicksTable";
 import { getSession } from "@/lib/session";
 import { getAdminContext } from "@/lib/admin-context";
 import { getDashboardData, type RangeDays } from "@/lib/analytics-queries";
 import { titlesForPaths } from "@/lib/admin-queries";
+import { getRotationClicks } from "@/lib/rotation-analytics";
 
 export const metadata: Metadata = { title: "Analytics" };
 export const dynamic = "force-dynamic";
@@ -32,6 +34,9 @@ export default async function AnalyticsPage({
 
   const [ctx, data] = await Promise.all([getAdminContext(), getDashboardData(range)]);
   const titles = await titlesForPaths(data.topPaths.map((p) => p.path));
+  // Capped to the current and previous volume — the label set grows with the
+  // archive, and the rollup keeps the rest.
+  const rotation = await getRotationClicks();
 
   const articleRows = data.topPaths
     .filter((p) => p.path.startsWith("/articles/"))
@@ -126,6 +131,16 @@ export default async function AnalyticsPage({
             />
           </Card>
         </div>
+
+        <Card
+          title="Rotation — most opened, last volume"
+          note={rotation.volumeLabel || "No volume published"}
+          padded={false}
+        >
+          <div className="px-5 pt-4 pb-1">
+            <RotationClicksTable rows={rotation.rows} />
+          </div>
+        </Card>
 
         <Card title="Core Web Vitals" note="p75 · real readers">
           <VitalsPanel vitals={data.vitals} />

@@ -93,7 +93,10 @@ if (!base) {
     headless: "new", args: ["--no-sandbox", "--disable-gpu"],
   });
 
-  const PAGES = ["/", "/articles", "/articles/tailors-of-makola", "/events"];
+  // /rotation is reported alongside the homepage and an article page: it is the
+  // section with the most rows per screen, so it is where a stagger or an
+  // unbounded list would show up first.
+  const PAGES = ["/", "/articles", "/articles/tailors-of-makola", "/rotation", "/events"];
   const runtimeHits = [];
 
   for (const path of PAGES) {

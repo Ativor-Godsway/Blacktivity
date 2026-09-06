@@ -128,6 +128,37 @@
   font-size: 14px;
   color: var(--admin-ink);
 }
+/**
+ * Auto-growing textarea, CSS only.
+ *
+ * The wrapper replicates the value in a hidden ::after that shares the same
+ * grid cell, so the grid track grows to fit and the textarea fills it. No
+ * scrollHeight read, no resize observer, nothing per keystroke — `audit:perf`
+ * flags .scrollHeight as a layout read and it is right to.
+ *
+ * Notes cap at 120 characters. A single-line input truncated them mid-word,
+ * which is exactly where an editor stops trusting what they typed was kept.
+ */
+.a-autogrow { display: grid; }
+.a-autogrow > textarea,
+.a-autogrow::after {
+  grid-area: 1 / 1 / 2 / 2;
+  font: inherit;
+  letter-spacing: inherit;
+  padding: 7px 10px;
+  border: 1px solid var(--admin-rule);
+  border-radius: 8px;
+  min-height: calc(2lh + 16px);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.a-autogrow::after {
+  content: attr(data-value) " ";
+  visibility: hidden;
+  border-color: transparent;
+}
+.a-autogrow > textarea { resize: none; overflow: hidden; }
+
 .a-input::placeholder { color: var(--admin-ink-2); }
 .a-input:focus { outline: 2px solid var(--admin-ink); outline-offset: -1px; }
 

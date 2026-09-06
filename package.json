@@ -9,6 +9,7 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
     "seed:admin": "tsx scripts/seed-admin.ts",
+    "seed:rotation": "tsx scripts/seed-rotation-only.ts",
     "dev:mongo": "tsx scripts/dev-mongo.ts",
     "typecheck": "tsc --noEmit",
     "audit:colour": "node scripts/audit-colour.mjs",
