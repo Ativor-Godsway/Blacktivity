@@ -3,6 +3,7 @@ import MonoLabel from "@/components/ui/MonoLabel";
 import Marquee from "@/components/ui/Marquee";
 import RevealImage from "@/components/ui/RevealImage";
 import Wordmark from "@/components/brand/Wordmark";
+import HeroScroll from "@/components/home/HeroScroll";
 import { SITE } from "@/lib/constants";
 import type { ArticleDTO } from "@/lib/types";
 
@@ -27,10 +28,11 @@ import type { ArticleDTO } from "@/lib/types";
  * gap — the tension between the two is the whole point of the layout, and the
  * instinct to "fix" it by opening it up is what produces a generic hero.
  *
- * This is a server component and ships no client JavaScript. The scroll
- * gesture of Revision 15 §2 lands separately, as a client wrapper around this
- * markup; the markup is complete and correct on its own, which is what makes
- * the no-JS and reduced-motion paths free when it does.
+ * The markup below is a server component and is complete and correct on its
+ * own — which is what makes the no-JS, reduced-motion and mobile paths free.
+ * HeroScroll wraps it and adds the Revision 15 §2 scroll gesture on top; it
+ * adds no markup of its own beyond the spacer, and when the pin is not active
+ * it does nothing at all.
  *
  * WORDMARK GEOMETRY — read before changing either number.
  *
@@ -64,6 +66,7 @@ const MARQUEE_ITEMS = [MARQUEE_LINE, MARQUEE_LINE, MARQUEE_LINE, MARQUEE_LINE];
 
 export function Hero({ featured }: { featured: ArticleDTO | null }) {
   return (
+    <HeroScroll>
     <section
       aria-label="Blacktivity"
       data-hero-sticky
@@ -270,11 +273,25 @@ export function Hero({ featured }: { featured: ArticleDTO | null }) {
         NO BOTTOM PADDING. See the note on dock geometry above — the wordmark
         sits directly on the marquee and HeroScroll depends on that.
       */}
-      <div
-        data-hero-wordmark
-        className="mx-auto w-full max-w-[1600px] px-(--gutter)"
-      >
-        <Wordmark className="w-full text-ink" title={SITE.name} />
+      <div className="mx-auto w-full max-w-[1600px] px-(--gutter)">
+        {/*
+          THE TRANSFORMED ELEMENT IS THIS INNER DIV, NOT THE PADDED ONE.
+
+          The dock scales about `left top`, so whatever is scaled has its left
+          edge held in place. Scaling the padded wrapper scales the gutter with
+          it — the mark's left edge travelled from 32px to 32 * 0.13 = 4px and
+          landed 28px left of the header's slot. This div starts at the content
+          edge and carries no padding, so its left edge IS the mark's left edge
+          and the two wordmarks share it at every width by construction.
+
+          `block` on the mark itself: an inline SVG sits on a text baseline and
+          picks up the line box's leading, which put it 5px below where the
+          arithmetic said it was. Both wordmarks are block for that reason —
+          see the header.
+        */}
+        <div data-hero-wordmark>
+          <Wordmark className="block w-full text-ink" title={SITE.name} />
+        </div>
       </div>
 
       {/*
@@ -290,6 +307,7 @@ export function Hero({ featured }: { featured: ArticleDTO | null }) {
         />
       </div>
     </section>
+    </HeroScroll>
   );
 }
 

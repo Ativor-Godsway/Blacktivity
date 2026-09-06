@@ -551,6 +551,42 @@ body {
   animation: marquee-x 40s linear infinite;
 }
 
+/* --- the hero pin — Revision 15 §2, "the cover lifts, the masthead docks" ---
+   EVERY RULE HERE IS GATED ON .hero-pin, which is added by a pre-paint script
+   in the site layout and only on the homepage, at >=768px, without reduced
+   motion. That gate is the whole no-JS story: with scripting off the class
+   never appears, the spacer has no height, the hero is not sticky, the header
+   is not fixed, and the page scrolls normally past a hero that renders exactly
+   as it does in its resting state.
+
+   A CSS-only sticky pin would be worse than none: it would strand the reader
+   in a dead viewport with nothing animating, which is why none of this is
+   expressed without the class.
+
+   THE SPACER'S HEIGHT IS FIXED AND SET IN CSS, never from JavaScript. 160svh
+   against a 100svh hero leaves exactly the 0.6 of a viewport the gesture is
+   scored against, and because the class lands before first paint there is no
+   reflow on hydration and CLS stays at zero. */
+.hero-pin [data-hero-spacer] { height: 160svh; }
+
+.hero-pin [data-hero-sticky] {
+  position: sticky;
+  top: 0;
+}
+
+/* The dock target has to still be on screen when the wordmark arrives. The
+   homepage header is absolutely positioned over the hero, so it would have
+   scrolled away by p = 1 and there would be nothing to dock INTO. Fixed only
+   while the pin is active; every other page and every other mode is untouched. */
+.hero-pin header[data-overlay] { position: fixed; }
+
+/* Held at 0 for the whole gesture so there is never a second wordmark on the
+   page. HeroScroll raises it inline at p >= 0.98, once the moving one has
+   landed on the same box at the same size, which makes the swap invisible.
+   Declared here rather than set on the first frame so that the p = 0 state is
+   already correct at first paint. */
+.hero-pin header[data-overlay] [data-wordmark] { opacity: 0; }
+
 /* --- the guard ----------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -27,6 +27,11 @@ export function Header() {
 
   return (
     <header
+      /* The hook the hero's pin uses to make this header fixed and to hold its
+         wordmark at opacity 0 while the giant one docks into it — Revision 15
+         §2. An attribute rather than a class so the CSS reads as a statement
+         about the overlay header specifically, not about a styling detail. */
+      data-overlay={overlay ? "" : undefined}
       className={cn(
         "z-40",
         overlay
@@ -37,12 +42,17 @@ export function Header() {
       <div
         className={cn(
           "mx-auto flex max-w-[1600px] justify-between px-(--gutter) py-5",
-          overlay ? "pointer-events-auto items-start" : "items-center",
+          // NOT pointer-events-auto on this box. Under the hero pin the overlay
+          // header is FIXED, so this 1600px-wide, ~90px-tall row sits over the
+          // whole homepage for its entire length — and anything scrolling
+          // beneath that band would be unclickable. Each interactive child
+          // opts back in individually instead.
+          overlay ? "items-start" : "items-center",
         )}
       >
         <Link
           href="/"
-          className="flex flex-col gap-1.5 text-fg"
+          className="pointer-events-auto flex w-fit flex-col gap-1.5 text-fg"
           onClick={() => setOpen(false)}
         >
           {/*
@@ -54,14 +64,20 @@ export function Header() {
             160px keeps the hairline "tivity" strokes above one device pixel on
             a standard-density display; below ~120px they break up.
           */}
-          <Wordmark className="w-[140px] md:w-[160px]" title={SITE.name} />
+          {/* `block`: an inline SVG picks up the line box's leading, which offset
+              the dock target 5px from where the hero's arithmetic placed it.
+              Both wordmarks are block so the two boxes agree exactly. */}
+          <Wordmark className="block w-[140px] md:w-[160px]" title={SITE.name} />
           <span className="mono text-fg-muted">
             {SITE.tagline}
             {overlay ? ` — ${SITE.established}` : ""}
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+        <nav
+          className="pointer-events-auto hidden items-center gap-8 md:flex"
+          aria-label="Primary"
+        >
           {NAV.map((item) => (
             <Link
               key={item.href}
