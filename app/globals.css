@@ -123,12 +123,27 @@
      --stack-bottom places the cover stack just past that line so it clips the
      TOPS of the letterforms rather than covering the middle of the word. */
   --stack-bottom: calc(21.99vw - 14px);
+
+  /*
+   * THE HERO MARQUEE'S HEIGHT — a constant, not a preference.
+   *
+   * The giant wordmark sits directly on the marquee with no padding between
+   * them, so the wordmark's distance from the bottom of the hero is exactly
+   * this value. Revision 15 §2's dock transform is computed from
+   * `vh - this - wordmarkHeight`, in arithmetic, with no DOM measurement at
+   * all — which is what keeps the gesture off the layout path entirely.
+   *
+   * Change it here and the dock follows. Change the marquee's height anywhere
+   * ELSE and the wordmark lands off its slot in the header.
+   */
+  --hero-marquee-h: 44px;
 }
 
 @media (min-width: 768px) {
   :root {
     --gutter: 2rem;
     --stack-bottom: calc(20.69vw - 70px);
+    --hero-marquee-h: 52px;
   }
 }
 
