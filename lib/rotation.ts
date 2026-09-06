@@ -102,10 +102,33 @@ export type VolumeDTO = {
 export type HomeDoorData = {
   number: number;
   slug: string;
+  publishedAt: string | null;
   newMusic: ListEntryDTO[];
   chart: ChartRowDTO[];
   curation: VolumeDTO["curation"];
 };
+
+/**
+ * The fortnight a volume covers: "29 AUG — 12 SEP 2026".
+ *
+ * Thirteen days, not fourteen — the range is inclusive at both ends, so a
+ * volume published on the 29th runs THROUGH the 11th and the next one opens on
+ * the 12th. Adding WEEKS_PER_VOLUME × 7 here would print two volumes sharing a
+ * boundary date.
+ *
+ * The year appears once, on the end date; the start date's is stripped.
+ */
+export const FORTNIGHT_DAYS = 13;
+
+export function volumeDateRange(
+  publishedAt: string | null,
+  formatDate: (d: Date) => string,
+): string {
+  if (!publishedAt) return "";
+  const start = new Date(publishedAt);
+  const end = new Date(start.getTime() + FORTNIGHT_DAYS * 24 * 60 * 60 * 1000);
+  return `${formatDate(start).replace(/ \d{4}$/, "")} — ${formatDate(end)}`;
+}
 
 /** `vol-07` — zero-padded so the archive sorts as text and reads as an issue. */
 export function volumeSlug(number: number): string {

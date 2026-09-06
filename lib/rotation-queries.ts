@@ -268,6 +268,8 @@ export async function getHomeRotation(): Promise<HomeRotation | null> {
   return {
     number: volume.number,
     slug: volume.slug,
+    // Drives the masthead row's date range — Revision 15 §5.1.
+    publishedAt: volume.publishedAt,
     newMusic: volume.newMusic.slice(0, 3),
     chart: volume.chart.slice(0, 3),
     // A volume with no curation drops that door and the other two split the

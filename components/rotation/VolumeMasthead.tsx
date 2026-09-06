@@ -1,5 +1,5 @@
 import RevealImage from "@/components/ui/RevealImage";
-import { volumeLabel, type VolumeDTO } from "@/lib/rotation";
+import { volumeDateRange, volumeLabel, type VolumeDTO } from "@/lib/rotation";
 import { formatDateMono } from "@/lib/utils";
 
 /**
@@ -15,15 +15,11 @@ import { formatDateMono } from "@/lib/utils";
  * pairings that clear AA on that ground. .on-tan re-points the tokens so
  * nothing inside it can reach for --ink-2 (4.37) or --muted (3.25).
  */
-const FORTNIGHT_DAYS = 13;
-
-function dateRange(publishedAt: string | null): string {
-  if (!publishedAt) return "";
-  const start = new Date(publishedAt);
-  const end = new Date(start.getTime() + FORTNIGHT_DAYS * 24 * 60 * 60 * 1000);
-  // "29 AUG — 12 SEP 2026" — the year appears once, on the end date.
-  return `${formatDateMono(start).replace(/ \d{4}$/, "")} — ${formatDateMono(end)}`;
-}
+/*
+ * The date range moved to lib/rotation.ts in Revision 15 §5.1 — the homepage's
+ * new Rotation masthead row prints the same fortnight, and two copies of this
+ * arithmetic would eventually disagree about whether the span is 13 days or 14.
+ */
 
 export function VolumeMasthead({ volume }: { volume: VolumeDTO }) {
   // Cover if set, otherwise the curator's portrait, otherwise no panel at all
@@ -37,7 +33,7 @@ export function VolumeMasthead({ volume }: { volume: VolumeDTO }) {
           <div className="on-tan px-(--gutter) py-3">
             <p className="mono text-fg">
               {volumeLabel(volume.number)}
-              {volume.publishedAt ? ` · ${dateRange(volume.publishedAt)}` : ""}
+              {volume.publishedAt ? ` · ${volumeDateRange(volume.publishedAt, formatDateMono)}` : ""}
             </p>
           </div>
 

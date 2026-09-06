@@ -269,6 +269,29 @@ body {
   .mono { font-size: 12px; }
 }
 
+/*
+ * MONO AT A HEADING SCALE — Revision 15 §5.3.
+ *
+ * The homepage's Rotation masthead is mono, but it is a section HEADING and
+ * has to be sized like one. `.mono` sets an explicit font-size, and this file
+ * is emitted AFTER the Tailwind utilities layer, so a `text-[1.5rem]` utility
+ * on the same element LOSES to it — the heading silently renders at 12px and
+ * looks like every other label on the page. Same trap as `.prose-opening`
+ * below; same fix, for the same reason.
+ *
+ * Tracking eases off as the size goes up: 0.15em is tuned for 11-12px and
+ * reads as gapped-out letters at 24.
+ */
+.mono-lg {
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .mono-lg { font-size: 1.5rem; }
+}
+
 /* --- photography renders in its own colours ------------------------------
    The grayscale-to-colour reveal is GONE, along with the two-layer crossfade
    that animated it. Do not reintroduce either: a site where article covers are
