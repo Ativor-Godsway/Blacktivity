@@ -98,14 +98,21 @@ export type VolumeDTO = {
   playlists: Record<ListType, PlaylistSet>;
 };
 
-/** What the homepage's three doors render. See getHomeRotation. */
-export type HomeDoorData = {
+/**
+ * What the homepage's Rotation poster renders — Revision 16.
+ *
+ * Note how little this is. The three-door block it replaces pulled the top
+ * three of each list plus a curator portrait, which is ten images and roughly
+ * thirty fields, all to summarise a page the reader was one click from anyway.
+ * The poster states the volume, the fortnight and the size of the drop, and
+ * sends them there instead.
+ */
+export type RotationPosterData = {
   number: number;
   slug: string;
   publishedAt: string | null;
-  newMusic: ListEntryDTO[];
-  chart: ChartRowDTO[];
-  curation: VolumeDTO["curation"];
+  /** Distinct tracks across all three lists — the "10 TRACKS" line. */
+  trackCount: number;
 };
 
 /**

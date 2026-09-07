@@ -16,11 +16,18 @@ export function Reveal({
   delay = 0,
   className,
   as = "div",
+  y = 24,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
   as?: ElementType;
+  /**
+   * Travel in px. 24 is the site default and what every existing caller gets.
+   * The Rotation poster's figure asks for 12 (Revision 16 §6) — a large held
+   * image reads as sliding rather than settling at the full distance.
+   */
+  y?: number;
 }) {
   const reduced = useReducedMotion();
   const [ready, setReady] = useState(false);
@@ -40,7 +47,7 @@ export function Reveal({
   return (
     <MotionTag
       className={className}
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={VIEWPORT}
       transition={{ duration: DURATION.base, ease: EASE_EXPO, delay }}

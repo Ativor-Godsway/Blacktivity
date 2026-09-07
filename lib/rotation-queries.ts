@@ -10,7 +10,7 @@ import {
   type ChartRowDTO,
   type ListEntryDTO,
   type TrackDTO,
-  type HomeDoorData,
+  type RotationPosterData,
   type VolumeDTO,
 } from "./rotation";
 
@@ -249,34 +249,39 @@ export async function getPublishedVolumeSlugs(): Promise<
   }));
 }
 
-export type HomeRotation = HomeDoorData;
-
 /**
- * The homepage section: the current volume's three doors, or nothing at all.
+ * The homepage's Rotation poster — Revision 16 §2.
  *
- * Each list is capped at three here rather than in the component, so the
- * homepage never resolves artwork it will not render — this section adds ten
- * small images below the fold and every one of them has to earn its bytes.
+ * This used to return the top three of each of the three lists plus a curator
+ * portrait, for a block that tried to summarise the charts on the homepage.
+ * Two attempts at that did not work and the block is withdrawn, so the query
+ * now resolves four scalars and no images at all.
  *
  * Returns null with no published volume: the section is ABSENT in that case,
  * not an empty state.
  */
-export async function getHomeRotation(): Promise<HomeRotation | null> {
+export async function getRotationPoster(): Promise<RotationPosterData | null> {
   const volume = await getCurrentVolume();
   if (!volume) return null;
+
+  /*
+   * DISTINCT tracks, not the sum of the three list lengths.
+   *
+   * A track can sit in New Music and on the Chart in the same fortnight — that
+   * is the normal case for a strong new release, not an edge case — so adding
+   * the lengths would print a number larger than the volume actually holds.
+   * The poster makes a factual claim in large type; it should be true.
+   */
+  const ids = new Set<string>();
+  for (const entry of volume.newMusic) ids.add(entry.track.id);
+  for (const row of volume.chart) ids.add(row.track.id);
+  for (const entry of volume.curation?.tracks ?? []) ids.add(entry.track.id);
 
   return {
     number: volume.number,
     slug: volume.slug,
-    // Drives the masthead row's date range — Revision 15 §5.1.
     publishedAt: volume.publishedAt,
-    newMusic: volume.newMusic.slice(0, 3),
-    chart: volume.chart.slice(0, 3),
-    // A volume with no curation drops that door and the other two split the
-    // width — there is no "curator TBA" state here either.
-    curation: volume.curation
-      ? { curator: volume.curation.curator, tracks: volume.curation.tracks.slice(0, 3) }
-      : null,
+    trackCount: ids.size,
   };
 }
 

@@ -540,6 +540,51 @@ body {
   animation-iteration-count: infinite;
 }
 
+/* --- the Rotation poster's sticker word — Revision 16 §3 -------------------
+   ROTATION set as a die-cut sticker: a --tan fill inside a thick --sand
+   outline that hugs the whole word rather than each letter.
+
+   `paint-order: stroke fill` IS THE WHOLE TRICK. Without it the stroke paints
+   ON TOP of the letterforms and, at this weight, swallows the fill entirely —
+   the word turns into a solid --sand slab. Painting the stroke first and the
+   fill over it is what leaves a readable letter inside an outline.
+
+   THE STROKE IS IN em, NOT px. The reference calls for 14px against an 11rem
+   word, which is ~0.08em; expressed that way it holds its proportion across
+   the whole clamp() range instead of looking like a hairline at 4rem on a
+   phone. There is no separate mobile value to forget to update.
+
+   THE TIGHT TRACKING IS STRUCTURAL, not taste. At -0.04em adjacent letters sit
+   close enough that their individual outlines overlap and merge into one
+   silhouette. Loosen it and the word stops reading as a single sticker and
+   starts reading as eight outlined letters.
+
+   TYPEFACE: Satoshi 700, the heaviest weight in the sans this site actually
+   uses. Revision 16 §3 names "Inter Tight at its heaviest" as the fallback
+   choice, but this project's sans is Satoshi — the Inter Tight reference in
+   VolumeMasthead's comment is stale. The first preference, the wordmark's own
+   geometric sans, exists only as SVG paths in components/brand/Wordmark.tsx
+   and not as a font file, so it is not available to set text in. No fourth
+   family is added; the three-role type system holds.
+
+   Both colours are already validated on this ground — --tan is 6.70 against
+   --cocoa, the gradient's lightest point, and --sand is 10.64. No new tokens.
+
+   -webkit-text-stroke is the only cross-browser way to do this; it is
+   unprefixed nowhere. Chrome, Safari and Firefox all support it together with
+   paint-order on text. */
+.sticker-word {
+  font-family: var(--font-satoshi-bold), var(--font-satoshi), ui-sans-serif, sans-serif;
+  font-weight: 700;
+  font-size: clamp(4rem, 13vw, 11rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--color-tan);
+  -webkit-text-stroke: 0.08em var(--color-sand);
+  paint-order: stroke fill;
+}
+
 /* --- marquee ------------------------------------------------------------- */
 @keyframes marquee-x {
   from { transform: translate3d(0, 0, 0); }

@@ -19,6 +19,7 @@
     "perf:scroll": "node scripts/visual/scroll-perf.mjs",
     "audit:perf": "node scripts/audit-perf.mjs",
     "build:grain": "node scripts/build/make-grain.mjs",
+    "build:rotation-figure": "node scripts/build/make-rotation-figure.mjs",
     "audit:images": "node scripts/audit-images.mjs",
     "audit:admin-colour": "node scripts/audit-admin-colour.mjs",
     "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run test:render",
