@@ -36,7 +36,32 @@ const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={fontVariables}>
+    /*
+      `suppressHydrationWarning` — Revision 15 §2's pin gate makes this
+      necessary, and it is scoped to exactly the element that needs it.
+
+      The gate script in app/(site)/layout.tsx runs BEFORE React hydrates —
+      that is its whole purpose, since a pin class applied on hydration would
+      shift every section below the hero by 60svh and put CLS on the board. It
+      adds `hero-pin` to <html>, so by the time React hydrates, the element's
+      className is not the one the server sent, and React reports:
+
+        A tree hydrated but some attributes of the server rendered HTML
+        didn't match the client properties.
+
+      Measured, not guessed: at 1440 (gate true) the warning fires; at 390
+      (gate false) it does not, with Lenis mounted in both cases. Lenis adds
+      its own `lenis` classes to <html> from inside an effect, which runs
+      AFTER hydration, so it is not part of this and never was. The next/font
+      variables are identical on both sides — React renders those itself.
+
+      This attribute suppression applies ONE LEVEL DEEP, to <html>'s own
+      attributes only. It does not reach the tree inside, so a genuine
+      mismatch anywhere in the app still reports normally. That narrowness is
+      why it is the right tool here rather than a blanket silencing — it is
+      the same thing every pre-paint theme script does.
+    */
+    <html lang="en" className={fontVariables} suppressHydrationWarning>
       {/* Cloudinary serves every real cover and article image once it is
           configured, so warm the connection early. Emitted only when the cloud
           name exists — a preconnect to nowhere costs a DNS lookup for nothing. */}

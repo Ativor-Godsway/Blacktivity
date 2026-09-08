@@ -29,8 +29,21 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
 
-    // Next 16 requires every quality actually used to be declared.
-    qualities: [70, 75],
+    /*
+      Next 16 requires every quality actually used to be declared.
+
+      65 is the hero's featured cover (Revision 15 §1), which is the LCP
+      element and was tuned down from q_auto to buy ~250ms on a 1.6Mbps link.
+      It was missing here, and dev logged on every homepage request:
+
+        Image ... is using quality "65" which is not configured in
+        images.qualities [70, 75]
+
+      Undeclared qualities are not silently honoured — the value is dropped —
+      so the LCP image was being served at the loader's default rather than at
+      the quality it was measured with.
+    */
+    qualities: [65, 70, 75],
   },
   serverExternalPackages: ["mongoose"],
   // The OG route reads these TTFs at runtime — trace them into the bundle.

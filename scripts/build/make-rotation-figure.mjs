@@ -33,16 +33,45 @@
  * the edge BRIGHTER than the body it belongs to.
  */
 import sharp from "sharp";
-import { readFileSync, statSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 
 const SRC = "public/rotation/figure.png";
-const ESPRESSO = { r: 0x24, g: 0x1c, b: 0x16 };
 
 /** Over ~400KB delivered is wrong — Revision 16 §7. */
 const BUDGET_KB = 400;
 
 const kb = (bytes) => bytes / 1024;
 const lum = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+/*
+ * `--check` — the staleness guard, wired into `npm run audit:all`.
+ *
+ * The failure this exists to catch is silent and very easy to hit: drop a NEW
+ * figure.png in and forget to re-run the encode. The <picture> lists AVIF and
+ * WebP ahead of the PNG, so the browser keeps choosing a derivative built from
+ * the OLD photograph and the new one never appears. Nothing errors, nothing
+ * 404s, and the page looks like it simply ignored you.
+ */
+if (process.argv.includes("--check")) {
+  const missing = ["avif", "webp"].filter((e) => !existsSync(`public/rotation/figure.${e}`));
+  if (missing.length) {
+    console.error(
+      `FAIL  public/rotation/figure.{${missing.join(",")}} missing — run \`npm run build:rotation-figure\``,
+    );
+    process.exit(1);
+  }
+  const png = statSync(SRC).mtimeMs;
+  const stale = ["avif", "webp"].filter((e) => statSync(`public/rotation/figure.${e}`).mtimeMs < png);
+  if (stale.length) {
+    console.error(
+      `FAIL  figure.png is newer than figure.{${stale.join(",")}} — the page is still serving the OLD` +
+        `\n      cut-out, because <picture> prefers the derivatives. Run \`npm run build:rotation-figure\`.`,
+    );
+    process.exit(1);
+  }
+  console.log("  ok  rotation figure derivatives exist and are newer than the source PNG");
+  process.exit(0);
+}
 
 const input = sharp(SRC);
 const meta = await input.metadata();
