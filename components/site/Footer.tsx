@@ -28,7 +28,7 @@ const COLUMNS = [
  */
 export function Footer() {
   return (
-    <footer className="on-espresso">
+    <footer data-surface="dark" className="on-espresso">
       <Marquee
         items={[
           "EST 2025",

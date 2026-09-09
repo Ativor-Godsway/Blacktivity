@@ -35,7 +35,14 @@ export function CurationBlock({
               height={curator.photo.height}
               blurDataURL={curator.photo.blurDataURL}
               sizes="(max-width: 768px) 100vw, 40vw"
-              priority
+              /*
+                `priority` REMOVED — Revision 17. It was justified when the
+                chart carried no artwork and this was the page's only large
+                image, but the page now opens on a text masthead and this sits
+                two full sections below the fold. Preloading it was pulling
+                176KB onto the critical path and it measured as the LCP element
+                at 18.1s on a throttled phone.
+              */
               className="aspect-4/5 w-full"
             />
           </div>
@@ -71,9 +78,9 @@ export function CurationBlock({
         <div className="mt-16">
           <MonoLabel dim>The playlist — {curator.name}&rsquo;s order</MonoLabel>
           <div className="mt-8">
-            {/* 48px artwork: a compact New Music row, so the curation reads as
-                a tracklist under an article rather than a fourth treatment. */}
-            <NewMusicList entries={tracks} size={48} />
+            {/* The same card as everywhere else — §3.4. Unranked, so no
+                numbers. */}
+            <NewMusicList entries={tracks} />
           </div>
         </div>
       ) : null}

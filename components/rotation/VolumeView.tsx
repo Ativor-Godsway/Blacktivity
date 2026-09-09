@@ -4,10 +4,12 @@ import ActionLink from "@/components/site/ActionLink";
 import NewMusicList from "./NewMusicList";
 import ChartGrid from "./ChartGrid";
 import CurationBlock from "./CurationBlock";
-import VolumeMasthead from "./VolumeMasthead";
+import RotationMasthead from "./RotationMasthead";
+import SectionNav from "./SectionNav";
+import Disc from "./Disc";
 import PlaylistBlock from "./PlaylistBlock";
 import { volumeLabel, volumeEventLabel, type VolumeDTO } from "@/lib/rotation";
-import { absoluteUrl } from "@/lib/utils";
+import { absoluteUrl, cn } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
 
 /**
@@ -27,10 +29,10 @@ import { SITE } from "@/lib/constants";
  * arrival (see SmoothScroll) is enhancement layered on top of that baseline.
  *
  * scroll-margin-top keeps the heading clear of the top of the viewport on
- * arrival. NOTE: this site's header is `relative`, not sticky — it scrolls
- * away — so the margin is one gutter plus breathing room rather than the
- * header height the brief assumed. If the header ever becomes sticky, this is
- * the one value that needs to grow with it.
+ * arrival. Revision 17 §3.2 puts a STICKY section nav above these headings, so
+ * the margin now has to clear that nav as well as leave breathing room —
+ * otherwise a deep link from the homepage lands with its heading tucked behind
+ * the very nav that is meant to show you where you are.
  */
 function SectionHeading({
   id,
@@ -46,7 +48,7 @@ function SectionHeading({
   return (
     <div
       id={id}
-      className="flex scroll-mt-[calc(var(--gutter)+2rem)] items-baseline justify-between border-b border-rule pb-4"
+      className="flex scroll-mt-[7rem] items-baseline justify-between border-b border-rule pb-4"
     >
       <div>
         <MonoLabel dim>{label}</MonoLabel>
@@ -69,6 +71,33 @@ export function VolumeView({
   nextSlug?: string | null;
 }) {
   const label = volumeLabel(volume.number);
+
+  /** Distinct tracks across the three lists — the masthead's count. */
+  const trackIds = new Set<string>();
+  for (const e of volume.newMusic) trackIds.add(e.track.id);
+  for (const r of volume.chart) trackIds.add(r.track.id);
+  for (const e of volume.curation?.tracks ?? []) trackIds.add(e.track.id);
+
+  /*
+   * THE DISC IS OPTIONAL, AND THE LAYOUT HAS TO KNOW.
+   *
+   * It renders the VOLUME'S OWN cover, and a volume without one gets no disc —
+   * there is no placeholder here, the same way there is no "curator TBA".
+   * But the grid must then collapse to a single column: reserving an 18rem
+   * left column for an element that is not there leaves the whole page
+   * indented past a strip of empty sand, which is worse than not having the
+   * disc at all.
+   *
+   * Worth knowing: as of this revision NO seeded volume sets coverImage, so
+   * this is the live path, not the edge case.
+   */
+  const disc = volume.coverImage;
+
+  const present = [
+    volume.newMusic.length > 0 ? "new-music" : null,
+    volume.chart.length > 0 ? "chart" : null,
+    volume.curation ? "curation" : null,
+  ].filter((v): v is string => v !== null);
 
   /**
    * MusicPlaylist JSON-LD covering the chart, with byArtist and url on every
@@ -98,86 +127,139 @@ export function VolumeView({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <VolumeMasthead volume={volume} />
+      <RotationMasthead volume={volume} trackCount={trackIds.size} />
 
-      <nav
-        className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-6 px-(--gutter) py-6"
-        aria-label="Volumes"
-      >
+      {volume.intro ? (
+        <div className="mx-auto max-w-[1600px] px-(--gutter) pt-8">
+          <p className="max-w-[56ch] text-lg text-fg-muted">{volume.intro}</p>
+        </div>
+      ) : null}
+
+      <div className="mt-12">
+        <SectionNav present={present} />
+      </div>
+
+      {/*
+        THE DISC COLUMN — Revision 17 §3.3.
+
+        A two-column grid from lg up: the record on the left, every section's
+        cards on the right. The disc is `sticky` inside its own cell, so it
+        holds while the cards scroll past rather than scrolling away with them.
+
+        `overflow-x-clip` on the wrapper, not `hidden`: the disc bleeds 40% off
+        its own left edge and would otherwise widen the document and produce a
+        horizontal scrollbar. `clip` does the same job without creating a
+        scroll container, which `hidden` would — and a scroll container here
+        would break the `sticky` inside it.
+      */}
+      <div className="overflow-x-clip">
+        <div
+          className={cn(
+            "mx-auto grid max-w-[1600px] grid-cols-1 gap-(--gutter) px-(--gutter) py-16",
+            disc ? "lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-12" : "lg:grid-cols-1",
+          )}
+        >
+          {disc ? (
+            <div className="hidden lg:block">
+              <Disc image={disc} />
+            </div>
+          ) : null}
+
+          <div>
+            {volume.newMusic.length > 0 ? (
+              <section>
+                <SectionHeading id="new-music" label="Out now" count={volume.newMusic.length}>
+                  New Music
+                </SectionHeading>
+                <div className="mt-8">
+                  <NewMusicList entries={volume.newMusic} />
+                </div>
+                <PlaylistBlock
+                  playlists={volume.playlists.newMusic}
+                  list="newMusic"
+                  volumeSlug={volume.slug}
+                  label="Listen — new music"
+                />
+              </section>
+            ) : null}
+
+            {volume.chart.length > 0 ? (
+              <section className="mt-(--spacing-section)">
+                <SectionHeading id="chart" label="What's moving" count={volume.chart.length}>
+                  The Blacktivity Chart
+                </SectionHeading>
+                <div className="mt-8">
+                  <ChartGrid rows={volume.chart} />
+                </div>
+                <PlaylistBlock
+                  playlists={volume.playlists.chart}
+                  list="chart"
+                  volumeSlug={volume.slug}
+                  label="Listen — the full chart"
+                />
+              </section>
+            ) : null}
+
+            {volume.curation ? (
+              <section className="mt-(--spacing-section)">
+                <SectionHeading id="curation" label="Guest selector">Creators Curation</SectionHeading>
+                <div className="mt-8">
+                  <CurationBlock curation={volume.curation} volumeSlug={volume.slug} />
+                </div>
+                <PlaylistBlock
+                  playlists={volume.playlists.curation}
+                  list="curation"
+                  volumeSlug={volume.slug}
+                  label={`Listen — ${volume.curation.curator.name}'s selection`}
+                />
+              </section>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      {/*
+        FOOT OF THE PAGE — Revision 17 §3.5. Reference E ends on a search pill;
+        this ends on the archive, which is the thing a reader who has got this
+        far actually wants. The previous/next volume links live here too rather
+        than in a nav strip near the top, where they competed with the section
+        nav for the same glance.
+      */}
+      <div className="mx-auto max-w-[1600px] px-(--gutter) pb-(--spacing-section)">
         <Link
           href="/rotation/archive"
-          className="mono text-fg-dim transition-colors duration-300 ease-[var(--ease-expo)] hover:text-fg"
+          className="group flex items-center justify-between gap-6 border-y border-rule py-10 transition-colors duration-300 ease-[var(--ease-expo)] hover:bg-bg-raised"
         >
-          All volumes
+          <span className="rotation-word text-[clamp(2rem,6vw,4rem)] text-fg">All volumes</span>
+          <span
+            aria-hidden="true"
+            className="mono inline-block text-fg-dim transition-transform duration-300 ease-[var(--ease-expo)] group-hover:translate-x-1"
+          >
+            →
+          </span>
         </Link>
-        {previousSlug ? (
-          <Link
-            href={`/rotation/${previousSlug}`}
-            data-track={volumeEventLabel(previousSlug)}
-            className="mono text-fg-dim transition-colors duration-300 ease-[var(--ease-expo)] hover:text-fg"
-          >
-            ← Previous volume
-          </Link>
-        ) : null}
-        {nextSlug ? (
-          <Link
-            href={`/rotation/${nextSlug}`}
-            data-track={volumeEventLabel(nextSlug)}
-            className="mono text-fg-dim transition-colors duration-300 ease-[var(--ease-expo)] hover:text-fg"
-          >
-            Next volume →
-          </Link>
-        ) : null}
-      </nav>
 
-      <div className="mx-auto max-w-[1600px] px-(--gutter) py-20">
-        {volume.newMusic.length > 0 ? (
-          <section>
-            <SectionHeading id="new-music" label="Out now" count={volume.newMusic.length}>
-              New Music
-            </SectionHeading>
-            <div className="mt-14">
-              <NewMusicList entries={volume.newMusic} />
-            </div>
-            <PlaylistBlock
-              playlists={volume.playlists.newMusic}
-              list="newMusic"
-              volumeSlug={volume.slug}
-              label="Listen — new music"
-            />
-          </section>
-        ) : null}
-
-        {volume.chart.length > 0 ? (
-          <section className="mt-(--spacing-section)">
-            <SectionHeading id="chart" label="What's moving" count={volume.chart.length}>
-              The Blacktivity Chart
-            </SectionHeading>
-            <div className="mt-14">
-              <ChartGrid rows={volume.chart} />
-            </div>
-            <PlaylistBlock
-              playlists={volume.playlists.chart}
-              list="chart"
-              volumeSlug={volume.slug}
-              label="Listen — the full chart"
-            />
-          </section>
-        ) : null}
-
-        {volume.curation ? (
-          <section className="mt-(--spacing-section)">
-            <SectionHeading id="curation" label="Guest selector">Creators Curation</SectionHeading>
-            <div className="mt-14">
-              <CurationBlock curation={volume.curation} volumeSlug={volume.slug} />
-            </div>
-            <PlaylistBlock
-              playlists={volume.playlists.curation}
-              list="curation"
-              volumeSlug={volume.slug}
-              label={`Listen — ${volume.curation.curator.name}'s selection`}
-            />
-          </section>
+        {previousSlug || nextSlug ? (
+          <nav className="mt-8 flex flex-wrap items-center gap-8" aria-label="Volumes">
+            {previousSlug ? (
+              <Link
+                href={`/rotation/${previousSlug}`}
+                data-track={volumeEventLabel(previousSlug)}
+                className="mono text-fg-dim transition-colors duration-300 ease-[var(--ease-expo)] hover:text-fg"
+              >
+                ← Previous volume
+              </Link>
+            ) : null}
+            {nextSlug ? (
+              <Link
+                href={`/rotation/${nextSlug}`}
+                data-track={volumeEventLabel(nextSlug)}
+                className="mono text-fg-dim transition-colors duration-300 ease-[var(--ease-expo)] hover:text-fg"
+              >
+                Next volume →
+              </Link>
+            ) : null}
+          </nav>
         ) : null}
       </div>
     </>

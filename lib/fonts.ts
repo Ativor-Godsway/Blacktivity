@@ -1,5 +1,5 @@
 import localFont from "next/font/local";
-import { JetBrains_Mono } from "next/font/google";
+import { Anton, JetBrains_Mono } from "next/font/google";
 
 /**
  * Subset to the weights actually used — nothing here ships the full family.
@@ -43,9 +43,37 @@ export const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
+/**
+ * ROTATION'S DISPLAY VOICE — Revision 17 §2.1. A FOURTH family, and the scope
+ * is the whole justification for it.
+ *
+ * It is used in exactly two places: the homepage Rotation poster and the
+ * Rotation page masthead. Rotation is a recurring titled section and giving one
+ * its own voice is what magazines do — but if this face turns up in an article,
+ * an event, or anywhere in the admin, that is a bug, not a liberty.
+ *
+ * `preload: false` because both usages are below the fold. Anton ships a single
+ * weight, so there is no family to subset down.
+ *
+ * THE FALLBACK STACK IS DOING REAL WORK. Anton is an ultra-condensed grotesque;
+ * falling back to a normal-width sans at 14rem would reflow the largest element
+ * on the page when it swapped. Impact and Haettenschweiler are the closest
+ * metric-compatible faces present on Windows and macOS respectively, and Arial
+ * Narrow Bold is the last stop before the generic.
+ */
+export const anton = Anton({
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+  preload: false,
+  variable: "--font-anton",
+  fallback: ["Impact", "Haettenschweiler", "Arial Narrow Bold", "sans-serif"],
+});
+
 export const fontVariables = [
   zodiak.variable,
   satoshi.variable,
   satoshiBold.variable,
   jetbrainsMono.variable,
+  anton.variable,
 ].join(" ");

@@ -101,11 +101,24 @@
   --font-display: var(--font-zodiak), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+  /* Rotation's display voice ONLY — the homepage poster and the Rotation page
+     masthead. See lib/fonts.ts; anywhere else is a bug. */
+  --font-rotation: var(--font-anton), Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   --spacing-section: 8rem;
   --spacing-section-lg: 12rem;
+
+  /*
+     THE ONE NEW TOKEN OF REVISION 17 — Rotation cards and their artwork, and
+     nothing else. Circles use border-radius: 50% directly rather than pretending
+     to be a radius step.
+
+     Deliberately modest. Reference E is nearly pill-shaped, and at that radius
+     the Rotation page stops looking like the same product as the articles
+     index, which is a hairline-and-hard-edge grid. */
+  --radius-card: 6px;
 }
 
 :root {
@@ -366,30 +379,16 @@ body {
   .card-hover:focus-within .card-arrow { transform: none; }
 }
 
-/* --- the chart's two-column grid ------------------------------------------
-   Reference B's structure: five rows per column on desktop, one column below
-   900px. `grid-auto-flow: column` with an explicit row count is what puts 01-05
-   in the left column and 06-10 in the right while keeping ONE <ol> in DOM and
-   reading order — splitting it into two lists would tell a screen reader there
-   are two charts.
-
-   The row count is passed as --chart-rows rather than hard-coded at five, so a
-   volume holding fewer than ten entries still balances across the two columns
-   instead of leaving a hole in the second.
-
-   900px, not a Tailwind breakpoint: it is where a 72px thumbnail, a display
-   serif artist name and three mono link labels stop fitting on one line at
-   half width, which is a property of this row and not of the site's grid. */
-@media (min-width: 900px) {
-  .chart-grid {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(var(--chart-rows, 5), auto);
-  }
-  /* One vertical hairline between the columns, drawn by the second column. */
-  .chart-grid > li.chart-col-2 { border-left: 1px solid var(--color-rule); }
-}
+/*
+ * REVISION 14 §4's TWO-COLUMN CHART GRID IS GONE — Revision 17 §3.
+ *
+ * `.chart-grid` used `grid-auto-flow: column` with an explicit row count to put
+ * 01-05 in one column and 06-10 in the next while keeping one <ol> in DOM
+ * order. It is deleted rather than left unused: the chart is a single column of
+ * shared TrackCards now, and the editorial note needs the horizontal room the
+ * second column was taking. A dead selector here is a thing someone
+ * reintroduces by accident.
+ */
 
 /* --- masked line reveal -------------------------------------------------- */
 .line-mask { display: block; overflow: hidden; }
@@ -540,49 +539,116 @@ body {
   animation-iteration-count: infinite;
 }
 
-/* --- the Rotation poster's sticker word — Revision 16 §3 -------------------
-   ROTATION set as a die-cut sticker: a --tan fill inside a thick --sand
-   outline that hugs the whole word rather than each letter.
+/* --- the Rotation display word — Revision 17 §2.1 -------------------------
+   ROTATION, solid, in Anton. Used by the homepage poster and the Rotation page
+   masthead; the colour is set by the caller, because the poster sets it on a
+   dark ground and the page masthead on sand.
 
-   `paint-order: stroke fill` IS THE WHOLE TRICK. Without it the stroke paints
-   ON TOP of the letterforms and, at this weight, swallows the fill entirely —
-   the word turns into a solid --sand slab. Painting the stroke first and the
-   fill over it is what leaves a readable letter inside an outline.
+   WHAT REVISION 16 GOT WRONG HERE, TWICE:
 
-   THE STROKE IS IN em, NOT px. The reference calls for 14px against an 11rem
-   word, which is ~0.08em; expressed that way it holds its proportion across
-   the whole clamp() range instead of looking like a hairline at 4rem on a
-   phone. There is no separate mobile value to forget to update.
+   1. THE OUTLINE. It was `-webkit-text-stroke: 0.08em` over a --tan fill,
+      meant to read as a die-cut sticker. At 11rem it does not read as a
+      die-cut; it reads as a drop shadow, and it was the thing making the word
+      look wrong. Both references use solid letterforms and nothing else. The
+      stroke is gone, and `paint-order` with it — that property only ever
+      mattered as a way of stopping the stroke from swallowing the fill.
 
-   THE TIGHT TRACKING IS STRUCTURAL, not taste. At -0.04em adjacent letters sit
-   close enough that their individual outlines overlap and merge into one
-   silhouette. Loosen it and the word stops reading as a single sticker and
-   starts reading as eight outlined letters.
+   2. THE TYPEFACE WAS A BUG, not a choice. It was set in
+      `var(--font-satoshi-bold)`, which lib/fonts.ts declares `preload: false`
+      because it exists solely for <strong> inside article prose. An 11rem
+      headline in a non-preloaded face renders in the fallback and then swaps —
+      a visible reflow on the largest element in the section. Anton is also
+      `preload: false`, but that is correct here: both usages are below the
+      fold, and the fallback stack is metric-chosen to survive the swap.
 
-   TYPEFACE: Satoshi 700, the heaviest weight in the sans this site actually
-   uses. Revision 16 §3 names "Inter Tight at its heaviest" as the fallback
-   choice, but this project's sans is Satoshi — the Inter Tight reference in
-   VolumeMasthead's comment is stale. The first preference, the wordmark's own
-   geometric sans, exists only as SVG paths in components/brand/Wordmark.tsx
-   and not as a font file, so it is not available to set text in. No fourth
-   family is added; the three-role type system holds.
-
-   Both colours are already validated on this ground — --tan is 6.70 against
-   --cocoa, the gradient's lightest point, and --sand is 10.64. No new tokens.
-
-   -webkit-text-stroke is the only cross-browser way to do this; it is
-   unprefixed nowhere. Chrome, Safari and Firefox all support it together with
-   paint-order on text. */
-.sticker-word {
-  font-family: var(--font-satoshi-bold), var(--font-satoshi), ui-sans-serif, sans-serif;
-  font-weight: 700;
-  font-size: clamp(4rem, 13vw, 11rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+   Tracking is -0.02em, not the -0.04em the sticker needed. Anton is already an
+   ultra-condensed face; the tight tracking existed to merge adjacent outlines
+   into one silhouette, and with no outlines there is nothing to merge. */
+.rotation-word {
+  font-family: var(--font-rotation);
+  font-weight: 400;
+  font-size: clamp(4.5rem, 16vw, 14rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
-  color: var(--color-tan);
-  -webkit-text-stroke: 0.08em var(--color-sand);
-  paint-order: stroke fill;
+}
+
+/* --- the header, inverted over dark sections — Revision 17 §1 --------------
+   THE BUG: the homepage header is an overlay, and Revision 15 §2's pin makes it
+   `fixed`. Once fixed it stays over the whole page — the Rotation poster, the
+   About section, the footer — while its type stays --ink, which is 1.06:1 on
+   --espresso. Not faint: invisible. Wordmark, nav, tagline and MENU button all.
+
+   THE FIX re-points the SEMANTIC TOKENS rather than restyling each element, so
+   this is one rule instead of five and no component learns about it. It is the
+   same mechanism .on-espresso already uses.
+
+   IT IS SCOPED TO [data-header-bar], NOT THE <header>. The mobile nav panel is
+   a sibling of that bar with a --sand ground of its own; inverting the whole
+   header would set its links to --sand on --sand and hide the open menu.
+
+   Colour and fill only, 200ms. No background, no backdrop-filter, no
+   mix-blend-mode — the last two are banned by Revision 06 §5, and a solid bar
+   would throw away the overlay the composition depends on. */
+header[data-inverted] [data-header-bar] {
+  --color-fg: var(--color-sand);        /* 13.61 on espresso */
+  --color-fg-muted: var(--color-tan);   /*  8.57 on espresso */
+  --color-fg-dim: var(--color-tan);
+  --color-fg-faint: var(--color-tan);
+}
+
+header[data-overlay] [data-header-bar] a,
+header[data-overlay] [data-header-bar] span,
+header[data-overlay] [data-header-bar] button,
+header[data-overlay] [data-header-bar] svg {
+  transition: color 200ms var(--ease-expo), fill 200ms var(--ease-expo);
+}
+
+/*
+   THE NO-JS FALLBACK.
+
+   The observer never runs without scripting, so the header would sit at --ink
+   over every dark section with nothing to rescue it. It takes a solid --sand
+   ground instead. That is the right trade and it is worth stating plainly: a
+   solid bar is a small aesthetic loss, an invisible nav is a broken site.
+*/
+@media (scripting: none) {
+  header[data-overlay] { background: var(--color-sand); }
+}
+
+/* --- the Rotation track card — Revision 17 §3.4 ---------------------------
+   The page's one repeating unit. All three sections use it; that shared unit
+   is what "follow Reference E" actually means.
+
+   THE HOVER RE-POINTS --color-fg-dim, AND THAT IS NOT DECORATION. The ground
+   goes to --sand-deep, where --muted measures 4.04 and fails AA — Revision 14
+   §1 rule 1, and the exact reason .on-sand-deep exists. Every mono label
+   inside the card reaches its colour through --color-fg-dim, so re-pointing
+   that one token to --ink-2 (5.44 on sand-deep) carries the whole card across
+   in one declaration. Setting the background without this line puts failing
+   type on every card on the page the moment a pointer touches it.
+
+   :focus-within as well as :hover — the card contains links, and the keyboard
+   has to get the same affordance. */
+.track-card {
+  transition: background-color 300ms var(--ease-expo);
+}
+.track-card:hover,
+.track-card:focus-within {
+  background-color: var(--color-sand-deep);
+  --color-fg-dim: var(--color-ink-2);
+  --color-fg-faint: var(--color-ink-2);
+}
+
+/* --- the record, Rotation page §3.3 ---------------------------------------
+   transform only, one composited layer, no layout and no paint per frame —
+   the same cost profile as the marquee that already ships. */
+@keyframes rotation-disc-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.rotation-disc {
+  animation: rotation-disc-spin 45s linear infinite;
 }
 
 /* --- marquee ------------------------------------------------------------- */
@@ -643,4 +709,6 @@ body {
     scroll-behavior: auto !important;
   }
   .marquee-track { animation: none; }
+  /* Resting at 0deg, not frozen mid-turn — §3.3 asks for a full stop. */
+  .rotation-disc { animation: none; transform: rotate(0deg); }
 }

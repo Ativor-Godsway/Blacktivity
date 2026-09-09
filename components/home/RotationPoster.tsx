@@ -76,7 +76,22 @@ function Figure() {
           on any img, and it is right to: an explicit height with an auto width
           is exactly the shape where a later edit turns a no-op into a stretch.
         */
-        className="absolute inset-x-0 top-0 mx-auto h-[112%] w-auto max-w-none object-contain"
+        /*
+          THE 150% ON MOBILE IS MEASURED, not picked.
+
+          The cut-out's opaque bounds are x 137-667 of 820 and y 99-1023 of
+          1024 — so the SUBJECT is 65% of the image's width, with 9.7% of
+          transparent air above her head. Sizing the image to the viewport
+          therefore leaves the figure at two thirds of the frame with brown
+          down both sides, which is what §2.2 is complaining about.
+
+          To put a 531/820 subject across a 390px viewport the image has to be
+          390 x 820/531 = 602 wide, i.e. ~150% of a 58vh box. The sides
+          overflow and are clipped, which is exactly what References C and D
+          do. Desktop keeps 112%, where the figure is a column beside the word
+          rather than the frame itself.
+        */
+        className="absolute inset-x-0 top-0 mx-auto h-[150%] w-auto max-w-none object-contain md:h-[112%]"
       />
     </picture>
   );
@@ -97,6 +112,9 @@ export function RotationPoster({ rotation }: { rotation: RotationPosterData | nu
 
   return (
     <section
+      /* Tells the header to invert over this section — Revision 17 §1. The
+         header is fixed under the hero pin and its --ink type is 1.06:1 here. */
+      data-surface="dark"
       className="on-gradient relative mt-(--spacing-section-lg) overflow-hidden"
       aria-labelledby="rotation-poster-heading"
     >
@@ -147,14 +165,38 @@ export function RotationPoster({ rotation }: { rotation: RotationPosterData | nu
           */}
           <div
             className={cn(
-              "relative z-10 md:absolute md:inset-x-(--gutter) md:bottom-[26%]",
+              /*
+                z-20 below md so the word sits IN FRONT of the figure's top
+                edge; z-10 from md up so the figure crosses in front of the
+                word, which is the desktop composition. Same two elements, the
+                ordering simply swaps at the breakpoint.
+              */
+              /*
+                z-30 below md so the word is IN FRONT of the figure's top edge;
+                z-10 from md up so the figure crosses in front of the word,
+                which is the desktop composition. Same two elements, the
+                ordering simply swaps at the breakpoint.
+
+                It was z-20 on both, which ties with the figure's own z-20 and
+                hands the decision to DOM order — so the figure painted over
+                the word and buried the last three letters.
+              */
+              "relative z-30 md:z-10 md:absolute md:inset-x-(--gutter) md:bottom-[26%]",
               right ? "md:text-left" : "md:text-right",
             )}
           >
+            {/*
+              `.rotation-word` — Anton, solid, --sand. Revision 17 §2.1 removed
+              the outline: at this size it read as a drop shadow rather than a
+              die-cut, and it was the thing making the word look wrong. The fill
+              moved from --tan to --sand for the near-white contrast Reference D
+              carries against a saturated ground (10.64 on --cocoa, the
+              gradient's lightest point).
+            */}
             <ScrollReveal
               as="h2"
               text="Rotation"
-              className="sticker-word block break-words"
+              className="rotation-word block break-words text-sand"
             />
             <span id="rotation-poster-heading" className="sr-only">
               In Rotation — {volumeLabel(rotation.number)}
@@ -195,7 +237,51 @@ export function RotationPoster({ rotation }: { rotation: RotationPosterData | nu
                 the whole point of a cut-out — while leaving the specified
                 stack order intact.
               */
-              "relative z-20 mt-8 h-[40vh] overflow-hidden md:mt-0 md:h-[86%]",
+              /*
+                MOBILE: FULL VIEWPORT WIDTH, and it has to escape the gutter to
+                get there. `w-screen` with a half-viewport translate is the
+                standard full-bleed break-out; the section is `overflow-hidden`
+                so nothing scrolls sideways.
+
+                References C and D both fill the frame edge to edge — that is
+                the whole reason a cut-out was worth having. It was `h-[40vh]`
+                centred with brown all around it, which wasted it.
+
+                `-mt-[8vh]` is what puts the figure's top behind the word: the
+                word is z-10 and this is z-20 in DOM order, but the negative
+                margin pulls roughly the top 15% of the figure up under the
+                word's baseline. Over the cap, never over the face — the crown
+                of the hat crosses the type and her features stay clear.
+              */
+              /*
+                MOBILE: FULL VIEWPORT WIDTH, via negative gutter margins.
+
+                References C and D both fill the frame edge to edge — that is
+                the whole reason a cut-out was worth having, and it was `h-[40vh]`
+                centred with brown all around it.
+
+                `-mx-(--gutter)` rather than the `w-screen` + half-viewport
+                translate trick: below md the container IS the viewport, so
+                cancelling its padding is already full bleed, and it needs no
+                horizontal offset to undo. The translate version fought
+                `md:left-[42%]` for the same properties at the same specificity
+                and won unpredictably — on desktop it dragged the figure across
+                the middle of the word and over the copy.
+
+                `-mt-[8vh]` is what puts the figure's top behind the word: the
+                negative margin pulls roughly its top 15% up under the word's
+                baseline. Over the cap, never over the face — the crown of the
+                hat crosses the type and her features stay clear.
+              */
+              /*
+                -20vh, and the number comes out of the same measurement. The
+                transparent air above her head is 9.7% of the image, which at
+                150% of a 58vh box is ~71px — so the image box has to start
+                that much higher again before any of HER crosses the word.
+                §2.2 asks for the top ~15% of the figure to pass behind it.
+              */
+              "relative z-20 -mx-(--gutter) -mt-[20vh] h-[58vh] overflow-hidden",
+              "md:mx-0 md:mt-0 md:h-[86%] md:w-[46%]",
               /*
                 Anchored to the bottom of the section on desktop; the image
                 inside is taller than this box, so the boundary does the crop.
@@ -212,7 +298,7 @@ export function RotationPoster({ rotation }: { rotation: RotationPosterData | nu
                 Anchored from the same side the word starts on, the figure
                 stays over the word's tail at every width.
               */
-              "md:absolute md:bottom-0 md:top-auto md:w-[46%]",
+              "md:absolute md:bottom-0 md:top-auto",
               right ? "md:left-[42%]" : "md:right-[42%]",
             )}
           >
@@ -264,10 +350,25 @@ export function RotationPoster({ rotation }: { rotation: RotationPosterData | nu
             <Link
               href="/rotation"
               data-track="rotation:homepage:enter"
+              /*
+                FILLED — Revision 17 §2.3. The outlined block was too quiet to
+                read as the section's action; the inversion is the whole fix.
+
+                --sand ground with --espresso text (13.61), hovering to --tan
+                with the text held at --espresso (8.57 — passes). Square
+                corners: Reference C's button is a pill, and this is the one
+                place the reference is deliberately not followed, because the
+                site is built on hairlines and hard edges and the fill alone
+                already carries the prominence.
+
+                Full width below md, inline from md up.
+              */
               className={cn(
-                "mono group mt-8 inline-flex items-center gap-3 border border-fg px-8 py-4 text-fg",
+                "mono group mt-10 flex w-full items-center justify-center gap-3 px-10 py-5",
+                "bg-sand text-espresso tracking-[0.2em]",
+                "md:inline-flex md:w-auto",
                 "transition-colors duration-300 ease-[var(--ease-expo)]",
-                "hover:bg-fg hover:text-bg focus-visible:bg-fg focus-visible:text-bg",
+                "hover:bg-tan focus-visible:bg-tan",
               )}
             >
               Enter rotation
