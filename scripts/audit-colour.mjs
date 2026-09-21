@@ -95,6 +95,24 @@ for (const file of files) {
    */
   if (file.endsWith("rotation-visual.ts")) continue;
 
+  /*
+   * THE DEV-ONLY STYLESHEET GUARD — Revision 23 §2.
+   *
+   * It is a red banner that appears when the stylesheet has not arrived, and it
+   * is styled entirely with inline colours that are deliberately NOT from the
+   * palette. Two reasons, both of them the point of the component:
+   *
+   *   - a warning that the stylesheet is missing cannot be styled by the
+   *     stylesheet, so it cannot use a token;
+   *   - it must not look like part of the design. It is an error, and it should
+   *     read as one.
+   *
+   * It never reaches production — `npm run check:devonly` greps the built
+   * output and fails if any of its strings survive — so the one-colour rule
+   * this audit enforces for the public site is not weakened by it.
+   */
+  if (file.endsWith("StylesheetGuard.tsx")) continue;
+
   const src = readFileSync(file, "utf8");
 
   src.split("\n").forEach((line, i) => {

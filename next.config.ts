@@ -45,6 +45,63 @@ const nextConfig: NextConfig = {
     */
     qualities: [65, 70, 75],
   },
+  /**
+   * DEVELOPMENT ONLY: never let a browser reuse a stylesheet — Revision 23 §1.
+   *
+   * THE FAULT THIS REMOVES. `next dev` serves its CSS from a STABLE,
+   * NON-HASHED URL — `/_next/static/chunks/[root-of-the-server]__….css` — with
+   * `Cache-Control: no-cache, must-revalidate`. `no-cache` does not mean "do
+   * not store"; it means "store it, but revalidate before reuse". So the
+   * browser keeps a copy, and on the next load it asks whether that copy is
+   * still good. If the answer is 304, or if the revalidation does not happen
+   * at all, it renders fresh HTML against a stylesheet from an older build.
+   *
+   * That is exactly what was reported twice and what Revision 22 measured:
+   * Revision 20's markup on Revision 18's cream palette. Production was never
+   * at risk, because its chunks are content-hashed and immutable — a new build
+   * means a new URL, and there is nothing to revalidate.
+   *
+   * `no-store` is the one directive that forbids keeping a copy at all. There
+   * is nothing to go stale, so there is no stale stylesheet to serve.
+   *
+   * IT IS GUARDED ON NODE_ENV AND RETURNS AN EMPTY LIST IN PRODUCTION, so the
+   * immutable caching that makes the deployed site fast is untouched. The
+   * guard is evaluated when the config is loaded, not per request.
+   */
+  async headers() {
+    if (process.env.NODE_ENV === "production") return [];
+    return [
+      {
+        // The stylesheet itself, and every other dev chunk alongside it.
+        source: "/_next/static/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
+      },
+      {
+        /*
+         * Everything served from `public/` too — the grain tiles and the cover
+         * photographs are on stable URLs in dev exactly as the stylesheet is.
+         *
+         * THE DOCUMENT ITSELF IS NOT REACHABLE FROM HERE, and that is worth
+         * recording rather than discovering again. Next sets
+         * `Cache-Control: no-cache, must-revalidate` on its own HTML and RSC
+         * responses AFTER custom headers are applied, so this rule does not win
+         * for a page. The only place that can override it is the proxy, and a
+         * proxy `matcher` must be a static literal — it cannot be widened in
+         * development and narrowed in production, so reaching the document
+         * would mean running middleware on every request of the deployed site
+         * to fix a development-only problem.
+         *
+         * It is also not the fault. `no-cache` means "revalidate before reuse",
+         * and the dev server re-renders the page every time it is asked; a
+         * document cannot go stale the way the stylesheet did, because the
+         * stylesheet's URL never changes and its content does.
+         */
+        source: "/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
+      },
+    ];
+  },
+
   serverExternalPackages: ["mongoose"],
   // The OG route reads these TTFs at runtime — trace them into the bundle.
   outputFileTracingIncludes: {

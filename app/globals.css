@@ -178,6 +178,11 @@
 }
 
 :root {
+  /* Written by scripts/build/stamp-stylesheet.mjs — Revision 23 §2.
+     A content hash of this file, compared in development against the same
+     value rendered into the HTML. They disagree only when the browser is
+     using a stylesheet from an older build. */
+  --stylesheet-build: "19960aeec7d0";
   --gutter: 1.25rem;
   color-scheme: dark;
 
@@ -299,6 +304,30 @@
  * black-on-black. Both are declared against the scoped tokens so they are
  * correct wherever they land.
  */
+/*
+ * EVERY FULL-BLEED SECTION CLIPS ITS OWN CHILDREN — Revision 23 §4.4.
+ *
+ * The sections are the width of the page, so an oversized child inside one has
+ * the whole document to spill across. That is what the owner photographed: with
+ * the stylesheet missing, the Rotation section's sticker word had no font-size
+ * rule and rendered at the browser's default scale for an Anton display face,
+ * several screens tall, below an unstyled image.
+ *
+ * `overflow: hidden` on the section means the worst a runaway child can do is
+ * be cut off inside its own band, rather than push the page sideways or stack
+ * down it. The hero and the Rotation section already had it; this extends the
+ * same guard to every themed band.
+ *
+ * IT IS SAFE HERE because no themed section contains a `position: sticky`
+ * descendant — an `overflow` other than `visible` on an ancestor is what
+ * silently breaks stickiness. The one sticky element on the site is the cover
+ * itself, which carries this on its own box, and an element's own overflow does
+ * not affect its own stickiness.
+ */
+[data-theme] {
+  overflow: hidden;
+}
+
 [data-theme] ::selection { background: var(--color-fg); color: var(--color-bg); }
 [data-theme] :focus-visible { outline-color: var(--color-fg); }
 

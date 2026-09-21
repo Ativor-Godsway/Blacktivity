@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { fontVariables } from "@/lib/fonts";
 import { SITE } from "@/lib/constants";
+import { STYLESHEET_BUILD } from "@/lib/stylesheet-build";
+import StylesheetGuard from "@/components/dev/StylesheetGuard";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -63,7 +65,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       why it is the right tool here rather than a blanket silencing — it is
       the same thing every pre-paint theme script does.
     */
-    <html lang="en" className={fontVariables} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={fontVariables}
+      suppressHydrationWarning
+      /*
+        The stylesheet's content hash, rendered into the HTML so the browser can
+        compare it against the one the stylesheet itself carries — Revision 23
+        §2. It is a plain attribute in production too, where it costs twelve
+        bytes and documents which stylesheet a page was built against.
+      */
+      data-stylesheet-build={STYLESHEET_BUILD}
+    >
       {/* Cloudinary serves every real cover and article image once it is
           configured, so warm the connection early. Emitted only when the cloud
           name exists — a preconnect to nowhere costs a DNS lookup for nothing. */}
@@ -81,6 +94,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         {children}
+        {/* Development only; the component compiles to nothing in production.
+            See the note in StylesheetGuard. */}
+        <StylesheetGuard />
       </body>
     </html>
   );
