@@ -35,6 +35,7 @@ export function RevealImage({
   blurDataURL,
   sizes = "(max-width: 768px) 100vw, 50vw",
   priority = false,
+  loading,
   quality,
   className,
   fill = false,
@@ -48,6 +49,14 @@ export function RevealImage({
   blurDataURL?: string;
   sizes?: string;
   priority?: boolean;
+  /**
+   * `eager` | `lazy`. Next 16 deprecates `priority` in favour of `preload`, and
+   * for a 72px thumbnail neither is what is wanted: the Rotation grid needs its
+   * first rows DECODED without also being PRELOADED into the head ahead of the
+   * page's real LCP, which is text. `loading="eager"` is exactly that, and the
+   * next/image docs name it as the right tool here.
+   */
+  loading?: "eager" | "lazy";
   quality?: number;
   className?: string;
   fill?: boolean;
@@ -74,6 +83,7 @@ export function RevealImage({
         {...dims}
         sizes={sizes}
         priority={priority}
+        loading={loading}
         quality={quality}
         placeholder={blurDataURL ? "blur" : "empty"}
         blurDataURL={blurDataURL}

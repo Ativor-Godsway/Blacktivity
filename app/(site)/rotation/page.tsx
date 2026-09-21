@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!volume) {
     return {
       title: "Rotation",
-      description: "A bi-weekly record of what is playing — new music, the chart, one guest curator.",
+      description: "A bi-weekly record of what is playing — the chart, and everything released in the fortnight around it.",
       alternates: { canonical: "/rotation" },
     };
   }
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: `Rotation ${label}`,
-    description: volume.intro || "New music, the Blacktivity Chart, and one guest curator.",
+    description: volume.intro || "The Blacktivity Chart, and every new release of the fortnight.",
     alternates: { canonical: absoluteUrl(`/rotation/${volume.slug}`) },
     openGraph: {
       title: `Rotation ${label} — Blacktivity`,

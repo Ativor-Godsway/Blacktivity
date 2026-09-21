@@ -40,20 +40,21 @@ export async function getPublishedArticles({
   return docs.map((d) => ({ ...toDTO<ArticleDTO>(d), id: String(d._id) }));
 }
 
-export async function getFeaturedArticle(): Promise<ArticleDTO | null> {
-  await dbConnect();
-  const doc =
-    (await Article.findOne({ status: "published", featured: true })
-      .select(ARTICLE_CARD_FIELDS)
-      .sort({ publishedAt: -1 })
-      .lean()) ??
-    (await Article.findOne({ status: "published" })
-      .select(ARTICLE_CARD_FIELDS)
-      .sort({ publishedAt: -1 })
-      .lean());
-
-  return doc ? { ...toDTO<ArticleDTO>(doc), id: String(doc._id) } : null;
-}
+/*
+ * getFeaturedArticle IS REMOVED — Revision 18 §1.
+ *
+ * Its only caller was the homepage, which used it for the hero's cover image
+ * and headline. Both are gone, so this had no consumers left, and an exported
+ * query with no callers is an invitation to wire it to the next thing that
+ * vaguely needs "an article" — with a silent fallback to the newest published
+ * one attached.
+ *
+ * NOTHING ABOUT THE FEATURED CONCEPT CHANGED. `Article.featured` is still on
+ * the model, still in the validation schema, still a checkbox in the admin, and
+ * still selected by ARTICLE_CARD_FIELDS. If a future revision wants a featured
+ * article somewhere, it writes the query it actually needs rather than
+ * inheriting this one's fallback by accident.
+ */
 
 export async function getArticleBySlug(slug: string): Promise<ArticleDTO | null> {
   await dbConnect();

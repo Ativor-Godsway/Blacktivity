@@ -19,7 +19,14 @@ export default function SubmitPage() {
         intro="Send us what you're making. No agency, no gatekeeping — a person reads every submission."
       />
 
-      <div className="mx-auto max-w-[1600px] px-(--gutter) py-20">
+      {/*
+        DARK MASTHEAD, LIGHT BAND BELOW — Revision 20 §2.3. The wrapper carries
+        the theme and the gutter; the 1600px grid moves inside it, because a
+        themed block has to paint edge to edge and the grid is what is centred
+        within it.
+      */}
+      <div data-theme="light" className="px-(--gutter) py-20">
+        <div className="mx-auto max-w-[1600px]">
         <div className="grid grid-cols-4 gap-x-(--gutter) gap-y-12 md:grid-cols-12">
           <aside className="col-span-4 md:col-span-3">
             <MonoLabel dim>What happens next</MonoLabel>
@@ -40,6 +47,7 @@ export default function SubmitPage() {
           <div className="col-span-4 md:col-span-8 md:col-start-5">
             <SubmitForm />
           </div>
+        </div>
         </div>
       </div>
     </>

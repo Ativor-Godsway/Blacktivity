@@ -13,18 +13,21 @@ export const revalidate = 3600;
 
 /**
  * Instagram is the distribution channel, so every shared volume link becomes a
- * cover. This is the inverse of the main OG card: espresso ground with sand
- * type, because Rotation is the section that earns the dark punctuation.
+ * cover. Revision 19: black ground with bone type — the same ground as the
+ * main card, since the whole site is black now. What distinguishes a Rotation
+ * preview is the Anton word and the volume metadata, not the ground.
  *
  * Satori resolves no cascade, so the palette is duplicated as literals here —
  * the same exception `/api/og` takes, and `npm run audit:colour` reads this
  * file against the same token list, so a drift fails rather than shipping the
  * wrong brand to every preview.
  */
-const ESPRESSO = "#241C16";
-const SAND = "#EDE7DB";
+const BLACK = "#0E0C0B";
+const BONE = "#EDE7DB";
 const TAN = "#C9B79C";
-const MUTED_DARK = "#A2937F";
+/* --muted-dark is retired. On black, --muted itself is 5.32 and there is no
+   second ground to need a lighter variant for — see the token docs. */
+const MUTED = "#8F8476";
 
 let fontCache: { display: Buffer; mono: Buffer } | null = null;
 
@@ -77,8 +80,8 @@ export async function GET(req: NextRequest) {
           justifyContent: "space-between",
           width: "100%",
           height: "100%",
-          backgroundColor: ESPRESSO,
-          color: SAND,
+          backgroundColor: BLACK,
+          color: BONE,
           padding: "56px 64px",
           fontFamily: "Zodiak",
         }}
@@ -91,7 +94,7 @@ export async function GET(req: NextRequest) {
             fontSize: 20,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: MUTED_DARK,
+            color: MUTED,
           }}
         >
           <div style={{ display: "flex" }}>{SITE.name} — Rotation</div>
@@ -99,7 +102,7 @@ export async function GET(req: NextRequest) {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {(artists.length > 0 ? artists : ["New music", "The chart", "One curator"]).map(
+          {(artists.length > 0 ? artists : ["The chart", "New releases"]).map(
             (artist, i) => (
               <div
                 key={artist}
@@ -139,7 +142,7 @@ export async function GET(req: NextRequest) {
             fontSize: 20,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: MUTED_DARK,
+            color: MUTED,
           }}
         >
           <div style={{ display: "flex" }}>Bi-weekly — Accra, Ghana</div>

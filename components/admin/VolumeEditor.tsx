@@ -11,8 +11,10 @@ import type { EntryValue, TrackLite, VolumeFormValues } from "./rotation-types";
 import { volumeLabel, PLAYLIST_PLATFORMS } from "@/lib/rotation";
 
 /**
- * The volume editor: three independently editable panels — New Music, The
- * Chart, Curation — under one header row.
+ * The volume editor: three independently editable panels — The Chart, New
+ * Releases and the Curation — under one header row, in the order the public
+ * page reads them. The Curation no longer HAS a public surface (Revision 17
+ * §6); it stays here, collapsed, saying so.
  *
  * REORDERING IS KEYBOARD-FIRST. Every chart row carries up/down buttons, and
  * drag is layered on top as a convenience. Drag-only reordering is not keyboard
@@ -153,7 +155,7 @@ export function VolumeEditor({
   /**
    * `numbered` and `reorderable` are SEPARATE on purpose.
    *
-   * New Music is reorderable but carries no numbers: the public page groups it
+   * New Releases is reorderable but carries no numbers: the public page dates it
    * by release date, so order within a date group needs to be fixable, but
    * numbering it would tell the reader it is a ranking. Only the chart is both.
    */
@@ -429,29 +431,6 @@ export function VolumeEditor({
         </Card>
 
         <Card
-          title="New Music"
-          note="Unranked — the page groups these by release date"
-          action={
-            <button type="button" className="a-btn a-btn-ghost" onClick={() => setPicker("newMusic")}>
-              Add track
-            </button>
-          }
-        >
-          {picker === "newMusic" ? (
-            <div className="mb-4">
-              <TrackPicker onAdd={(t, reused) => addTrack("newMusic", t, reused)} onClose={() => setPicker(null)} />
-            </div>
-          ) : null}
-          <p className="a-muted mb-3 text-[12px]">
-            Use ▲ / ▼ to order tracks within a release date — the public page groups by date, so
-            this is the only thing that fixes the order inside a group. No numbers: the list is not
-            a ranking.
-          </p>
-          <EntryRows listKey="newMusic" numbered={false} />
-          <PlaylistFields listKey="newMusic" />
-        </Card>
-
-        <Card
           title="The Chart"
           note={`${values.chart.length} of 10 — order is the position`}
           action={
@@ -474,8 +453,44 @@ export function VolumeEditor({
         </Card>
 
         <Card
+          title="New Releases"
+          note="Unranked — the page shows a release date, never a number"
+          action={
+            <button type="button" className="a-btn a-btn-ghost" onClick={() => setPicker("newMusic")}>
+              Add track
+            </button>
+          }
+        >
+          {picker === "newMusic" ? (
+            <div className="mb-4">
+              <TrackPicker onAdd={(t, reused) => addTrack("newMusic", t, reused)} onClose={() => setPicker(null)} />
+            </div>
+          ) : null}
+          <p className="a-muted mb-3 text-[12px]">
+            The page orders these newest release date first. Use ▲ / ▼ to order tracks that SHARE a
+            date — that tie is the only thing this decides, and nothing else can. No numbers: the
+            list is not a ranking, and the slot beside each row carries its release date instead.
+          </p>
+          <EntryRows listKey="newMusic" numbered={false} />
+          <PlaylistFields listKey="newMusic" />
+        </Card>
+
+        {/*
+          THE CURATION IS OFF THE PAGE, NOT OUT OF THE PRODUCT — Revision 17 §6.
+
+          Every field below still saves, every seeded curation is intact, and
+          nothing about the data changed. What changed is that nothing renders
+          it publicly, so the panel says so ON ITSELF and starts collapsed. The
+          owner should not spend twenty minutes writing a curator statement
+          without being told nobody will see it — a feature kept warm in silence
+          is just a trap.
+
+          Collapsed via <details>, which needs no state and no script, and which
+          a keyboard opens for free.
+        */}
+        <Card
           title="Creators Curation"
-          note="Omitted from the page entirely when empty"
+          note="Not currently shown on the public page"
           action={
             values.curation ? (
               <button
@@ -504,6 +519,11 @@ export function VolumeEditor({
             )
           }
         >
+          <details>
+            <summary className="a-ink2 cursor-pointer text-[13px]">
+              Kept and still editable — it is simply not rendered on /rotation.
+            </summary>
+            <div className="mt-4">
           {values.curation ? (
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -567,10 +587,12 @@ export function VolumeEditor({
             </div>
           ) : (
             <p className="a-muted text-[13px]">
-              No curator on this volume. The section is omitted from the page — there is no
-              &ldquo;curator TBA&rdquo; state.
+              No curator on this volume. Nothing is lost either way — the curation has no public
+              surface on this revision.
             </p>
           )}
+            </div>
+          </details>
         </Card>
 
         <div className="flex flex-wrap items-center gap-3">

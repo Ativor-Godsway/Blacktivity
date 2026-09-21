@@ -37,7 +37,11 @@ export function ArticleIndex({ articles }: { articles: ArticleDTO[] }) {
 
   return (
     <>
-      <div className="mx-auto max-w-[1600px] px-(--gutter)">
+      {/* Dark masthead, light grid below — Revision 20 §2.3. The filter row is
+          part of the masthead because it belongs to the heading, not to the
+          cards. */}
+      <div data-theme="dark" className="px-(--gutter) pt-16 pb-10 md:pt-24">
+        <div className="mx-auto max-w-[1600px]">
         {/* Heading ranged left, filters right-aligned on the same baseline. */}
         <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8 border-b border-rule pb-6">
           <h1 className="display text-[clamp(3rem,11vw,9rem)] leading-[0.85]">Articles</h1>
@@ -57,9 +61,11 @@ export function ArticleIndex({ articles }: { articles: ArticleDTO[] }) {
             ))}
           </div>
         </div>
+        </div>
       </div>
 
-      <div className="mx-auto max-w-[1600px] px-(--gutter) pb-24">
+      <div data-theme="light" className="px-(--gutter) pt-12 pb-24">
+        <div className="mx-auto max-w-[1600px]">
         {visible.length === 0 ? (
           <p className="mono py-20 text-fg-muted">Nothing published here yet.</p>
         ) : (
@@ -81,6 +87,7 @@ export function ArticleIndex({ articles }: { articles: ArticleDTO[] }) {
             </button>
           </div>
         ) : null}
+        </div>
       </div>
     </>
   );

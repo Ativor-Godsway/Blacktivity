@@ -11,92 +11,148 @@
 @source not "../**/*.md";
 
 /* ---------------------------------------------------------------------------
-   BLACKTIVITY DESIGN TOKENS — REVISION 12, WARM NEUTRAL
+   BLACKTIVITY DESIGN TOKENS — REVISION 19, BLACK BASE
 
-   The scheme is a THREE-VALUE WARM NEUTRAL: a sand ground with espresso type,
-   or the inverse. It is not monochrome with a tint applied — there is no pure
-   black and no pure white anywhere in the system, and the neutrals themselves
-   carry the warmth. That distinction is the whole point: adding beige on top of
-   black and white reads as a monochrome site wearing a filter.
+   BLACK IS THE SYSTEM. The ground is one near-black at every width, on every
+   public page, and the warmth lives in the TYPE and the accents rather than in
+   the ground. That distinction is the entire revision: Revision 12 answered
+   "too black-and-white" by turning the whole site brown, which read as a brown
+   site. A black magazine printed on a warm press does not.
 
-   The site is LIGHT-DOMINANT. Espresso is heavy punctuation, used for three
-   full-bleed sections on the homepage and for nothing else.
+   STILL NO PURE BLACK AND NO PURE WHITE. --black is a near-black with warmth
+   in it, three values off RGB zero, and
+   the lightest tone is --bone at #EDE7DB. That rule survives Revision 12
+   unchanged; only the direction of the scheme flipped.
 
-   CONTRAST. Every pairing below is measured, and two values are load-bearing:
+   WHAT WAS REMOVED, AND WHY IT WAS REMOVED RATHER THAN ALIASED:
 
-     --muted (#6B5D50) is the LIGHTEST tone that still clears AA on BOTH light
-     grounds — 5.16 on sand, 4.53 on sand-raised. Mono labels appear on cards
-     all over this site, so the sand-raised figure is the binding one. Moving
-     this value lighter fails every card on the site at once.
+     --sand, --sand-raised, --sand-deep   the light grounds
+     --ink, --ink-2                       type for those grounds
+     --espresso, --espresso-deep, --cocoa the dark punctuation and its gradient
+     --muted-dark                         mono labels inside dark sections
 
-     --muted-dark (#A2937F) exists because --muted reaches only 2.64 on
-     espresso. Labels inside dark sections MUST use it. The semantic layer does
-     this automatically — see .on-espresso — so no component should ever name
-     either value directly.
+   An alias called --sand that resolved to black would read correctly for
+   exactly one revision and then mislead every one after it, so none of those
+   names exists any more. `--bone` IS the old `--sand` value, promoted from
+   ground to ink; that is the only continuity, and it has a new name because it
+   has a new job.
 
-     --tan (1.59 on sand) is DECORATIVE ONLY on light grounds: never type,
-     never a border that carries state. On espresso it is 8.57 and safe.
+   --muted-dark is gone because the site no longer has two grounds to serve.
+   There is one ground and one raised step, so one --muted covers both, and the
+   .on-espresso indirection that existed to swap between them is gone with it.
 
-   `npm run audit:colour` re-derives all of these from the built stylesheet and
+   CONTRAST. Eight pairings, all measured, all AA at body size:
+
+     bone   on black 15.85    bone   on black-raised 14.49
+     bone-2 on black  9.01    bone-2 on black-raised  8.24
+     muted  on black  5.32    muted  on black-raised  4.87
+     tan    on black  9.98    tan    on black-raised  9.12
+
+   --muted (#8F8476) IS LOAD-BEARING. It is the lowest value that still clears
+   AA on --black-raised, which is the binding ground because mono labels sit on
+   raised cards all over this site. Moving it darker fails every card at once.
+
+   --tan IS TYPE-SAFE HERE, unlike in Revision 12. On the light grounds it was
+   1.59 and decorative-only; on black it is 9.98, so pills, active nav, arrows
+   and meaning-bearing rules may all use it. The old "decorative only"
+   restriction was scoped to light grounds, and there are none left.
+
+   `npm run audit:contrast` re-derives all eight from the BUILT stylesheet and
    fails on drift, so the table is checked rather than asserted.
 --------------------------------------------------------------------------- */
 @theme {
   /* --- the literal palette. Nothing outside this list is permitted. --- */
-  --color-sand: #ede7db;         /* page ground — never #FFF */
-  --color-sand-raised: #e2d9c8;  /* cards, hovers, inset panels */
-  --color-tan: #c9b79c;          /* the cover tone — accents on dark only */
-  --color-ink: #2a211a;          /* all primary type */
-  --color-ink-2: #574a3e;        /* secondary text, excerpts */
-  --color-muted: #6b5d50;        /* mono labels on light grounds */
-  --color-muted-dark: #a2937f;   /* mono labels inside espresso sections */
-  --color-espresso: #241c16;     /* full-bleed dark punctuation ONLY */
+  --color-black: #0e0c0b;        /* page ground, the whole public site */
+  --color-black-raised: #1a1715; /* cards, hovers, inset panels */
+  --color-bone: #ede7db;         /* all primary type — never #FFF */
+  --color-bone-2: #b9af9f;       /* secondary text, excerpts, card titles at rest */
+  --color-muted: #8f8476;        /* mono labels, dates, metadata */
+  --color-tan: #c9b79c;          /* accent: pills, active nav, arrows, live rules */
 
-  /* --- REVISION 14: three steps that extend the ramp at both ends ---------
-     The section needed depth without leaving the browns. Each has exactly one
-     job, and each brings a restriction that is NOT optional:
+  /* --- REVISION 20: THE LIGHT GROUND --------------------------------------
+     The site alternates black and white section by section. Black is still the
+     base and the brand; these are the tokens for the sections that break it.
 
-       --sand-deep   third light step — the tinted strip and the 01 chart row.
-                     MONO LABELS ON IT USE --ink-2, NEVER --muted: --muted is
-                     4.04 here, under the bar, and mono labels are 11-12px.
-                     Same situation that produced --muted-dark in Revision 12.
+     IT IS A CLEAN OFF-WHITE, NOT SAND. #EDE7DB is --bone, and --bone is INK on
+     this site — it was the Revision 12 ground that the owner rejected as beige,
+     and at section scale it reads exactly that way. #F6F4F0 is warm enough not
+     to be pure white and cool enough not to be a colour.
 
-       --cocoa       the gradient's LIGHT end, and dark row tints. Mono labels
-                     on it use --tan (6.70) or --sand, never --muted-dark,
-                     which is 4.38 and large-text-only.
+     --ink IS THE SAME VALUE AS --black, deliberately: the type on a light
+     section and the ground of a dark one are one colour, which is what makes
+     the alternation read as one system rather than two palettes stitched
+     together. It has its own name because it has its own job, the same reason
+     --bone is not called --sand.
 
-       --espresso-deep  the gradient's dark end.
+     Six measured pairings, all AA at body size:
 
-     THE GRADIENT RULE. Contrast on a gradient is measured at its LIGHTEST
-     point, not its average — so every text colour on the Rotation gradient
-     must clear AA against --cocoa, not against some midpoint that never
-     actually sits behind a glyph. This is the exact check a gradient invites
-     people to skip. `npm run audit:contrast` asserts it.
+       ink       on paper 17.77    ink       on paper-raised 16.11
+       ink-2     on paper 10.55    ink-2     on paper-raised  9.57
+       ink-muted on paper  5.37    ink-muted on paper-raised  4.87
 
-     --tan as TYPE on dark grounds was always allowed (8.57 on espresso);
-     Revision 12's "decorative only" restriction was scoped to LIGHT grounds
-     and still is — it is 1.24 on sand-deep, so it never becomes type there. */
-  --color-sand-deep: #d8cdb8;    /* third light step — tints, the 01 row */
-  --color-cocoa: #3b2e25;        /* gradient's light end; dark row tints */
-  --color-espresso-deep: #16100b;/* gradient's dark end */
+     --ink-muted is load-bearing on this ground exactly as --muted is on black:
+     4.87 on --paper-raised is the binding figure, because mono labels sit on
+     raised cards. It must not drift lighter.
+
+     --tan IS NOT TYPE HERE. It is 1.78 on --paper and 1.61 on --paper-raised —
+     decorative only, as it was on Revision 12's sand. On a light ground an
+     accent is --ink with an underline, or an --ink pill border. audit:contrast
+     asserts that it stays under the bar so nobody reaches for it. */
+  --color-paper: #f6f4f0;        /* light ground */
+  --color-paper-raised: #ece9e3; /* cards and hovers on light */
+  --color-ink: #0e0c0b;          /* primary type on light — the --black value */
+  --color-ink-2: #3d3833;        /* secondary text, excerpts, article body */
+  --color-ink-muted: #6b635a;    /* mono labels, dates on light */
+
+  /* --- the gradient's two stops ------------------------------------------
+     The Rotation poster's gradient was built on --espresso and --cocoa and had
+     to be re-derived: those were browns, and a brown gradient on a black page
+     is the one place the "brown site" reading comes back.
+
+     Both stops are steps of --black, kept deliberately shallow — the gradient
+     is depth, not a second colour. THE GRADIENT RULE STILL HOLDS: contrast on
+     a gradient is measured at its LIGHTEST point, so every text colour on the
+     poster is checked against --black-lift, never against a midpoint that
+     never actually sits behind a glyph. audit:contrast asserts exactly that. */
+  --color-black-lift: #201c19;   /* gradient's light end — lightest point */
+  --color-black-deep: #080706;   /* gradient's dark end */
 
   /* --- semantic layer -----------------------------------------------------
-     Components address the GROUND they sit on, never a literal colour, so the
-     same component renders correctly on sand and inside .on-espresso. These
-     are the light-ground values; .on-espresso overrides them below.       --- */
-  --color-fg: #2a211a;           /* primary foreground   — 12.81 on sand */
-  --color-fg-muted: #574a3e;     /* secondary copy       —  6.95, AA */
-  --color-fg-dim: #6b5d50;       /* labels, meta         —  5.16, AA */
-  --color-fg-faint: #6b5d50;     /* smallest legible tone —  5.16, AA.
-                                    NOT --tan: at 1.59 on sand it is
-                                    decorative, and this token reaches type. */
-  --color-bg: #ede7db;           /* the ground itself */
-  --color-bg-raised: #e2d9c8;    /* cards, inset panels */
-  --color-rule: rgba(42, 33, 26, 0.16);
-  --color-rule-soft: rgba(42, 33, 26, 0.08);
-  --color-grid: rgba(42, 33, 26, 0.05);
-  --color-rule-strong: rgba(42, 33, 26, 0.28);
-  --color-fill-subtle: rgba(42, 33, 26, 0.05);
-  --color-fill-strong: rgba(42, 33, 26, 0.1);
+     Components address the GROUND they sit on, never a literal colour.
+
+     REVISION 19 MADE THIS LAYER NEARLY REDUNDANT AND KEPT IT ANYWAY. With one
+     ground there is only one set of values, so `.on-espresso` and its three
+     siblings are gone — but every component on the site already reaches colour
+     through these four names, and re-pointing them is still how the gradient
+     and the raised tint get their labels right. Deleting the indirection would
+     mean touching sixty components to gain nothing. --- */
+  /*
+     THE ACCENT, AS A TOKEN — Revision 20 §2.1.
+
+     --tan is the accent on black (9.98, type-safe) and is 1.78 on --paper,
+     where §2.1 forbids it as text outright. A component cannot carry `text-tan`
+     and be correct on both grounds, and the category pill, the active nav item
+     and the tick fill all appear on both.
+
+     So the accent is a semantic token like every other colour here, and the two
+     theme scopes decide what it is: --tan on dark, --ink with an underline or a
+     border on light. That is exactly the substitution §2.1 prescribes, made
+     once rather than per component.
+  */
+  --color-accent: #c9b79c;       /* --tan on the dark ground */
+
+  --color-fg: #ede7db;           /* primary foreground   — 15.85 on black */
+  --color-fg-muted: #b9af9f;     /* secondary copy       —  9.01, AA */
+  --color-fg-dim: #8f8476;       /* labels, meta         —  5.32, AA */
+  --color-fg-faint: #8f8476;     /* smallest legible tone —  5.32, AA */
+  --color-bg: #0e0c0b;           /* the ground itself */
+  --color-bg-raised: #1a1715;    /* cards, inset panels */
+  --color-rule: rgba(237, 231, 219, 0.14);
+  --color-rule-soft: rgba(237, 231, 219, 0.07);
+  --color-grid: rgba(237, 231, 219, 0.05);
+  --color-rule-strong: rgba(237, 231, 219, 0.28);
+  --color-fill-subtle: rgba(237, 231, 219, 0.05);
+  --color-fill-strong: rgba(237, 231, 219, 0.1);
 
   --font-display: var(--font-zodiak), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
@@ -123,19 +179,7 @@
 
 :root {
   --gutter: 1.25rem;
-  color-scheme: light;
-
-  /* HERO GEOMETRY.
-     The wordmark is 100vw wide at a 4.349:1 aspect, so it is 22.99vw tall, and
-     sits at bottom:-2.3vw from md up — 10% of its height below the fold, so its
-     top edge lands at (100svh - 20.69vw). 10% is a measured limit, not a
-     preference: the tail of the 'y' — the word's only descender — occupies the
-     bottom ~12%, so a deeper crop makes the mark read "blacktivitu".
-     Below md the clip drops to -1vw (~4%): the crop is proportional, and 10% of
-     an 83px-tall mark leaves too little of that tail to read.
-     --stack-bottom places the cover stack just past that line so it clips the
-     TOPS of the letterforms rather than covering the middle of the word. */
-  --stack-bottom: calc(21.99vw - 14px);
+  color-scheme: dark;
 
   /*
    * THE HERO MARQUEE'S HEIGHT — a constant, not a preference.
@@ -150,40 +194,153 @@
    * ELSE and the wordmark lands off its slot in the header.
    */
   --hero-marquee-h: 44px;
+
+  /*
+   * THE OVERLAY NAV ROW'S HEIGHT — Revision 18 §6, and a constant for the same
+   * reason --hero-marquee-h is one.
+   *
+   * On the homepage the header is absolutely positioned OVER the hero, so the
+   * hero's own top-right EDITION block and the header's nav row are two
+   * components anchored to the same corner with no layout relationship between
+   * them. They collided: a 2px gap at every width from 768 to 2560.
+   *
+   * 34px = the header bar's `py-5` top padding (20px) plus one mono line
+   * (14px). The nav is `hidden md:flex` and never wraps — six short labels at
+   * gap-8 fit from 768 up — so this is one line at every width the overlay
+   * header exists at.
+   *
+   * The hero's edition block starts at this + --gutter. Change the header's
+   * padding or the mono line-height and this has to follow, which is exactly
+   * why it is written down here next to the other one.
+   */
+  --hero-nav-h: 34px;
 }
 
 @media (min-width: 768px) {
   :root {
     --gutter: 2rem;
-    --stack-bottom: calc(20.69vw - 70px);
     --hero-marquee-h: 52px;
   }
 }
 
-/**
- * Any subtree on the espresso ground re-points the semantic tokens. This is the
- * ONLY place the inversion is expressed — no component branches on ground.
- *
- * Note --color-fg-dim: on this ground it resolves to --muted-dark, NOT --muted.
- * --muted is 2.64 here and would fail every mono label inside a dark section.
- * That is the reason this indirection exists at all.
- */
-.on-espresso {
-  --color-fg: #ede7db;           /* 13.61 on espresso */
-  --color-fg-muted: #e2d9c8;     /* 12.28, AA */
-  --color-fg-dim: #a2937f;       /*  5.60, AA — muted-dark, not muted */
-  --color-fg-faint: #a2937f;     /*  5.60, AA */
-  --color-bg: #241c16;
-  --color-bg-raised: #2a211a;
-  --color-rule: rgba(237, 231, 219, 0.16);
+/* ===========================================================================
+   SECTION THEMES — Revision 20 §2.2
+
+   Every top-level section declares its ground with ONE attribute:
+
+     <section data-theme="dark">   <section data-theme="light">
+
+   and everything inside it — cards, pills, hairlines, buttons, grid lines,
+   the grain — follows. The same card component renders correctly on either
+   ground with no variant prop and no branch, which is the whole point.
+
+   THE BRIEF NAMES THESE --bg / --fg / --fg-2 / --label / --line / --raised.
+   This file re-points the SEMANTIC TOKENS THAT ALREADY EXIST instead, because
+   sixty-odd components already reach colour through them and renaming would be
+   sixty diffs to gain nothing. The mapping is one to one:
+
+     --bg      ->  --color-bg           --line     ->  --color-rule
+     --fg      ->  --color-fg           --raised   ->  --color-bg-raised
+     --fg-2    ->  --color-fg-muted
+     --label   ->  --color-fg-dim  (and --color-fg-faint)
+
+   THE DARK BLOCK IS NOT REDUNDANT. The :root values are the dark ones, so a
+   section with no attribute is already dark — but a dark section nested inside
+   a light one has to be able to say so, and a light section inside a dark page
+   has to reset everything a light section changes. Both blocks are complete for
+   that reason; neither inherits half its values from the other.
+   =========================================================================== */
+
+[data-theme="dark"] {
+  --color-fg: var(--color-bone);
+  --color-fg-muted: var(--color-bone-2);
+  --color-fg-dim: var(--color-muted);
+  --color-fg-faint: var(--color-muted);
+  --color-bg: var(--color-black);
+  --color-bg-raised: var(--color-black-raised);
+  --color-rule: rgba(237, 231, 219, 0.14);
+  --color-rule-soft: rgba(237, 231, 219, 0.07);
   --color-grid: rgba(237, 231, 219, 0.05);
-  --color-rule-strong: rgba(237, 231, 219, 0.32);
-  --color-fill-subtle: rgba(237, 231, 219, 0.06);
-  --color-fill-strong: rgba(237, 231, 219, 0.12);
+  --color-rule-strong: rgba(237, 231, 219, 0.28);
+  --color-fill-subtle: rgba(237, 231, 219, 0.05);
+  --color-fill-strong: rgba(237, 231, 219, 0.1);
+  --color-accent: var(--color-tan);
 
   color-scheme: dark;
-  background-color: var(--color-espresso);
+  background-color: var(--color-bg);
   color: var(--color-fg);
+}
+
+[data-theme="light"] {
+  --color-fg: var(--color-ink);
+  --color-fg-muted: var(--color-ink-2);
+  --color-fg-dim: var(--color-ink-muted);
+  --color-fg-faint: var(--color-ink-muted);
+  --color-bg: var(--color-paper);
+  --color-bg-raised: var(--color-paper-raised);
+  --color-rule: rgba(14, 12, 11, 0.14);
+  --color-rule-soft: rgba(14, 12, 11, 0.07);
+  --color-grid: rgba(14, 12, 11, 0.05);
+  --color-rule-strong: rgba(14, 12, 11, 0.28);
+  --color-fill-subtle: rgba(14, 12, 11, 0.05);
+  --color-fill-strong: rgba(14, 12, 11, 0.1);
+  /* NOT --tan: 1.78 on --paper. On a light ground an accent is --ink, carrying
+     its emphasis through a border or an underline rather than through hue. */
+  --color-accent: var(--color-ink);
+
+  color-scheme: light;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+/*
+ * SELECTION AND FOCUS FOLLOW THE GROUND TOO. `::selection` was --color-fg on
+ * --color-bg at :root, which on a light section inside a dark page inverted to
+ * black-on-black. Both are declared against the scoped tokens so they are
+ * correct wherever they land.
+ */
+[data-theme] ::selection { background: var(--color-fg); color: var(--color-bg); }
+[data-theme] :focus-visible { outline-color: var(--color-fg); }
+
+/*
+ * THE GRAIN, ON A LIGHT GROUND.
+ *
+ * One fixed element covers the whole viewport, so it cannot be themed per
+ * section — it is over all of them at once. The tile is BONE speckle, which is
+ * correct on black and invisible on --paper.
+ *
+ * So a second, darker tile is drawn over light sections only, by a `::before`
+ * on the section itself rather than by a second fixed layer: a section knows
+ * its own bounds, and a fixed layer would have to be told about them every
+ * frame. It is absolutely positioned inside the section, not fixed, so it
+ * scrolls with its section and costs nothing per frame — the same reason
+ * `.grain` is a plain tile and not a blend mode.
+ *
+ * 0.055 against the black ground's 0.08: dark noise on near-white registers
+ * more per unit of alpha than light noise on near-black, which is the same
+ * asymmetry that took the black grain from 0.05 to 0.08.
+ */
+[data-theme="light"] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-theme="light"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("/grain-dark.png");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  opacity: 0.055;
+}
+
+/* The section's own content sits above its grain. */
+[data-theme="light"] > * {
+  position: relative;
+  z-index: 1;
 }
 
 /**
@@ -193,76 +350,76 @@
  * Revision 06 forbids because a blended full-viewport layer cannot be
  * GPU-cached and re-composites the viewport every scroll frame.
  *
- * The semantic tokens are re-pointed for this ground exactly as .on-espresso
- * does, so no component branches on which ground it is sitting on. Note
- * --color-fg-dim resolves to --tan here, NOT --muted-dark: muted-dark is 4.38
- * against --cocoa, the gradient's lightest point, and that is where the
- * measurement has to be taken.
+ * REVISION 19 RE-DERIVED BOTH STOPS ON BLACK. They were --cocoa to
+ * --espresso-deep, a brown ramp; they are now two steps of --black. The
+ * section still reads as depth against the flat page ground, which is all the
+ * gradient was ever for.
+ *
+ * Only --color-fg-dim is re-pointed: --muted is 4.62 against --black-lift,
+ * which clears AA, but barely, and the labels here sit over a gradient rather
+ * than a flat fill. --tan is 8.65 at the lightest point, so the poster's mono
+ * type takes that instead. This is the one ground on the site where the dim
+ * token is not --muted, and audit:contrast is what keeps the reason true.
  */
 .on-gradient {
-  --color-fg: #ede7db;           /* 10.64 on cocoa, 15.32 on espresso-deep */
-  --color-fg-muted: #e2d9c8;     /*  9.35 on cocoa, AA */
-  --color-fg-dim: #c9b79c;       /*  6.70 on cocoa — tan, not muted-dark */
-  --color-fg-faint: #c9b79c;     /*  6.70 on cocoa, AA */
-  --color-bg: #3b2e25;
-  --color-bg-raised: #3b2e25;
-  --color-rule: rgba(237, 231, 219, 0.16);
-  --color-grid: rgba(237, 231, 219, 0.05);
-  --color-rule-strong: rgba(237, 231, 219, 0.32);
-  --color-fill-subtle: rgba(237, 231, 219, 0.06);
-  --color-fill-strong: rgba(237, 231, 219, 0.12);
+  --color-fg-dim: #c9b79c;       /* 8.65 on black-lift — tan, not muted */
+  --color-fg-faint: #c9b79c;
+  --color-bg: #201c19;
+  --color-bg-raised: #201c19;
 
-  color-scheme: dark;
-  background-image: linear-gradient(180deg, var(--color-cocoa) 0%, var(--color-espresso-deep) 100%);
+  background-image: linear-gradient(180deg, var(--color-black-lift) 0%, var(--color-black-deep) 100%);
   color: var(--color-fg);
 }
 
 /**
- * The --sand-deep ground: the chart's 01 row and the masthead strip's
- * neighbours. --color-fg-dim resolves to --ink-2, never --muted, which is 4.04
- * here. This class is the ONLY thing standing between a tinted row and a
- * failing mono label, so mono type inside it must go through the token.
+ * THE RAISED TINT — the Rotation chart's 01 row, and the successor to
+ * `.on-sand-deep`.
+ *
+ * It exists for the same structural reason: one row of the chart carries a
+ * tint. It no longer exists for the CONTRAST reason. --muted was 4.04 on
+ * --sand-deep and failed AA, so that class had to re-point --color-fg-dim to
+ * --ink-2; on --black-raised --muted is 4.87 and passes, which is precisely
+ * what "--muted must not drift darker" is protecting.
+ *
+ * So this sets a ground and nothing else. It still re-points
+ * --color-bg-raised to its own value, which is what makes the shared
+ * `.card-hover` ground change a silent no-op on the tinted row rather than
+ * something the component has to exclude.
  */
-.on-sand-deep {
-  --color-fg: #2a211a;           /* 10.03 on sand-deep */
-  --color-fg-muted: #574a3e;     /*  5.44, AA */
-  --color-fg-dim: #574a3e;       /*  5.44 — ink-2, NOT muted (4.04) */
-  --color-fg-faint: #574a3e;
-  --color-bg: #d8cdb8;
-  --color-bg-raised: #d8cdb8;
+.on-raised {
+  /*
+   * REVISION 20: THE TINT IS THE THEME'S RAISED STEP, NOT A LITERAL.
+   *
+   * It was `#1a1715` written twice — --black-raised, hard-coded, from when the
+   * whole site was one ground. The Rotation page's chart now sits in a LIGHT
+   * band, so the tinted row painted a near-black panel under --ink type:
+   * measured at 1.09:1 for the rank numeral and the artist name. Invisible, on
+   * the row the tint exists to emphasise.
+   *
+   * `--color-bg-raised` is whatever the surrounding theme says it is —
+   * --black-raised on dark, --paper-raised on light — so one declaration is
+   * correct on both. Re-pointing --color-bg to the same value is what keeps the
+   * shared `.card-hover` ground change a silent no-op on this row rather than
+   * something the component has to exclude.
+   */
+  --color-bg: var(--color-bg-raised);
 
-  background-color: var(--color-sand-deep);
-  color: var(--color-fg);
-}
-
-/**
- * The masthead strip: --tan ground carries --ink or --espresso type and
- * nothing else — they are the only two that clear AA on it (8.07 and 8.57).
- * --ink-2 is 4.37 and --muted is 3.25, so neither may appear here.
- */
-.on-tan {
-  --color-fg: #2a211a;           /* 8.07 on tan */
-  --color-fg-muted: #2a211a;
-  --color-fg-dim: #2a211a;
-  --color-fg-faint: #2a211a;
-  --color-bg: #c9b79c;
-
-  background-color: var(--color-tan);
+  background-color: var(--color-bg-raised);
   color: var(--color-fg);
 }
 
 * { border-color: var(--color-rule); }
 
 html {
-  background: var(--color-sand);
+  background: var(--color-black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--color-sand);
-  color: var(--color-ink);
+  background: var(--color-black);
+  color: var(--color-bone);
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.55;
@@ -326,18 +483,27 @@ body {
    colour and portraits are grey reads as a bug rather than a decision, and
    selective desaturation is a choice to make explicitly if it is ever wanted.
 
-   The gesture it provided — the signal that a card is clickable — moved into
-   the card itself: ground lifts to sand-raised, title darkens to ink, arrow
-   travels 4px. No transform on the image and no scale on the card, because the
-   grid's hairlines have to stay aligned. See `.card-hover` below. */
+   REVISION 19 §3 RESTATES THIS AS A RULE, not a leftover: on black, the colour
+   photography is the BRIGHTEST thing on the page, and that is the point of the
+   whole palette change. Nothing dims, tints or desaturates a content image —
+   not the cards, not the cover, not a hover state.
+
+   The gesture the reveal provided — the signal that a card is clickable —
+   moved into the card itself. See `.card-hover` below. */
 
 /* --- the card hover affordance ---------------------------------------------
-   This replaces the grayscale-to-colour reveal, which was how a card announced
-   it was clickable. Three simultaneous changes, all colour or a 4px translate:
+   FOUR simultaneous changes, all colour or a 4px translate — Revision 19 §2
+   re-colours Revision 12's trio and adds the pill:
 
-     ground   sand -> sand-raised
-     title    ink-2 -> ink
-     arrow    travels 4px
+     ground      black   -> black-raised
+     title       bone-2  -> bone
+     pill border rule    -> tan
+     arrow       travels 4px
+
+   The pill is new here and it is the reason `.card-pill` exists as a class
+   rather than being styled inline in the component: the border has to change
+   from the PARENT's hover state, and a Tailwind `group-hover:` variant would
+   have had to be threaded through every grid that uses a pill.
 
    NO transform on the image and NO scale on the card. The article, events and
    creatives grids are continuous hairline tables; scaling a cell moves its
@@ -359,6 +525,9 @@ body {
 .card-hover .card-arrow {
   transition: transform 300ms var(--ease-expo);
 }
+.card-hover .card-pill {
+  transition: border-color 300ms var(--ease-expo);
+}
 .card-hover:hover,
 .card-hover:focus-within {
   background-color: var(--color-bg-raised);
@@ -366,6 +535,10 @@ body {
 .card-hover:hover .card-title,
 .card-hover:focus-within .card-title {
   color: var(--color-fg);
+}
+.card-hover:hover .card-pill,
+.card-hover:focus-within .card-pill {
+  border-color: var(--color-accent);
 }
 .card-hover:hover .card-arrow,
 .card-hover:focus-within .card-arrow {
@@ -379,46 +552,155 @@ body {
   .card-hover:focus-within .card-arrow { transform: none; }
 }
 
-/*
- * REVISION 14 §4's TWO-COLUMN CHART GRID IS GONE — Revision 17 §3.
- *
- * `.chart-grid` used `grid-auto-flow: column` with an explicit row count to put
- * 01-05 in one column and 06-10 in the next while keeping one <ol> in DOM
- * order. It is deleted rather than left unused: the chart is a single column of
- * shared TrackCards now, and the editorial note needs the horizontal room the
- * second column was taking. A dead selector here is a thing someone
- * reintroduces by accident.
- */
+/* --- the Rotation grid — Revision 17 §3 -----------------------------------
+   THE CHART AND NEW RELEASES ARE THE SAME GRID. One component renders both
+   (RotationGrid); this is the only place the two-column geometry is described.
+
+   COLUMN-MAJOR FROM ONE LIST. `grid-auto-flow: column` against an explicit row
+   count places 01-05 down the left column and 06-10 down the right while the
+   DOM stays a single <ol> in rank order. That is the whole reason this is CSS
+   and not two sliced arrays: reading order, tab order and copied text all stay
+   in rank order, and an odd count leaves the trailing right-hand cell empty on
+   its own with nothing rendering a placeholder.
+
+   --rotation-rows is set inline per grid — it is ceil(n / 2), the left
+   column's length. Without it the browser makes one column per row.
+
+   NO VERTICAL RULE BETWEEN THE COLUMNS. §0 takes it out with Revision 14's
+   masthead; the gutter separates them.
+
+   900px is the collapse point: below it both lists are one column in the same
+   order, and the row hairlines revert to "every row but the first". */
+.rotation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 900px) {
+  .rotation-grid {
+    grid-auto-flow: column;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(var(--rotation-rows), auto);
+    column-gap: var(--gutter);
+  }
+}
+
+/* --- one row of it --------------------------------------------------------
+   THE SLOT COLUMN IS FIXED-WIDTH, and that is what makes the grid read as a
+   grid: every artwork in a column starts at the same x, so the 72px squares
+   form an unbroken vertical line down the page. A slot sized to its content
+   would jog that line every time a date went from "05 SEP" to "12 SEP".
+
+   --rotation-slot IS SET PER GRID, not shared. Straightness is a property of
+   ONE column, and the two lists carry different things: a zero-padded display
+   numeral needs 3rem, "29 AUG" in mono needs 4.5rem. Forcing the chart to the
+   wider of the two spends 24px of every chart row on empty sand — which at 360
+   is a fifth of what is left for the artist name.
+
+   THE LINKS CHANGE GRID AREA, THEY DO NOT GET DUPLICATED. Below 1280 each cell
+   is too narrow for an artist name and two mono labels on one line (§8), so
+   the links drop to their own row beneath the metadata line. From 1280 they
+   move into a fourth column and right-align, where they stay aligned down each
+   column at 1280, 1440 and 1728. One element, two placements, nothing rendered
+   twice — see TrackLinks. */
+.rotation-row {
+  display: grid;
+  grid-template-columns: var(--rotation-slot, 4.5rem) 72px minmax(0, 1fr);
+  /* The links get the FULL ROW below 1280, not the text column's leftovers.
+     Indented under the text block they were 184px wide at 360 and stacked one
+     label per line, which is three rows of chrome under a two-row song. */
+  grid-template-areas:
+    "slot art  text"
+    "links links links";
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+  align-items: start;
+  padding: 1rem 0.75rem;
+}
+
+@media (min-width: 1280px) {
+  .rotation-row {
+    grid-template-columns: var(--rotation-slot, 4.5rem) 72px minmax(0, 1fr) auto;
+    grid-template-areas: "slot art text links";
+    column-gap: 1.25rem;
+  }
+}
+
+/* The hairline sits BETWEEN rows within a column, so the first row of each
+   column has none. Below 900px there is only one column, so only the very
+   first row qualifies — which is why [data-col-first] is honoured solely at
+   the two-column breakpoint. */
+.rotation-grid > .rotation-row {
+  border-top: 1px solid var(--color-rule);
+}
+.rotation-grid > .rotation-row:first-child {
+  border-top: 0;
+}
+@media (min-width: 900px) {
+  .rotation-grid > .rotation-row[data-col-first] {
+    border-top: 0;
+  }
+}
 
 /* --- masked line reveal -------------------------------------------------- */
 .line-mask { display: block; overflow: hidden; }
 
 /* --- grain ---------------------------------------------------------------
-   A pre-rasterized tile at plain opacity. NOT mix-blend-mode: a fixed
-   full-viewport blended element cannot be GPU-cached, so the browser
-   re-composites the whole viewport on every scroll frame. That single
-   property was responsible for ~2.9s of rasterization per 4s of scrolling.
-   Dark speckle at low opacity reads the same on sand for no per-frame cost. */
+   A pre-rasterized tile at plain opacity, and STILL NOT mix-blend-mode.
+   Revision 19 §2 suggests `overlay` or `soft-light`, and the answer is no, for
+   the reason Revision 06 §5 banned it: a fixed full-viewport blended element
+   cannot be GPU-cached, so the browser re-composites the whole viewport on
+   every scroll frame. Measured, when it was live: ~2.9s of rasterization per
+   4s of scrolling. That cost does not change because the ground did.
+
+   WHAT DID CHANGE IS THE TILE. The old grain was BLACK speckle at 8.5% — dark
+   tooth on a sand ground. On #0E0C0B dark speckle is invisible by definition,
+   so `scripts/build/make-grain.mjs` now writes BONE speckle, and the opacity
+   drops to 0.05 because light noise on near-black is far more visible per unit
+   of alpha than dark noise on sand was. Visible up close, gone at arm's
+   length, and `npm run audit:grain` measures it rather than trusting the eye —
+   on a FLAT patch of ground, which is the only place the measurement means
+   anything now that the top of the page is a photograph.
+
+   It sits UNDER the cover's type (z-40, below the hero's z-50 stack) so the
+   masthead is never speckled, and over everything else. */
 .grain {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 40;
   pointer-events: none;
   background-image: url("/grain.png");
   background-repeat: repeat;
   background-size: 128px 128px;
-  opacity: 0.085;
+  /*
+     0.08, not the 0.05 this started at. Measured on the flat ground: bone
+     speckle at 5% compressed to 1.30x the flat clip, under the 1.5x bar the
+     grain check has always used, and by eye it read as a faint haze rather than
+     as tooth. At 8% it is 1.9x, visible at 100% and gone at arm's length.
+  */
+  opacity: 0.08;
 }
-
-/* The black sections need light speckle, not dark, to read at all. */
-.on-espresso .grain-invert { display: none; }
 
 /* --- long-form article body ---------------------------------------------- */
 .prose-editorial { max-width: 68ch; }
+/*
+ * BODY COPY IS --fg-muted, NOT A MIX OF --fg — Revision 20 §3.
+ *
+ * It used to be `color-mix(--fg 85%, transparent)`, which is --fg at 85% alpha
+ * over whatever is behind it. That was fine when "behind it" was always the
+ * same ground. On a light article it composites --ink over --paper and lands
+ * a shade or two off --ink-2 — close, but arrived at by accident and
+ * unmeasurable, because a contrast audit reads tokens and cannot resolve an
+ * alpha against an unknown backdrop.
+ *
+ * --fg-muted is a real token that both themes define: --ink-2 (10.55 on paper)
+ * on light, --bone-2 (9.01 on black) on dark. Measured, asserted, and the same
+ * decision in both directions.
+ */
 .prose-editorial p {
   font-size: 1.0625rem;
-  line-height: 1.75;
-  color: color-mix(in srgb, var(--color-fg) 85%, transparent);
+  line-height: 1.7;
+  color: var(--color-fg-muted);
   margin-block: 1.4em;
 }
 .prose-editorial h2 {
@@ -454,11 +736,31 @@ body {
   font-family: var(--font-satoshi-bold), var(--font-satoshi), sans-serif;
   font-weight: 700;
 }
-.prose-editorial a { color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; }
+/*
+ * LINKS IN ARTICLE PROSE — Revision 20 §3.
+ *
+ * --fg with a 1px underline, thickening to 2px on hover. NOT --tan: on a light
+ * ground tan is 1.78 and is decorative-only, and a link is the one piece of
+ * body text that must never be a judgement call.
+ *
+ * `text-decoration-thickness` is not a layout property — it repaints the
+ * underline and moves nothing — so changing it on hover is safe here in a way
+ * that changing font-weight or padding would not be.
+ */
+.prose-editorial a {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-thickness 150ms var(--ease-expo);
+}
+.prose-editorial a:hover {
+  text-decoration-thickness: 2px;
+}
 .prose-editorial ul, .prose-editorial ol {
   margin-block: 1.4em;
   padding-left: 1.25rem;
-  color: color-mix(in srgb, var(--color-fg) 85%, transparent);
+  color: var(--color-fg-muted);
 }
 .prose-editorial ul { list-style: disc; }
 .prose-editorial ol { list-style: decimal; }
@@ -488,6 +790,60 @@ body {
  * measures the join against the following element's computed margin and fails
  * if that happens again.
  */
+/*
+ * EDITOR BLOCKS ON A LIGHT GROUND — Revision 20 §3.
+ *
+ * Code, tables and embeds come out of the Revision 05 editor and are the parts
+ * of an article nobody looks at until they are wrong on a new ground. They
+ * reach every colour through the theme tokens, so one set of rules is correct
+ * on both — which is the whole reason the theme scopes re-point tokens rather
+ * than restyling components.
+ */
+.prose-editorial pre,
+.prose-editorial code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.prose-editorial code {
+  background: var(--color-fill-subtle);
+  padding: 0.15em 0.4em;
+}
+.prose-editorial pre {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-rule);
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin-block: 1.8em;
+}
+.prose-editorial pre code {
+  background: none;
+  padding: 0;
+}
+.prose-editorial table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: 1.8em;
+  font-size: 0.95rem;
+}
+.prose-editorial th,
+.prose-editorial td {
+  border: 1px solid var(--color-rule);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+.prose-editorial th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg-dim);
+  font-weight: 400;
+}
+.prose-editorial iframe {
+  max-width: 100%;
+  border: 1px solid var(--color-rule);
+}
+
 .prose-opening > :last-child { margin-bottom: 0; }
 
 .dropcap::first-letter {
@@ -539,117 +895,170 @@ body {
   animation-iteration-count: infinite;
 }
 
-/* --- the Rotation display word — Revision 17 §2.1 -------------------------
-   ROTATION, solid, in Anton. Used by the homepage poster and the Rotation page
-   masthead; the colour is set by the caller, because the poster sets it on a
-   dark ground and the page masthead on sand.
+/* --- the Rotation display word ------------------------------------------
+   REVISION 17'S `.rotation-word` IS GONE FROM HERE, and the class name now
+   belongs to Revision 20's sticker word, defined with the rest of the Rotation
+   section further down this file.
 
-   WHAT REVISION 16 GOT WRONG HERE, TWICE:
+   The old rule was shared by the homepage poster and the /rotation page
+   masthead. The masthead has not used it since Revision 17 rebuilt that page —
+   it sets its own `display` heading — so by Revision 20 the rule had exactly
+   one consumer, and that consumer needed something different: a --black stroke
+   around a --tan fill, because the word now sits over a PHOTOGRAPH rather than
+   a flat ground.
 
-   1. THE OUTLINE. It was `-webkit-text-stroke: 0.08em` over a --tan fill,
-      meant to read as a die-cut sticker. At 11rem it does not read as a
-      die-cut; it reads as a drop shadow, and it was the thing making the word
-      look wrong. Both references use solid letterforms and nothing else. The
-      stroke is gone, and `paint-order` with it — that property only ever
-      mattered as a way of stopping the stroke from swallowing the fill.
+   Revision 17 removed a stroke from this word for a good reason (at 11rem over
+   a flat ground it read as a drop shadow) and Revision 20 puts one back for a
+   different one (over a photograph it is the only thing holding the letterforms
+   together). Both are right about their own backdrop. Recorded here so the next
+   person does not "fix" it back. */
 
-   2. THE TYPEFACE WAS A BUG, not a choice. It was set in
-      `var(--font-satoshi-bold)`, which lib/fonts.ts declares `preload: false`
-      because it exists solely for <strong> inside article prose. An 11rem
-      headline in a non-preloaded face renders in the fallback and then swaps —
-      a visible reflow on the largest element in the section. Anton is also
-      `preload: false`, but that is correct here: both usages are below the
-      fold, and the fallback stack is metric-chosen to survive the swap.
+/* --- the header follows the ground — Revision 20 §2.4 ---------------------
+   The header is an overlay on the homepage and a bar everywhere else, and in
+   both cases it sits on top of whatever section has scrolled under it. With the
+   site alternating black and white, a header with one fixed colour is
+   unreadable on half the page.
 
-   Tracking is -0.02em, not the -0.04em the sticker needed. Anton is already an
-   ultra-condensed face; the tight tracking existed to merge adjacent outlines
-   into one silhouette, and with no outlines there is nothing to merge. */
-.rotation-word {
-  font-family: var(--font-rotation);
-  font-weight: 400;
-  font-size: clamp(4.5rem, 16vw, 14rem);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-/* --- the header, inverted over dark sections — Revision 17 §1 --------------
-   THE BUG: the homepage header is an overlay, and Revision 15 §2's pin makes it
-   `fixed`. Once fixed it stays over the whole page — the Rotation poster, the
-   About section, the footer — while its type stays --ink, which is 1.06:1 on
-   --espresso. Not faint: invisible. Wordmark, nav, tagline and MENU button all.
-
-   THE FIX re-points the SEMANTIC TOKENS rather than restyling each element, so
-   this is one rule instead of five and no component learns about it. It is the
-   same mechanism .on-espresso already uses.
+   `data-header-theme` is written by the observer in Header.tsx, which reads the
+   DECLARED theme of the section crossing a 1px band at the header's own height.
+   These rules then re-point the semantic tokens, so the wordmark, the nav, the
+   tagline and the MENU button all follow in one declaration and no component
+   learns about it. It is the same mechanism `[data-theme]` itself uses.
 
    IT IS SCOPED TO [data-header-bar], NOT THE <header>. The mobile nav panel is
-   a sibling of that bar with a --sand ground of its own; inverting the whole
-   header would set its links to --sand on --sand and hide the open menu.
+   a sibling of that bar with a solid ground of its own; theming the whole
+   header would set its links to the panel's own background colour and hide the
+   open menu.
 
-   Colour and fill only, 200ms. No background, no backdrop-filter, no
+   COLOUR AND FILL ONLY, 200ms. No background, no backdrop-filter, no
    mix-blend-mode — the last two are banned by Revision 06 §5, and a solid bar
-   would throw away the overlay the composition depends on. */
-header[data-inverted] [data-header-bar] {
-  --color-fg: var(--color-sand);        /* 13.61 on espresso */
-  --color-fg-muted: var(--color-tan);   /*  8.57 on espresso */
-  --color-fg-dim: var(--color-tan);
-  --color-fg-faint: var(--color-tan);
+   would throw away the overlay the cover's composition depends on. A colour
+   transition on a handful of text nodes is not a layout property and costs
+   nothing. */
+header[data-header-theme="dark"] [data-header-bar] {
+  --color-fg: var(--color-bone);
+  --color-fg-muted: var(--color-bone-2);
+  --color-fg-dim: var(--color-muted);
+  --color-fg-faint: var(--color-muted);
+  --color-accent: var(--color-tan);
 }
 
-header[data-overlay] [data-header-bar] a,
-header[data-overlay] [data-header-bar] span,
-header[data-overlay] [data-header-bar] button,
-header[data-overlay] [data-header-bar] svg {
+/*
+ * --color-accent IS IN BOTH BLOCKS, and leaving it out of this one was a real
+ * bug rather than an omission: the header bar re-points four tokens, and the
+ * active nav item uses a fifth. With the accent falling through to the :root
+ * value, "ABOUT" rendered in --tan on the white /about page — 1.78:1, the exact
+ * pairing §2.1 forbids and the exact reason the accent became a token.
+ *
+ * A theme scope has to set EVERY token a component inside it can reach, or the
+ * ones it forgets silently keep the other ground's value.
+ */
+header[data-header-theme="light"] [data-header-bar] {
+  --color-fg: var(--color-ink);
+  --color-fg-muted: var(--color-ink-2);
+  --color-fg-dim: var(--color-ink-muted);
+  --color-fg-faint: var(--color-ink-muted);
+  --color-accent: var(--color-ink);
+}
+
+/*
+ * A NON-OVERLAY HEADER PAINTS ITS OWN GROUND.
+ *
+ * Everywhere except the homepage the header is a bar in the flow, above the
+ * page's first themed section — so it shows the ROOT ground, which is --black,
+ * whatever the page below it is. On an article that produced a black strip
+ * across the top of a white page, which is precisely the thing §3 asks not to
+ * happen.
+ *
+ * The overlay header is excluded: it sits ON the cover photograph and a solid
+ * bar would throw away the composition. It needs no ground of its own, because
+ * the cover behind it is one.
+ *
+ * `background-color` is not animated — only the type colours transition — so
+ * this adds nothing to the scroll path.
+ */
+header:not([data-overlay])[data-header-theme="dark"] {
+  background-color: var(--color-black);
+}
+
+header:not([data-overlay])[data-header-theme="light"] {
+  background-color: var(--color-paper);
+}
+
+/*
+ * THE COVER'S PER-SLIDE `tone` FLAG STILL OUTRANKS THE SECTION THEME, and the
+ * rule that does it is not here — it lives with the rest of the cover, further
+ * down this file, so it is read next to the thing it belongs to. Later in the
+ * cascade at equal specificity, so it wins by position. Stated here because
+ * two rules setting the same four tokens on the same element, six hundred
+ * lines apart, is otherwise something you find out by accident.
+ */
+
+/*
+ * THE OVERLAY HEADER CARRIES ITS OWN SCRIM — Revision 22 §4.
+ *
+ * The nav sits on a photograph. It has been readable because the COVER draws a
+ * gradient across its top 55%, which is a dependency in the wrong direction:
+ * the header would be unreadable the moment it were placed over anything else,
+ * and it is unreadable now if the cover's half is the part that fails.
+ *
+ * A short gradient of its own, on a pseudo-element so it needs no extra markup,
+ * and `pointer-events: none` so it cannot intercept a click on the cover. It is
+ * deliberately shallower and lighter than the cover's — the two stack, and the
+ * point is a floor under the nav rather than a second full scrim.
+ *
+ * It is NOT drawn when the slide's tone is dark: a bright photograph flips the
+ * nav to --black, and a dark wash under black type is the wrong way round.
+ */
+header[data-overlay]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: calc(var(--header-bar-h) + var(--gutter));
+  pointer-events: none;
+  z-index: -1;
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-black) 46%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+header[data-overlay][data-cover-tone="dark"]::before {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-bone) 46%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+header [data-header-bar] a,
+header [data-header-bar] span,
+header [data-header-bar] button,
+header [data-header-bar] svg {
   transition: color 200ms var(--ease-expo), fill 200ms var(--ease-expo);
 }
 
 /*
-   THE NO-JS FALLBACK.
-
-   The observer never runs without scripting, so the header would sit at --ink
-   over every dark section with nothing to rescue it. It takes a solid --sand
-   ground instead. That is the right trade and it is worth stating plainly: a
-   solid bar is a small aesthetic loss, an invisible nav is a broken site.
-*/
-@media (scripting: none) {
-  header[data-overlay] { background: var(--color-sand); }
+ * NO STRAY MARKERS IN THE NAV — Revision 20 §2.4.
+ *
+ * The owner's screenshot showed small black dots under two of the nav items.
+ * The nav is a list of links inside a <nav>, and a bare `list-style` or a
+ * `::marker` surviving a reset will paint exactly that. Belt and braces: the
+ * nav carries no markers and no generated content, stated rather than assumed.
+ *
+ * If an active-page marker is ever wanted it is the rule below — a 1px
+ * underline in the current foreground, which is a considered mark rather than
+ * a browser default that happened to show through.
+ */
+header nav ul,
+header nav ol,
+header nav li {
+  list-style: none;
 }
-
-/* --- the Rotation track card — Revision 17 §3.4 ---------------------------
-   The page's one repeating unit. All three sections use it; that shared unit
-   is what "follow Reference E" actually means.
-
-   THE HOVER RE-POINTS --color-fg-dim, AND THAT IS NOT DECORATION. The ground
-   goes to --sand-deep, where --muted measures 4.04 and fails AA — Revision 14
-   §1 rule 1, and the exact reason .on-sand-deep exists. Every mono label
-   inside the card reaches its colour through --color-fg-dim, so re-pointing
-   that one token to --ink-2 (5.44 on sand-deep) carries the whole card across
-   in one declaration. Setting the background without this line puts failing
-   type on every card on the page the moment a pointer touches it.
-
-   :focus-within as well as :hover — the card contains links, and the keyboard
-   has to get the same affordance. */
-.track-card {
-  transition: background-color 300ms var(--ease-expo);
-}
-.track-card:hover,
-.track-card:focus-within {
-  background-color: var(--color-sand-deep);
-  --color-fg-dim: var(--color-ink-2);
-  --color-fg-faint: var(--color-ink-2);
-}
-
-/* --- the record, Rotation page §3.3 ---------------------------------------
-   transform only, one composited layer, no layout and no paint per frame —
-   the same cost profile as the marquee that already ships. */
-@keyframes rotation-disc-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.rotation-disc {
-  animation: rotation-disc-spin 45s linear infinite;
-}
+header nav li::marker { content: ""; }
+header nav a::before,
+header nav a::after { content: none; }
 
 /* --- marquee ------------------------------------------------------------- */
 @keyframes marquee-x {
@@ -662,20 +1071,1334 @@ header[data-overlay] [data-header-bar] svg {
   animation: marquee-x 40s linear infinite;
 }
 
-/* --- the hero pin — Revision 15 §2, "the cover lifts, the masthead docks" ---
+/* ===========================================================================
+   THE COVER — Revision 19 §4-§9
+
+   The home page hero is a full-bleed magazine cover that changes issue every
+   six seconds. Everything below is the geometry and the motion; the content is
+   in data/cover.ts and the photographs in public/cover/.
+
+   TRANSFORM AND OPACITY ONLY. No clip-path, no filter, no width, height or
+   margin is animated anywhere in this block. Two things follow from that and
+   are worth stating because they look like omissions:
+
+     - The type is protected by GRADIENT SCRIMS, not by a blurred backdrop or a
+       flat overlay. A flat dark layer over the whole photograph reads as UI
+       chrome and throws away the colour the black palette exists to show off.
+     - The masthead's dock is a scale, not a font-size change.
+   =========================================================================== */
+
+:root {
+  /*
+   * WHERE THE MASTHEAD'S TOP EDGE SITS — a constant, for the same reason
+   * --hero-marquee-h is one: the dock arithmetic reads it rather than measuring
+   * the DOM, so the two have to agree by construction.
+   *
+   * It clears the header's nav row. Below md that row is the tagline plus the
+   * MENU button — one mono line inside py-5, so 20 + 14 + 20 = 54, plus a
+   * gutter's breathing room. At md it is --hero-nav-h + a gutter, which is the
+   * same sum Revision 18 §6 used for the old EDITION block.
+   *
+   * Change the header's padding and this has to follow. CoverStage derives the
+   * dock's dy from it, so a mismatch lands the masthead off the header's slot.
+   */
+  /*
+   * THE HEADER BAR'S REAL HEIGHT, and it is not --hero-nav-h.
+   *
+   * --hero-nav-h (34px) describes the NAV LINE — py-5's top padding plus one
+   * mono line. The BAR is taller than that, because it also contains the
+   * header's own wordmark, held at opacity 0 over the cover but still occupying
+   * its box: 20 + 37 + 20 = 77 at md, and 72 below it where the mark is 140px
+   * wide.
+   *
+   * Deriving the masthead's offset from the nav line rather than from the bar
+   * is what put the wordmark 11px INSIDE the header at every width from 768 up
+   * — measured, and visible in the report as "black" sitting behind ARTICLES.
+   */
+  --header-bar-h: 72px;
+  --cover-masthead-top: calc(var(--header-bar-h) + var(--gutter));
+
+  /*
+   * THE COVER'S FOOT — the ticks row plus the marquee, as one height.
+   *
+   * The cover lines are positioned a gutter above it, so this is what keeps a
+   * long cover line off the progress ticks at every width. 44px is the ticks
+   * row: one mono line (14px) plus its rail and 10px of padding either side.
+   */
+  --cover-foot-h: calc(var(--hero-marquee-h) + 44px);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-bar-h: 77px;
+  }
+}
+
+/* --- the photograph ------------------------------------------------------- */
+
+[data-cover-slide] {
+  position: absolute;
+  inset: 0;
+  /*
+   * §9: a slide whose image never loads shows --black-raised with the type
+   * still legible. That is this line — the ground is under every slide, so a
+   * failed <img> leaves a flat raised panel rather than a hole. It is also what
+   * the generated placeholders are coloured to match.
+   */
+  background-color: var(--color-black-raised);
+  opacity: 0;
+  /*
+   * LINEAR, not eased. Two eased opacity curves crossing produce a visible dip
+   * in the middle where both layers are part-transparent and the ground shows
+   * through. Linear is the only pair that sums to 1 the whole way across.
+   */
+  transition: opacity 1100ms linear;
+}
+
+[data-cover-slide][data-active] {
+  opacity: 1;
+}
+
+/* Only the active slide is in the a11y tree and the tab order; `inert` is set
+   in the markup. This is belt and braces for the pointer. */
+[data-cover-slide]:not([data-active]) {
+  pointer-events: none;
+}
+
+/*
+ * SIZING AND `object-fit` ARE INLINE ON THE ELEMENT NOW — Revision 22 §3. What
+ * is left here is the one thing that cannot be: the CHOICE between the two
+ * focal points, which depends on a media query.
+ *
+ * PER-SLIDE FOCAL POINT, AND TWO OF THEM. One <img> serves both orientations —
+ * the <picture> chooses the FILE, and the file's own focal point has to follow
+ * it. Both are set inline as custom properties, and the media query below is
+ * the same condition as the <source>'s `media`. Keeping the two identical is
+ * the whole reason the query is written out rather than inferred: if they ever
+ * disagree, a portrait photograph is cropped by its landscape focal point and
+ * faces start disappearing.
+ *
+ * THE STYLESHEET SETS A VARIABLE AND THE INLINE `object-position` READS IT,
+ * rather than the stylesheet setting `object-position` directly. An inline
+ * declaration beats a stylesheet one, so overriding it from a media query is
+ * not possible — but a variable the stylesheet owns is resolved wherever it is
+ * read. With no stylesheet, `--focal-active` is undefined and the inline
+ * fallback centres the photograph, which is a refinement failing softly.
+ */
+.cover-photo {
+  --focal-active: var(--focal-l, 50% 50%);
+}
+
+@media (orientation: portrait) and (max-width: 1023px) {
+  .cover-photo {
+    --focal-active: var(--focal-p, 50% 50%);
+  }
+}
+
+/* --- Ken Burns ------------------------------------------------------------
+   scale(1.06) -> scale(1) plus ~1.5% of drift TOWARDS the slide's focal point,
+   over the slide's full six seconds. Transform only, so it composites.
+
+   IT IS AN ANIMATION ON THE ACTIVE SLIDE, which means it restarts by itself
+   every time `data-active` moves — no JavaScript touches it per frame and none
+   has to reset it. `both` holds the end state so a paused or finished slide
+   sits still at scale(1) rather than snapping back.
+
+   THE WRAPPER EXISTS BECAUSE TWO TRANSFORMS CANNOT SHARE AN ELEMENT. The
+   pointer parallax writes a transform on the photo LAYER and this animates the
+   photo INSIDE it; one element could carry only the last one written. */
+@keyframes cover-kenburns {
+  from { transform: scale(1.06) translate3d(0, 0, 0); }
+  to   { transform: scale(1) translate3d(var(--kb-x, 0%), var(--kb-y, 0%), 0); }
+}
+
+[data-cover-slide][data-active] .cover-kenburns {
+  animation: cover-kenburns 6000ms linear both;
+}
+
+/* --- the scrims -----------------------------------------------------------
+   SOFT GRADIENTS WHERE TYPE SITS, AND NOWHERE ELSE — §4.
+
+   Top ~30% for the masthead and the issue line; bottom for the cover line, the
+   caption, the ticks and the marquee. --black at 55% fading to nothing, so the
+   middle of every photograph is completely untouched. There is deliberately no
+   full-frame overlay: on black, the colour photography is the brightest thing
+   on the page, and dimming it to make type easier is solving the wrong problem.
+
+   They are SHARED, not per-slide, because they never change between slides —
+   one pair of elements rather than two per slide.
+
+   `tone: "dark"` inverts them. A photograph bright enough to need --black type
+   needs a BONE scrim under it; a dark scrim there would fight the type it is
+   supposed to be protecting. */
+.cover-scrim {
+  position: absolute;
+  inset-inline: 0;
+  pointer-events: none;
+  /* Between the photographs (0) and the type (2) — both of which set theirs
+     inline, so this is the one that has to agree with them. */
+  z-index: 1;
+}
+
+.cover-scrim-top {
+  top: 0;
+  /*
+   * TALL ENOUGH TO REACH THE ISSUE LINE, and that is a measurement rather than
+   * a taste. At 1440 the masthead is 316px of a 900px viewport, so the head
+   * block — masthead plus issue line — runs to y=413, or 46%. A 34% scrim ended
+   * at 306 and left the bottom third of the masthead and the WHOLE issue line
+   * over bare photograph. On slide 01 that put "ISSUE 07" on a white shirt and
+   * the first three letters disappeared.
+   *
+   * THREE STOPS, NOT TWO. A straight 55%-to-0 ramp over 55% of the frame greys
+   * the middle of the photograph, which is the flat-overlay failure §4 warns
+   * against. Holding most of the strength across the top third and then falling
+   * away quickly protects the type and leaves the image alone.
+   */
+  height: 55%;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-black) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-black) 44%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.cover-scrim-bottom {
+  /* Same three-stop shape, for the cover line, the caption, the ticks and the
+     marquee — which together occupy the bottom third of the frame. */
+  bottom: 0;
+  height: 50%;
+  background-image: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-black) 58%, transparent) 0%,
+    color-mix(in srgb, var(--color-black) 44%, transparent) 50%,
+    transparent 100%
+  );
+}
+
+/*
+ * `tone: "dark"` INVERTS THE TOP BLOCK ONLY — the masthead, the issue line and
+ * the scrim behind them. It does NOT reach the cover line, the caption, the
+ * ticks or the marquee, and that narrowing is a decision the real photographs
+ * forced rather than a simplification.
+ *
+ * Slide 02 is the case. It is a crowd silhouetted against a blown-out stage
+ * light: the top 60% is near-white and the bottom is almost black. A tone that
+ * flipped the WHOLE type layer would put a --black masthead on the white — which
+ * is right — and a --black cover line on the black crowd, which is invisible.
+ * One photograph, two grounds, and the spec's own wording scopes the flip to
+ * the masthead ("on a very bright image the masthead may flip to --black").
+ *
+ * The bottom of the frame is where photographs are dark far more often than
+ * not — it is where the ground, the crowd and the shadow are — so the cover
+ * line stays --bone over its own scrim at all times. If a photograph ever turns
+ * up that is bright at the BOTTOM, the answer is a different crop, not a second
+ * flag.
+ */
+[data-cover][data-tone="dark"] .cover-scrim-top {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-bone) 60%, transparent) 0%,
+    color-mix(in srgb, var(--color-bone) 48%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+/* The type layer takes --bone throughout; only the head block ever flips. Both
+   are `currentColor` or a token resolving through --color-fg, so one
+   declaration carries every descendant. */
+[data-cover] [data-cover-type] {
+  color: var(--color-bone);
+}
+
+[data-cover][data-tone="dark"] [data-cover-head] {
+  color: var(--color-black);
+  --color-fg: var(--color-black);
+  --color-fg-muted: var(--color-black);
+  --color-fg-dim: var(--color-black);
+}
+
+/*
+ * THE NAV FLIPS WITH THE MASTHEAD, because it sits on the same band of the same
+ * photograph. Slide 02 is a crowd against a blown-out stage light: with only
+ * the masthead flipped, ARTICLES / ROTATION / EVENTS stayed --bone over
+ * near-white and read as a watermark.
+ *
+ * THIS IS NOT REVISION 17'S OBSERVER COMING BACK. That watched a 1px band every
+ * time the page scrolled and inferred a ground. This is the slide's own `tone`
+ * flag — one value, set by a person looking at one photograph, applied to the
+ * two blocks that sit over the top of it. CoverStage writes the attribute at
+ * the same moment it writes the section's.
+ *
+ * Only on the overlay header, so no other route is touched.
+ */
+header[data-overlay][data-cover-tone="dark"] [data-header-bar] {
+  --color-fg: var(--color-black);
+  --color-fg-muted: color-mix(in srgb, var(--color-black) 72%, transparent);
+  --color-fg-dim: var(--color-black);
+  --color-fg-faint: var(--color-black);
+  color: var(--color-black);
+}
+
+/* --- the masthead --------------------------------------------------------
+   Full width across the top, over the photograph, like the VOGUE logotype.
+
+   IT DOES NOT MOVE BETWEEN SLIDES — §6.2, and it is the most important rule in
+   this file. The masthead is the constant; that stillness is what makes six
+   changing photographs read as one magazine rather than as a slideshow. It
+   animates exactly twice: once on the first-load sequence, and continuously
+   under the scroll dock. Never on a slide change.
+
+   `transform-origin: left top` is set here rather than inline because the dock
+   depends on it and the resting state has to already have it — the first frame
+   of the gesture must not be the frame that establishes the origin. */
+[data-cover-masthead] {
+  /* `transform-origin` is declared here, not inline on the first frame: the
+     dock scales about the top-left so the two wordmarks' left edges stay
+     together, and the resting state has to already carry the origin. And no
+     `will-change` — audit:perf bans it, and a permanently promoted layer the
+     size of the viewport costs memory for every frame it is not moving. */
+  transform-origin: left top;
+}
+
+/* --- the cover line -----------------------------------------------------
+   One line per slide, bottom-left, in the display serif. Positioned a gutter
+   above the cover's foot so it never lands on the ticks.
+
+   The words rise INSIDE STATIC MASKS: the mask is `overflow: hidden` and never
+   moves, only the word inside it does. That is the difference between a masked
+   reveal and a clip-path animation, and it is why this is allowed.
+
+   `padding-bottom`/`margin-bottom` on the mask is not decoration — an
+   `overflow: hidden` box sized to a line of Zodiak clips the descenders of the
+   very word it is revealing. The pair adds room inside the mask and takes it
+   back out of the layout. */
+/*
+ * POSITIONED AGAINST THE GRID, NOT THE VIEWPORT.
+ *
+ * `inset-inline-start: 0` resolves against the nearest POSITIONED ancestor,
+ * and the padded 1600px container is not one — so the cover line ranged itself
+ * to the viewport edge and ran under the gutter at every width. The container
+ * that carries the max-width and the gutter is the one that has to be
+ * `relative`, and it is; this is a child of it.
+ *
+ * `bottom: var(--gutter)`, NOT `--cover-foot-h + --gutter`. The foot is a
+ * sibling row below this block, so its height is already out of the way —
+ * adding it again floats the cover line a second foot's height off the ground.
+ */
+/*
+ * POSITION, INSET AND OPACITY ARE INLINE — Revision 22 §3. Every cover line
+ * stacking down the page was the most visible half of the reported fault.
+ *
+ * The reasoning that used to live here is why the inline values are what they
+ * are, so it stays:
+ *
+ *   `inset-inline: var(--gutter)`, NOT 0. Absolute positioning resolves against
+ *   the containing block's PADDING BOX, so `0` lands inside the border and
+ *   walks straight through the gutter its parent is padded with. Measured: the
+ *   cover line sat at x=0 while the masthead above it sat at x=32.
+ *
+ *   `bottom: var(--gutter)`, NOT `--cover-foot-h + --gutter`. The foot is a
+ *   sibling row below this block, so its height is already out of the way.
+ *
+ * The px fallbacks on the inline values are what those variables resolve to at
+ * the smallest breakpoint, so a missing stylesheet still puts the line roughly
+ * where it belongs rather than in the corner.
+ */
+[data-cover-line] {
+  width: 100%;
+  transition: opacity 500ms var(--ease-expo);
+}
+
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.cover-word,
+.cover-caption-line {
+  display: inline-block;
+  transform: translate3d(0, 110%, 0);
+  transition: transform 500ms var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+[data-cover-line][data-active] .cover-word,
+[data-cover-line][data-active] .cover-caption-line {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Outgoing lines rise OUT — up and away, not back down where they came from.
+   350ms against the incoming 500, and no stagger: an exit that staggers reads
+   as hesitation. */
+[data-cover-line][data-leaving] .cover-word,
+[data-cover-line][data-leaving] .cover-caption-line {
+  transform: translate3d(0, -110%, 0);
+  transition-duration: 350ms;
+  transition-delay: 0ms;
+}
+
+/* --- the odometer -------------------------------------------------------
+   The slide number in the issue line rolls rather than swapping. A masked
+   vertical strip of every number, translated by whole line-heights — the same
+   masked-translate the cover line uses, which is why there is no second
+   mechanism here. */
+.odometer {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  height: 1em;
+  line-height: 1;
+}
+
+.odometer-strip {
+  display: block;
+  transition: transform 500ms var(--ease-expo);
+  transform: translate3d(0, calc(var(--n, 0) * -1em), 0);
+}
+
+.odometer-strip > span {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+
+/* --- the progress ticks ------------------------------------------------- */
+.tick-rail {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background-color: var(--color-rule);
+  overflow: hidden;
+}
+
+/*
+   scaleX(0 -> 1) with transform-origin: left, driven by the SAME animation
+   clock as the Ken Burns drift rather than by a JavaScript progress value. One
+   duration in one place, so the bar and the photo can never disagree, and
+   pausing the cover pauses both with a single `animation-play-state`.
+*/
+@keyframes cover-tick-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.tick-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background-color: var(--color-accent);
+}
+
+[data-cover-tick][data-active] .tick-rail {
+  background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+[data-cover-tick][data-active] .tick-fill {
+  animation: cover-tick-fill 6000ms linear both;
+}
+
+/* Every tick BEFORE the active one stays filled, so the row reads as progress
+   through an issue rather than as one lamp moving along a strip. */
+[data-cover-tick][data-done] .tick-fill {
+  transform: scaleX(1);
+}
+
+/*
+   THE PAUSE. One attribute on the section stops the Ken Burns drift and the
+   tick fill together, because both are CSS animations on the same clock.
+   CoverStage stops accumulating time in the same breath. WCAG 2.2.2 requires
+   this for anything auto-moving for more than five seconds.
+*/
+[data-cover][data-paused] .cover-kenburns,
+[data-cover][data-paused] .tick-fill {
+  animation-play-state: paused;
+}
+
+/* --- the first-load sequence — §6.1, "the cover prints" -----------------
+   Plays ONCE PER SESSION, gated by a class CoverStage adds before the first
+   frame when a sessionStorage flag is absent. Returning to the home page in the
+   same session shows the cover already set — which is why every rule here is a
+   descendant of .cover-print rather than an animation on the element itself.
+
+   The whole sequence is ~1.4s: the photograph fades and settles (900ms), the
+   masthead's letters rise one by one at 35ms apart, then the issue line, the
+   cover line and the caption 80ms apart, then the ticks and the marquee.
+
+   EVERY RISE HERE IS A CHILD MOVING INSIDE A STATIC MASK. `.cover-print-line`
+   IS the mask — `overflow: hidden`, never animated — and the rule targets its
+   child. Animating the mask itself would translate the hole along with what is
+   inside it and reveal nothing, which is the mistake that makes a masked
+   reveal look like a plain slide-in.
+
+   THE MASTHEAD'S LETTERS ARE NOT REAL LETTERS. The wordmark is one SVG path
+   group, not text, so there is nothing to stagger per glyph without slicing the
+   artwork — and slicing it would mean eight <svg>s with eight viewBoxes, which
+   is how the mark got cropped in three previous revisions. So the mark rises as
+   one masked line, and the STAGGER LIVES IN THE ISSUE LINE'S CHARACTERS
+   instead, where they really are separate elements. That is a deliberate
+   substitution, not an oversight: §6.1 asks for the reading of letters
+   arriving one by one, and this is where the site can honestly produce it. */
+/*
+ * SLIDE 01'S PHOTOGRAPH IS THE LCP ELEMENT (§8) AND CHROME WILL NOT AGREE.
+ * This is measured, it is a metric artefact rather than a regression, and it is
+ * written down here because the next person to open a Lighthouse report will
+ * otherwise spend an afternoon on it.
+ *
+ * THE FINDING. On throttled 4G / 4x CPU at 390, the only LCP candidate this
+ * page ever produces is a 7,065px² cover-line SPAN at ~0.9s. The full-viewport
+ * photograph — 328,172px², demonstrably painted, opacity 1 — is never a
+ * candidate at all. Chrome considers an element for LCP exactly once, and an
+ * image whose first paint is under a running SCALE animation is not counted.
+ *
+ * Proved by elimination, not guessed:
+ *
+ *   prefers-reduced-motion   SPAN 920ms, then IMG 2716ms   <- image counted
+ *   animation: none via JS   SPAN 932ms                     <- too late to help
+ *   normal                   SPAN 936ms
+ *
+ * The middle row is the useful one: killing the animation AFTER
+ * DOMContentLoaded does not bring the image back, which is what "considered
+ * once" means. Under reduced motion there is no animation at first paint and
+ * the image is counted normally.
+ *
+ * THE FADE IS NOT THE CAUSE. It was removed first, on the theory that Chrome
+ * ignores anything painted at zero opacity, and the numbers did not move — so
+ * it is back, because §6.1 asks for it and the photograph settling in is the
+ * better entrance. The scale is what does it.
+ *
+ * WHAT NOT TO DO ABOUT IT: do not delete the Ken Burns drift to make a number
+ * look better. The reported 0.9s is not a real 0.9s — the reader still waits
+ * for the photograph — and trading a documented gesture for a metric that has
+ * stopped describing the page is the wrong direction. The honest figure is the
+ * reduced-motion one, and that is what the revision reported.
+ */
+@keyframes cover-print-photo {
+  from { opacity: 0; transform: scale(1.08); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes cover-print-rise {
+  from { transform: translate3d(0, 110%, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes cover-print-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cover-print [data-cover-slide][data-active] .cover-kenburns {
+  /* Replaces the drift for the first slide only — the print IS its entrance,
+     and running both would scale 1.08 -> 1 -> 1.06 -> 1 in under two seconds. */
+  animation: cover-print-photo 900ms var(--ease-expo) both;
+}
+
+.cover-print-line {
+  display: block;
+  overflow: hidden;
+}
+
+.cover-print .cover-print-line > * {
+  animation: cover-print-rise 700ms var(--ease-expo) both;
+  animation-delay: calc(400ms + var(--i, 0) * 35ms);
+}
+
+.cover-print [data-cover-line][data-active] {
+  animation: cover-print-fade 1ms linear 700ms both;
+}
+
+.cover-print [data-cover-line][data-active] .cover-word,
+.cover-print [data-cover-line][data-active] .cover-caption-line {
+  animation: cover-print-rise 600ms var(--ease-expo) both;
+  animation-delay: calc(760ms + var(--i, 0) * 80ms);
+}
+
+.cover-print [data-cover-foot] {
+  animation: cover-print-fade 500ms linear 1150ms both;
+}
+
+/*
+   THE TICK FILL WAITS FOR THE SEQUENCE. Without this the first slide's bar is
+   a quarter full by the time the ticks have faded in, which reads as a page
+   that was already running before the reader arrived.
+*/
+.cover-print [data-cover-tick][data-active] .tick-fill {
+  animation-delay: 1150ms;
+}
+
+/* ===========================================================================
+   THE ROTATION SECTION — Revision 20 §4-§6
+
+   A full photograph behind the type, at every screen size. Revision 16's
+   cut-out figure is retired; §6's "no parallax, no scroll-linked transform, no
+   float loop" is withdrawn FOR THIS SECTION ONLY, because the owner asked for
+   it animated and interactive.
+
+   THE SITE-WIDE RULES STILL HOLD AND ARE NOT NEGOTIABLE HERE EITHER:
+   transform and opacity only, one rAF loop, no mix-blend-mode, and reduced
+   motion stops everything. The spotlight is a moved element, not an animated
+   gradient position. The letter reaction is a transform per letter, not a
+   filter. Nothing below animates width, height, margin, clip-path or
+   background-position.
+   =========================================================================== */
+
+/* --- the section's own box — Revision 21 §3 -------------------------------
+   `min(90svh, 960px)` from md up, and the type layer matches it.
+
+   The height is load-bearing on desktop in a way it never was before: the
+   image is anchored right at the section's full height with the file's aspect
+   ratio, so the section's HEIGHT decides the image's WIDTH, and therefore how
+   much clear grey is left for the type. Capping it at 960px stops a very tall
+   window from widening the image until the notes reach the word.
+
+   `.rotation-type` needs the same height explicitly. It is a flex column that
+   centres its content from md up, and a flex container with no height is as
+   tall as its content — which put the whole text group at the top of the
+   section rather than in the middle of it. */
+.rotation-section {
+  min-height: 100svh;
+}
+
+.rotation-type {
+  min-height: 100svh;
+}
+
+@media (min-width: 768px) {
+  .rotation-section {
+    /*
+     * ONE EXPRESSION, DECLARED ONCE, USED THREE TIMES — the section's height,
+     * the type layer's height, and the width of the clear grey the type has to
+     * fit inside. They are the same number by construction, so they cannot
+     * drift apart.
+     *
+     * `58vw` is the term that is not in the spec, and it earns its place at
+     * 1280. The image is anchored right at the section's full height with the
+     * file's 1.75:1 aspect ratio, so height drives WIDTH: at a flat 90svh the
+     * image came to 1447px on a 1280px laptop, the notes reached x=399, and the
+     * meta line wrapped to two lines with "TRACKS" alone on the second. Tying
+     * the height to the viewport's width as well keeps the record proportionate
+     * to the screen instead of overflowing it.
+     *
+     * It binds only below about 1400px; above that 90svh is smaller and wins.
+     */
+    --rotation-h: min(90svh, 960px, 58vw);
+    min-height: var(--rotation-h);
+  }
+
+  .rotation-type {
+    min-height: var(--rotation-h);
+  }
+}
+
+/* --- the image, and the grey it sits on — Revision 21 §3 ------------------
+   DESKTOP DOES NOT COVER-CROP. The record's size and position relative to the
+   section's right edge have to be fixed, because the spinning layers are
+   placed from the record's own measured geometry — a `cover` crop moves and
+   rescales it at every viewport width, and the disc would drift off the
+   painted record.
+
+   So the image box carries the FILE'S OWN aspect ratio, is pinned to the right
+   at full height, and everything to its left is the flat grey sampled out of
+   the image. A soft horizontal wash across the image's left 15% hides the
+   join, which would otherwise be a visible vertical edge wherever the section
+   is wider than the image.
+
+   Below md this is a plain full-bleed box and the photograph covers it, which
+   is Revision 20's mobile layout untouched. */
+[data-rotation-photo] {
+  background-color: var(--color-black);
+}
+
+.rotation-image-box {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  [data-rotation-photo] {
+    /* The sampled grey fills the section; the image sits on top of it. */
+    background-color: var(--rotation-ground, var(--color-black));
+
+    /*
+     * `right center` — Revision 21 §4, and it is load-bearing rather than tidy.
+     *
+     * RotationMotion scales and translates this layer for the scroll depth and
+     * the pointer parallax. Scaled about its default centre, a layer that is
+     * pinned to the right edge pulls AWAY from that edge as it shrinks, and a
+     * strip of bare grey appears down the right of the section — exactly where
+     * the record is. Scaling about the right edge holds it there at every value
+     * the loop can write.
+     */
+    transform-origin: right center;
+  }
+
+  .rotation-image-box {
+    inset: 0 0 0 auto;
+    width: auto;
+    /* `aspect-ratio` is set inline from the file's real dimensions, so the
+       box is exactly the image's shape at whatever height the section is. */
+    min-width: 0;
+  }
+
+  /*
+   * THE SEAM COVER. A gradient from the sampled grey to transparent across the
+   * image's left 15%. Without it there is a hard vertical edge at the image's
+   * left boundary at every width where the section is wider than the image —
+   * which is every width, since the file is 626px wide.
+   */
+  .rotation-image-box::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 22%;
+    z-index: 1;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to right,
+      var(--rotation-ground, var(--color-black)) 0%,
+      color-mix(in srgb, var(--rotation-ground, var(--color-black)) 70%, transparent) 45%,
+      transparent 100%
+    );
+  }
+}
+
+.rotation-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /*
+   * TWO FOCAL POINTS FOR ONE <img>, exactly as the cover does it: the <picture>
+   * chooses the FILE and the file's focal point has to follow it. The media
+   * query below is the same condition as the <source>'s `media`, and the two
+   * must stay identical — if they disagree, the phone's image is cropped by the
+   * desktop's focal point and the subject's face starts leaving the frame.
+   *
+   * With no landscape file on disk both sources are the same image, and the
+   * two focal points are doing real work even so: a portrait frame is cropped
+   * on the SIDES by a phone and on the TOP AND BOTTOM by a desktop, which are
+   * opposite axes and need opposite answers.
+   */
+  /*
+   * DESKTOP: `contain`, not `cover`. The box is already the image's own shape,
+   * so the two agree exactly and nothing is cropped or stretched — which is the
+   * whole point of anchoring rather than covering.
+   */
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 767px) {
+  .rotation-photo {
+    object-fit: cover;
+    object-position: var(--focal-m, 50% 50%);
+  }
+}
+
+/* --- the scrims ----------------------------------------------------------
+   GRADIENTS WHERE THE TYPE IS, NOT A FLAT OVERLAY — §5. A flat dark layer over
+   the whole photograph reads as UI chrome and throws away the colour; these
+   three are shaped to the two text groups and fade to nothing over the middle
+   of the frame.
+
+   The stops are tuned to THIS photograph: the subject is bright, high and
+   slightly left of centre, and the street behind her is blown out on the right.
+   `check:rotation-contrast` samples the lightest pixel behind every text
+   element after these are composited, so a new photograph that needs different
+   stops will say so rather than quietly failing. */
+.rotation-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -5;
+  pointer-events: none;
+}
+
+/* Bottom-up, for the phone, where the text group spans the full width. */
+.rotation-scrim-text {
+  background-image: linear-gradient(
+    to top,
+    rgb(14 12 11 / 0.94) 0%,
+    rgb(14 12 11 / 0.8) 30%,
+    rgb(14 12 11 / 0.4) 55%,
+    rgb(14 12 11 / 0) 72%
+  );
+}
+
+@media (min-width: 768px) {
+  /*
+   * REVISION 21 REPLACED THE BOTTOM-LEFT RADIAL WITH A LEFT-EDGE WASH.
+   *
+   * Revision 20's desktop scrim was a corner radial, tuned to a photograph
+   * whose bottom-left was a lit shoulder. The desktop image is now a flat grey
+   * field with the type running down the left, so the scrim that matches it is
+   * a horizontal one — and it has a different job: not to rescue type from a
+   * bright subject, but to deepen a mid grey that is far lighter than --black.
+   *
+   * The sampled grey gives --bone only 5.60 unaided. The wash buys the margin
+   * back, and `check:rotation-contrast` measures the result against the real
+   * pixels rather than against that figure.
+   *
+   * Revision 20's corner radial was removed outright rather than overridden:
+   * the mobile rule below is a different gradient with its own reasoning, and
+   * two desktop scrims in the file, one of them dead, is how the wrong one
+   * gets tuned next time.
+   */
+  .rotation-scrim-text {
+    background-image: linear-gradient(
+      to right,
+      rgb(14 12 11 / 0.45) 0%,
+      rgb(14 12 11 / 0.28) 30%,
+      rgb(14 12 11 / 0) 55%
+    );
+  }
+}
+
+/*
+ * Top-right, under the meta block.
+ *
+ * THE PHONE NEEDS FAR MORE OF IT THAN THE DESKTOP, which is not obvious until
+ * it is measured. On a desktop the meta block sits over the blurred street at
+ * the top right and reads at 10.4 with almost no help. On a phone the frame is
+ * cropped to the subject, so the same corner is her CAP — the brightest thing
+ * in the photograph — and the meta measured 1.33 at 360.
+ *
+ * So the mobile scrim is both stronger and taller. It is still a gradient
+ * shaped to the block rather than a flat panel: the cap stays visible under it,
+ * which is the point of putting a photograph here at all.
+ */
+.rotation-scrim-meta {
+  background-image: radial-gradient(
+    150% 42% at 100% 0%,
+    rgb(14 12 11 / 0.95) 0%,
+    rgb(14 12 11 / 0.82) 35%,
+    rgb(14 12 11 / 0) 78%
+  );
+}
+
+/*
+ * NO META SCRIM ON DESKTOP — Revision 21 §3. The meta block moved out of the
+ * top-right corner and onto the flat grey above the word, where the left-edge
+ * wash already covers it. A radial in the corner would now sit over nothing but
+ * the record, darkening the one part of the image worth looking at.
+ */
+@media (min-width: 768px) {
+  .rotation-scrim-meta {
+    background-image: none;
+  }
+}
+
+/* --- the spotlight — §6.3 ------------------------------------------------
+   A SINGLE ELEMENT THAT MOVES, not a gradient whose position is animated.
+   `background-position` is a paint property: animating it repaints a
+   full-viewport layer every frame, which is the same cost that got
+   mix-blend-mode banned in Revision 06. A fixed-size element translated on the
+   compositor costs nothing.
+
+   z-index puts it under the scrims and under the type, so it can lift the
+   photograph without ever reducing the contrast of a word. */
+.rotation-spotlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  z-index: -6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms var(--ease-expo);
+  background-image: radial-gradient(
+    closest-side,
+    rgb(237 231 219 / 0.1) 0%,
+    rgb(237 231 219 / 0.05) 45%,
+    rgb(237 231 219 / 0) 100%
+  );
+}
+
+[data-rotation][data-pointer] .rotation-spotlight {
+  opacity: 1;
+}
+
+/* --- the spinning record — Revision 21 §5, desktop only -------------------
+   Two DRAWN layers over the painted record, both positioned from the geometry
+   measured out of the file and stored in data/rotation-visual.ts.
+
+   THERE IS NO ROTATING CROP OF THE SOURCE, and the reason is arithmetic rather
+   than taste. §5.1 describes a circular element backed by image2.jpg and
+   rotated, which works when the record is wholly inside the file. Measured,
+   this record is a circle of radius 182.4px centred at (608.7, 176) in a
+   626x357 image: it runs 165px off the right edge and a few pixels off the top
+   and bottom. A rotated crop pulls those missing regions into view as
+   transparent wedges, and the further it turns the worse it gets.
+
+   So the grooves stay still and these two turn instead. Between them the
+   record reads as spinning, and neither can run out of source pixels.
+
+   Both are `aria-hidden` in the markup and neither is focusable.
+
+   THE GEOMETRY IS IN PERCENTAGES OF THE IMAGE BOX, which is itself the file's
+   aspect ratio — so all of this holds at every rendered size with no
+   measurement and no per-width correction. `--disc-r` and `--label-r` are
+   percentages of the box's WIDTH, which is why they are applied through
+   `padding-top`-free sizing rather than `height: var(--disc-r)`: a percentage
+   height would resolve against the box's height and the circle would go oval.
+   `aspect-ratio: 1` with a width does the job. */
+
+.rotation-disc,
+.rotation-label {
+  position: absolute;
+  left: var(--disc-cx);
+  top: var(--disc-cy);
+  z-index: 2;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  /* Centre on the record, then rotate about that centre. The translate is part
+     of the transform because RotationMotion overwrites `transform` wholesale
+     each frame and has to be able to compose the two. */
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* Below md the desktop image is not used, so neither is any of this. */
+@media (max-width: 767px) {
+  .rotation-disc,
+  .rotation-label { display: none; }
+}
+
+/*
+ * NO `overflow: hidden` AND NO `border-radius`, because there is nothing to
+ * clip: the sheen's gradient fades to nothing at 62% of its box, which is
+ * inside the inscribed circle at every angle. A rounded clip that removes no
+ * pixels is a rounded clip that should not be there.
+ *
+ * `contain` isolates the subtree so a rotation cannot invalidate anything
+ * outside it. It is not one of the banned properties and it is not
+ * `will-change` — it states a fact rather than asking for a permanent layer.
+ *
+ * NEITHER CHANGE MADE THE SECTION MEASURABLY CHEAPER, and that is worth
+ * writing down so the next person does not spend the afternoon again. Traced
+ * on a 4x throttled CPU with the cursor sweeping the section: the disc costs
+ * about 1030ms of rasterization in a four-second scroll and the label about
+ * 114ms of layout, with or without the clip, with or without `contain`. The
+ * cost is inherent — rotating a large gradient and a ring of live SVG text
+ * changes the rendered pixels every frame, so they have to be re-rasterized.
+ *
+ * It is affordable: the scroll median holds at 16.7ms and p95 at 16.8ms with
+ * everything running. If that ever stops being true, the SHEEN is the thing to
+ * drop — §5.2 is explicit that the label ring is what makes the rotation
+ * legible, and the sheen is the half that only flatters it.
+ */
+.rotation-disc {
+  width: calc(var(--disc-r) * 2);
+  aspect-ratio: 1;
+  contain: layout paint style;
+}
+
+/*
+ * THE SHEEN — what the eye actually reads as light travelling across vinyl.
+ *
+ * A soft off-centre highlight, clipped to the disc, turning with it. It is a
+ * plain translucent gradient at low opacity: NOT `mix-blend-mode`, which
+ * Revision 06 §5 bans, and not an animated `background-position`, which is a
+ * paint property. A drawn element that rotates is a compositor transform.
+ *
+ * 0.09 is deliberately faint. The grooves underneath are already high-contrast
+ * concentric lines; anything stronger stops looking like a highlight and starts
+ * looking like a shape sitting on top of the record.
+ */
+.rotation-disc-sheen {
+  position: absolute;
+  inset: 0;
+  /*
+   * Fades out at 62% of its own box, which is inside the inscribed circle
+   * however the disc is rotated — so it never reaches the record's edge and
+   * needs no clip. The offset centre is what makes it read as a highlight
+   * rather than as a glow.
+   */
+  background-image: radial-gradient(
+    46% 34% at 34% 28%,
+    rgb(237 231 219 / 0.09) 0%,
+    rgb(237 231 219 / 0.04) 40%,
+    rgb(237 231 219 / 0) 62%
+  );
+}
+
+/*
+ * THE LABEL RING — §5.2, and the layer that actually proves it is turning.
+ *
+ * The painted label is a plain white circle with a spindle hole: perfectly
+ * rotationally symmetric, so it could spin at any speed and look identical.
+ * A ring of text around it is the only thing that gives the motion away, which
+ * is why the spec asks for it rather than treating it as decoration.
+ *
+ * The SVG is a 0-100 square scaled to the label's diameter, so the text path's
+ * radius of 36 is 72% of the label radius — inside the label's edge, outside
+ * the spindle hole.
+ */
+/*
+ * Rotating an SVG <textPath> re-runs SVG text layout every frame: traced, the
+ * label accounted for about 114ms of Layout in a four-second scroll, against
+ * 18ms with it hidden. `contain` did not measurably reduce that — see the note
+ * on the disc — but it is still the right statement to make about a subtree
+ * whose contents never affect anything outside it.
+ */
+.rotation-label {
+  width: calc(var(--label-r) * 2);
+  aspect-ratio: 1;
+  contain: layout paint style;
+}
+
+.rotation-label-text {
+  font-family: var(--font-mono);
+  /*
+   * Relative to the 100-unit viewBox, so it scales with the label.
+   *
+   * 7.2, not 9. The text path is a circle of radius 36 in those units, so its
+   * circumference is 226. "BLACKTIVITY · ROTATION · VOL. 07 · " is 34
+   * characters; at 9px with 0.18em tracking each one takes about 7 units, so
+   * the string came to 238 and wrapped over its own start. At 7.2 it is about
+   * 199 and closes with a gap.
+   */
+  font-size: 7.2px;
+  letter-spacing: 0.16em;
+  fill: var(--color-black);
+}
+
+/* --- the sticker word — §5 ----------------------------------------------
+   --tan fill with a --black STROKE. Revision 17 removed an outline from this
+   word because at 11rem over a flat ground it read as a drop shadow; over a
+   PHOTOGRAPH the same outline is the only thing that makes the letterforms hold
+   their shape, because the ground behind them changes from pixel to pixel. That
+   is not a reversal of Revision 17, it is the other half of the same reasoning:
+   an outline earns its place when the backdrop is unpredictable.
+
+   `paint-order: stroke fill` draws the stroke BEHIND the fill, so the stroke
+   thickens the silhouette outwards instead of eating into the letterform. Tight
+   tracking lets adjacent outlines merge into one continuous edge. */
+.rotation-word {
+  font-family: var(--font-rotation);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  font-size: clamp(3.5rem, 18vw, 5.5rem);
+  color: var(--color-tan);
+  -webkit-text-stroke: 0.055em var(--color-black);
+  paint-order: stroke fill;
+  text-shadow: 0 2px 14px rgb(14 12 11 / 0.45);
+}
+
+@media (min-width: 768px) {
+  /*
+   * SMALLER THAN REVISION 20'S clamp(6rem, 13vw, 11rem), and the reason is
+   * geometric rather than aesthetic.
+   *
+   * The desktop image is height-driven: it is anchored right at the section's
+   * full height with the file's own aspect ratio, so its WIDTH is
+   * min(90svh, 960px) x 1.7535 whatever the viewport is. The music notes begin
+   * 39.1% into that image — measured — so the clear grey to their left is
+   *
+   *     100% - 1.068 x min(90svh, 960px)
+   *
+   * which is 575px at 1440 but only 415px at 1280, because a narrow viewport
+   * does not make the image any narrower. At 13vw the word was 530px wide and
+   * sat on the notes at every width below about 1500.
+   *
+   * 8.5vw keeps it inside the clear zone from 1280 up, and `.rotation-text-group`
+   * caps the column at the same figure so the category line and the button
+   * cannot drift into the notes either.
+   */
+  .rotation-word {
+    font-size: clamp(4.5rem, 8.5vw, 8.5rem);
+  }
+}
+
+/*
+ * THE CLEAR ZONE — Revision 21 §3, "nothing overlaps the record or the notes".
+ *
+ * Expressed in CSS rather than measured in JavaScript because every term is a
+ * constant the stylesheet already knows: the section's height, the file's
+ * aspect ratio, and where the notes start in it. The `max()` floor keeps the
+ * column usable on a short, wide window where the formula would otherwise go
+ * to nothing.
+ *
+ * It is conservative by exactly one gutter: the formula takes 100% of the
+ * 1600px content box while the notes are measured from the section's edge, and
+ * the content box is inset by the gutter. Erring inwards is the right
+ * direction for a rule about not touching something.
+ */
+@media (min-width: 768px) {
+  .rotation-text-group {
+    width: 45%;
+    /*
+     * The notes begin 39.1% into an image that is 1.7535 x the section's
+     * height wide, so the clear grey to their left is
+     * `100% - 1.068 x height` — and this is conservative by exactly one
+     * gutter, because 100% here is the 1600px content box while the notes are
+     * measured from the section's edge. Erring inwards is the right direction
+     * for a rule about not touching something.
+     */
+    max-width: max(19rem, calc(100% - 1.068 * var(--rotation-h)));
+  }
+}
+
+/*
+ * `inline-flex`, NOT `flex`. A block-level flex container fills its column, so
+ * the word's box stretched the full seven columns while the glyphs occupied
+ * five — which matters because the contrast check samples the ground inside
+ * that box and was reading the blown-out street in the empty two.
+ */
+.rotation-word-letters {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  vertical-align: top;
+}
+
+/*
+ * A MASK PER LETTER, for §6.1's one-by-one rise.
+ *
+ * `overflow: hidden` on an inline box clips the letterform's own overhang, and
+ * an ultra-condensed face at 11rem with a stroke overhangs in every direction.
+ * The padding/negative-margin pair gives the mask room and takes it back out of
+ * the layout, so the letters still sit on one line at the tracking the outline
+ * needs to merge at.
+ */
+.rotation-letter-mask {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.12em 0 0.16em;
+  margin: -0.12em 0 -0.16em;
+}
+
+.rotation-letter {
+  display: inline-block;
+}
+
+/* --- the meta block ------------------------------------------------------ */
+.rotation-meta {
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+  color: var(--color-bone);
+  text-shadow: 0 1px 2px rgb(14 12 11 / 0.6);
+}
+
+.rotation-meta-line {
+  display: block;
+  overflow: hidden;
+}
+
+.rotation-meta-line > span {
+  display: block;
+}
+
+/* --- the category line --------------------------------------------------- */
+.rotation-categories {
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--color-bone);
+  text-shadow: 0 1px 2px rgb(14 12 11 / 0.6);
+}
+
+.rotation-category {
+  position: relative;
+  display: inline-block;
+}
+
+/*
+ * The underline is a scaled pseudo-element, not a `text-decoration` that
+ * appears — scaleX from the left is a compositor transform, and it is the same
+ * gesture the rest of the site uses for a link growing an underline.
+ */
+.rotation-category::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--color-tan);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 300ms var(--ease-expo);
+}
+
+.rotation-category:hover::after,
+.rotation-category:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* --- the button ----------------------------------------------------------
+   SOLID --bone with a --black label: 15.85:1, the highest-contrast pairing the
+   palette has, which is what a call to action over a photograph needs. Revision
+   16's outline version depended on the ground behind it and was unreadable over
+   anything bright. 48px minimum height is the touch target, not a look. */
+.rotation-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  width: 100%;
+  padding: 0 2.25rem;
+  background: var(--color-bone);
+  color: var(--color-black);
+  letter-spacing: 0.2em;
+  transition: background-color 300ms var(--ease-expo), color 300ms var(--ease-expo);
+}
+
+@media (min-width: 768px) {
+  .rotation-button { width: auto; }
+}
+
+.rotation-button:hover,
+.rotation-button:focus-visible {
+  background: var(--color-black);
+  color: var(--color-bone);
+}
+
+.rotation-button-arrow {
+  transition: transform 300ms var(--ease-expo);
+}
+
+.rotation-button:hover .rotation-button-arrow,
+.rotation-button:focus-visible .rotation-button-arrow {
+  transform: translateX(6px);
+}
+
+/* A press state on touch, where there is no hover to give feedback — §6.4. */
+@media (hover: none) {
+  .rotation-button:active,
+  .rotation-category:active {
+    transform: scale(0.98);
+    transition-duration: 120ms;
+  }
+}
+
+/* --- the enter sequence — §6.1 -------------------------------------------
+   Plays once, when 25% of the section is on screen. RotationMotion adds
+   `data-entered`; every rule here is a descendant of it, so the resting state
+   is what renders with no JavaScript and nothing is mid-animation at first
+   paint.
+
+   `both` on every one of them, so a section that enters while the tab is
+   backgrounded still ends up in its final state rather than stuck at `from`. */
+/*
+ * THE ENTER ANIMATION IS ON THE <img>, THE SCROLL TRANSFORM IS ON ITS WRAPPER,
+ * and that split is a bug fix rather than tidiness.
+ *
+ * Both were on `[data-rotation-photo]` at first. A CSS animation with `both`
+ * keeps its end value as a FILL after it finishes, and a filled animation value
+ * beats an inline style — so RotationMotion wrote `transform` every frame and
+ * the element stayed at the animation's `scale(1.04)` for ever. Measured: the
+ * photo's matrix read 1.04 at every scroll position from -400 to +500.
+ *
+ * Two elements, two transforms, which is the same arrangement the cover uses
+ * for its Ken Burns drift underneath the pointer parallax.
+ *
+ * It ends at scale(1), not 1.04: §6.1 hands over to §6.2, and §6.2's own range
+ * starts at 1.04 on the wrapper. Ending at 1.04 here would multiply the two.
+ */
+@keyframes rotation-photo-in {
+  from { opacity: 0; transform: scale(1.12); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rotation-letter-in {
+  from { transform: translateY(105%) rotate(-4deg); }
+  to   { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes rotation-line-in {
+  from { transform: translateY(105%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes rotation-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+[data-rotation][data-entered] .rotation-photo {
+  animation: rotation-photo-in 1100ms var(--ease-expo) both;
+}
+
+[data-rotation][data-entered] .rotation-letter {
+  animation: rotation-letter-in 700ms var(--ease-expo) both;
+  animation-delay: calc(200ms + var(--i, 0) * 40ms);
+}
+
+[data-rotation][data-entered] .rotation-meta-line > span {
+  animation: rotation-line-in 600ms var(--ease-expo) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+[data-rotation][data-entered] [data-rotation-links],
+[data-rotation][data-entered] [data-rotation-cta] {
+  animation: rotation-fade-up 600ms var(--ease-expo) both;
+}
+
+[data-rotation][data-entered] [data-rotation-links] { animation-delay: 620ms; }
+[data-rotation][data-entered] [data-rotation-cta] { animation-delay: 700ms; }
+
+/* --- reduced motion — §6.5 -----------------------------------------------
+   The blanket guard at the end of this file collapses every animation above to
+   its end state, which is the whole enter sequence gone. Two things it cannot
+   reach are handled here: the photograph must sit at scale 1 rather than at the
+   1.04 its keyframe ends on, and the spotlight must never appear.
+
+   RotationMotion separately attaches no pointer, scroll or enter work at all
+   under reduced motion, so there is no loop to stop. */
+@media (prefers-reduced-motion: reduce) {
+  [data-rotation] [data-rotation-photo],
+  [data-rotation] .rotation-photo {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  [data-rotation] .rotation-spotlight { display: none; }
+  [data-rotation] .rotation-letter { transform: none !important; }
+
+  /*
+   * §5.5: the record does not turn. The transform is reset to the centring
+   * translate ONLY, not to `none` — the layers are positioned with `left`/`top`
+   * at the record's centre and pulled back by half their own size, so removing
+   * the translate would leave them offset by half a disc.
+   */
+  [data-rotation] [data-rotation-disc],
+  [data-rotation] [data-rotation-label] {
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+/* --- the pin — Revision 15 §2, re-staged by Revision 19 §6.4 ---------------
+   "The cover lifts, the masthead docks." The gesture is kept and the staging
+   changed: the masthead now starts at the TOP of the cover, Vogue-style, rather
+   than across the bottom, and docks from there into the header's wordmark slot.
+
    EVERY RULE HERE IS GATED ON .hero-pin, which is added by a pre-paint script
    in the site layout and only on the homepage, at >=768px, without reduced
    motion. That gate is the whole no-JS story: with scripting off the class
-   never appears, the spacer has no height, the hero is not sticky, the header
-   is not fixed, and the page scrolls normally past a hero that renders exactly
-   as it does in its resting state.
+   never appears, the spacer has no height, the cover is not sticky, the header
+   is not fixed, and the page scrolls normally past a cover that renders exactly
+   as it does in its resting state — §9's no-JS requirement, for free.
 
-   A CSS-only sticky pin would be worse than none: it would strand the reader
-   in a dead viewport with nothing animating, which is why none of this is
+   A CSS-only sticky pin would be worse than none: it would strand the reader in
+   a dead viewport with nothing animating, which is why none of this is
    expressed without the class.
 
    THE SPACER'S HEIGHT IS FIXED AND SET IN CSS, never from JavaScript. 160svh
-   against a 100svh hero leaves exactly the 0.6 of a viewport the gesture is
+   against a 100svh cover leaves exactly the 0.6 of a viewport the gesture is
    scored against, and because the class lands before first paint there is no
    reflow on hydration and CLS stays at zero. */
 .hero-pin [data-hero-spacer] { height: 160svh; }
@@ -685,18 +2408,33 @@ header[data-overlay] [data-header-bar] svg {
   top: 0;
 }
 
-/* The dock target has to still be on screen when the wordmark arrives. The
-   homepage header is absolutely positioned over the hero, so it would have
+/* The dock target has to still be on screen when the masthead arrives. The
+   homepage header is absolutely positioned over the cover, so it would have
    scrolled away by p = 1 and there would be nothing to dock INTO. Fixed only
    while the pin is active; every other page and every other mode is untouched. */
 .hero-pin header[data-overlay] { position: fixed; }
 
-/* Held at 0 for the whole gesture so there is never a second wordmark on the
-   page. HeroScroll raises it inline at p >= 0.98, once the moving one has
-   landed on the same box at the same size, which makes the swap invisible.
-   Declared here rather than set on the first frame so that the p = 0 state is
-   already correct at first paint. */
-.hero-pin header[data-overlay] [data-wordmark] { opacity: 0; }
+/*
+ * THE HEADER'S OWN WORDMARK IS HIDDEN ON THE HOMEPAGE AT EVERY WIDTH — and
+ * Revision 19 widened this from `.hero-pin` to all overlay headers, which is a
+ * real change rather than a tidy-up.
+ *
+ * Under Revision 18 the giant wordmark was across the BOTTOM of the hero and
+ * the header's was at the top, so the two never met and holding the header's at
+ * 0 was only needed while the dock was running. The cover puts the masthead at
+ * the TOP, directly under the header — so below 768px, where there is no pin
+ * and never will be (§7), the page would show the word "blacktivity" twice,
+ * 20 pixels apart, at two sizes. That is the "no double wordmark" failure §10
+ * names, and it would have shipped on every phone.
+ *
+ * So on the homepage the header carries the nav and the tagline, and the COVER
+ * carries the wordmark. CoverStage raises the header's at p >= 0.98, once the
+ * moving one has landed on the same box at the same size, which makes the swap
+ * invisible. It is `opacity`, not `display`, so the header link keeps its
+ * accessible name — the cover's masthead is aria-hidden for exactly that
+ * reason, so the name is never announced twice either.
+ */
+header[data-overlay] [data-wordmark] { opacity: 0; }
 
 /* --- the guard ----------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
@@ -710,5 +2448,84 @@ header[data-overlay] [data-header-bar] svg {
   }
   .marquee-track { animation: none; }
   /* Resting at 0deg, not frozen mid-turn — §3.3 asks for a full stop. */
-  .rotation-disc { animation: none; transform: rotate(0deg); }
+
+  /*
+   * THE COVER UNDER REDUCED MOTION — §9.
+   *
+   * No load sequence, no Ken Burns, no parallax, no pin, no marquee movement.
+   * The blanket `animation-duration: 0.001ms` above already ends all of those:
+   * the print sequence, the drift and the tick fill are CSS animations, so they
+   * complete instantly at their end state and nothing has to be branched on in
+   * JavaScript. CoverStage separately does not attach the pointer parallax, the
+   * pin, or — per §9 — the auto-advance.
+   *
+   * SLIDES STILL CHANGE, AND THE CROSSFADE IS THE ONE EXCEPTION WE MAKE.
+   * The guard would collapse it to 0.001ms and produce a hard cut between two
+   * photographs, which is a harsher visual event than the fade it replaced. §9
+   * asks for a plain 300ms crossfade, so it is restored here explicitly. It is
+   * opacity only — no movement, no scaling, nothing that triggers the
+   * vestibular problem the preference exists to avoid.
+   *
+   * The ticks are the only way to change slides in this mode, and they are
+   * real buttons, so there is nothing to discover.
+   */
+  [data-cover-slide] { transition-duration: 300ms !important; }
+
+  /* The cover line appears with its slide rather than sliding up into place. */
+  .cover-word,
+  .cover-caption-line { transform: none !important; }
+
+  /* The tick still shows WHICH slide is current; it just does not creep. */
+  [data-cover-tick][data-active] .tick-fill { transform: scaleX(1); }
+}
+
+/*
+ * NO JAVASCRIPT — §9. ONLY SLIDE 01 EXISTS.
+ *
+ * Slide 01 is already `data-active` in the server markup, so a static cover
+ * with its masthead, cover line and caption renders with no scripting at all.
+ * Two things must then be absent rather than merely inert:
+ *
+ *   - THE OTHER SLIDES' COVER LINES. They are `opacity: 0`, which is correct
+ *     while the carousel can reach them and permanent when it cannot.
+ *     `audit:text` caught it: with JS off, "Hands", "Up" and "On Set" were all
+ *     present at opacity 0 — selectable, invisible, and rule 1 of that audit
+ *     almost word for word.
+ *
+ *   - THE TICKS AND THE PAUSE BUTTON. Controls that cannot do anything are
+ *     worse than absent ones.
+ *
+ * THIS IS AN ATTRIBUTE CoverStage RENDERS, NOT `@media (scripting: none)`, and
+ * the difference is not academic. The media query is what this file used to
+ * reach for, and it does not fire under CDP's `setJavaScriptEnabled(false)` —
+ * Chrome still reports scripting as enabled — so the rule was dead in the very
+ * audit that exists to catch this, and would have been dead in any other
+ * headless check too. An attribute set by the component that makes the carousel
+ * real is true by construction: no script, no attribute, no carousel.
+ *
+ * It sits on CoverStage's own wrapper rather than on the section, because the
+ * section is replaced by a remount about two seconds after load and anything
+ * written onto it imperatively goes with it. See the note in CoverStage.
+ *
+ * It is `data-cover-scripted`, NOT `data-cover-live`, and the difference is a
+ * bug that already happened: the live region is `[data-cover-live]`, the
+ * wrapper is its ANCESTOR, and `querySelector("[data-cover-live]")` therefore
+ * returned the wrapper. Every politeness change and every announcement was
+ * written onto the whole cover instead of the one-line region meant to carry
+ * it — silently, because both elements exist and neither throws.
+ *
+ * The pin is gated on its own pre-paint class for the same reason, so the page
+ * scrolls normally here with no rule of its own.
+ */
+[data-cover-line]:not([data-active]),
+[data-cover-ticks] {
+  display: none;
+}
+
+[data-cover-scripted] [data-cover-line]:not([data-active]) {
+  display: block;
+}
+
+[data-cover-scripted] [data-cover][data-cover-carousel] [data-cover-ticks] {
+  display: flex;
 }

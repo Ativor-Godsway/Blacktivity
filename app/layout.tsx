@@ -28,8 +28,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ede7db",
-  colorScheme: "light",
+  // Revision 19 §2 — the browser chrome matches the page ground, which is
+  // now --black. Regenerated with the palette, not left at the old sand.
+  themeColor: "#0e0c0b",
+  colorScheme: "dark",
 };
 
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;

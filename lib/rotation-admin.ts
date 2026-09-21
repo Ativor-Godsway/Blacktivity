@@ -90,7 +90,7 @@ export async function trackUsage(trackId: string): Promise<TrackUsage> {
   const volumes = docs.map((v) => {
     const lists: string[] = [];
 
-    if ((v.newMusic ?? []).some((e) => String(e.track) === id)) lists.push("New Music");
+    if ((v.newMusic ?? []).some((e) => String(e.track) === id)) lists.push("New Releases");
 
     const charted = (v.chart ?? []).find((e) => String(e.track) === id);
     if (charted) {

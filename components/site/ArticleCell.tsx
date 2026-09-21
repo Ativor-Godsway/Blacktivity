@@ -7,7 +7,12 @@ import type { ArticleDTO } from "@/lib/types";
 /** Outlined capsule, mono, 10px. */
 export function CategoryPill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mono rounded-full border border-rule px-3 py-1 text-[10px] leading-none">
+    /* `card-pill` is the hook `.card-hover` reaches to move this border to the
+       accent. THE COLOUR IS `text-accent`, NOT `text-tan`: this exact component
+       renders on the homepage's dark Selected Writing grid AND on the light
+       /articles index, and --tan is 1.78 on --paper. The theme decides — --tan
+       on black, --ink on paper — so one component is correct on both. */
+    <span className="card-pill mono rounded-full border border-rule px-3 py-1 text-[10px] leading-none text-accent">
       {children}
     </span>
   );
@@ -67,7 +72,10 @@ export function ArticleCell({
     >
       <Link href={`/articles/${article.slug}`} className="flex h-full flex-col p-6 md:p-8">
         <div className="flex items-center justify-between gap-4">
-          <MonoLabel className="text-fg-muted">
+          {/* --muted, not bone-2: §3 wants the date to sit BEHIND the pill
+              and the title in the cell's hierarchy, and --fg-dim is 4.87 on
+              --black-raised, so it still clears AA once the card lifts. */}
+          <MonoLabel className="text-fg-dim">
             {article.publishedAt ? formatDateMono(article.publishedAt) : "Draft"}
           </MonoLabel>
           <CategoryPill>{article.category}</CategoryPill>

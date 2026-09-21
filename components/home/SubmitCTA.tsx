@@ -3,12 +3,17 @@ import ScrollReveal from "@/components/motion/ScrollReveal";
 import MonoLabel from "@/components/ui/MonoLabel";
 
 /**
- * The first half of the continuous black base at the foot of the page — the
- * footer sits directly beneath with no light section between them.
+ * The CTA, and the last thing above the footer.
+ *
+ * REVISION 19 §1 offers this section the ONE PERMITTED INVERSE — --bone ground
+ * with --black type — and it is deliberately NOT taken. The spec says to ask
+ * first, and until someone does, a bone panel here would be the only light
+ * surface on the site and would read as the old palette leaking back in. The
+ * button already carries the inversion at a scale the composition can hold.
  */
 export function SubmitCTA() {
   return (
-    <section data-surface="dark" className="on-espresso mt-(--spacing-section-lg) pt-28 pb-24 md:pt-44 md:pb-32">
+    <section data-theme="light" className="pt-28 pb-24 md:pt-44 md:pb-32">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <MonoLabel className="text-fg-muted">#IGotBlacktivity</MonoLabel>
 

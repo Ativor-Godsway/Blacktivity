@@ -28,7 +28,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
         class for exactly that reason.
 
         The three conditions are the ones §3 and §4 set: the homepage only, at
-        768px and up, and not under prefers-reduced-motion. HeroScroll keeps
+        768px and up, and not under prefers-reduced-motion. CoverStage keeps
         the class in sync afterwards, including across client-side navigations
         and viewport changes.
       */}
@@ -40,8 +40,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       />
       {/* Paper grain is public-site brand texture, not admin chrome. */}
       <Grain />
-      {/* Ink on the sand ground — never a hue. */}
-      <ClickSpark sparkColor="#2A211A" />
+      {/* Bone on the black ground — never a hue. It was --ink, which is
+          1.06:1 on --black and produced an invisible spark. */}
+      <ClickSpark sparkColor="#EDE7DB" />
       <SmoothScroll />
       <HairlineGridFixed />
       <Suspense fallback={null}>

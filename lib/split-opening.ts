@@ -47,7 +47,13 @@ const COLUMN_SPAN = 4; // the text column spans 4 of 12
  * fails if this file has drifted from what the browser actually does.
  */
 const FONT_SIZE = 17; // .prose-editorial p, 1.0625rem
-const LINE_HEIGHT = FONT_SIZE * 1.75; // 29.75px
+/*
+ * 1.7, NOT 1.75 — Revision 20 §3 set the article body's line-height for reading
+ * on a light ground, and this constant mirrors `.prose-editorial p`. The pair
+ * are a coupling: `check:opening` measures the rendered line-height and fails
+ * if this file drifts from it, which is how the change was caught.
+ */
+const LINE_HEIGHT = FONT_SIZE * 1.7; // 28.9px
 const PARAGRAPH_GAP = FONT_SIZE * 1.4; // margin-block, collapsed between paragraphs
 const AVG_CHAR_WIDTH = 7.62; // Satoshi at 17px, measured on real body copy
 

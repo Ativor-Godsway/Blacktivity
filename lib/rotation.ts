@@ -14,6 +14,10 @@ import type { ImageRef } from "./types";
  * Fixed priority order so link labels align down the column, and Audiomack and
  * YouTube lead deliberately — that is where this audience actually listens.
  * Rendering is capped at MAX_TRACK_LINKS; the rest are simply omitted.
+ *
+ * THE ORDER IS UNCHANGED BY REVISION 17 even though the cap drops. That is the
+ * point of a fixed order: whichever two a track has, they land in the same
+ * sequence, so the labels still form a straight column down each grid column.
  */
 export const PLATFORMS = [
   { key: "audiomack", label: "Audiomack" },
@@ -26,10 +30,24 @@ export const PLATFORMS = [
 
 export type PlatformKey = (typeof PLATFORMS)[number]["key"];
 
-export const MAX_TRACK_LINKS = 3;
+/**
+ * TWO, NOT THREE — Revision 17 §3.
+ *
+ * The cap of three was written for a full-width row. Every row now lives in a
+ * grid cell under half the page wide, and a third mono label pushes the artist
+ * name onto a second line at 1280. Priority order (above) is what keeps the
+ * surviving two aligned down the column.
+ */
+export const MAX_TRACK_LINKS = 2;
 
-/** The three lists, in page order. */
-export const LIST_TYPES = ["newMusic", "chart", "curation"] as const;
+/**
+ * The lists, in PAGE order — Chart first, New Releases second (Revision 17 §0).
+ *
+ * `curation` stays in the union because ChartVolume still stores a curation and
+ * the admin still edits it (§6). It simply no longer renders on the public
+ * page. Removing the key would be a migration for a label change.
+ */
+export const LIST_TYPES = ["chart", "newMusic", "curation"] as const;
 export type ListType = (typeof LIST_TYPES)[number];
 
 /** Playlist blocks only ever offer these three. */
@@ -147,6 +165,18 @@ export function volumeLabel(number: number): string {
 }
 
 /**
+ * `Vol. 07` — the SECOND LINE OF THE <h1> (Revision 17 §2), and nowhere else.
+ *
+ * The mono form above is uppercase because mono labels on this site are; this
+ * one is set in the display serif at 7rem, where full caps read as shouting
+ * next to "Rotation". Same number, different voice — which is why it is its own
+ * function rather than a `.replace()` at the call site.
+ */
+export function volumeTitleLabel(number: number): string {
+  return `Vol. ${String(number).padStart(2, "0")}`;
+}
+
+/**
  * The dedupe key: `normalise(artist)--normalise(title)`. Two dashes, so an
  * artist or title that already contains one cannot forge the boundary.
  */
@@ -215,6 +245,49 @@ export function staggerDelay(index: number): number {
   return Math.min(index * 50, STAGGER_CAP_MS) / 1000;
 }
 
+/**
+ * COLUMN-MAJOR SPLIT — Revision 17 §3.
+ *
+ * `ceil(n / 2)` down the left, the remainder down the right. At ten that is
+ * 01-05 and 06-10; at nine it is five and four, and the trailing right-hand
+ * cell is simply empty.
+ *
+ * IT IS DELIBERATELY NOT BALANCED. Moving the ninth row across to even the
+ * columns up would put entry 05 at the top of the right column and entry 06
+ * below it in the left — i.e. it would break the reading order to fix a ragged
+ * edge nobody is reading. The ragged edge wins.
+ *
+ * Returns the LENGTH of the left column rather than two arrays: the grid keeps
+ * ONE list in DOM order and lets `grid-auto-flow: column` place it (see
+ * `.rotation-grid`), so all the renderer needs to know is where the second
+ * column starts.
+ */
+export function leftColumnCount(total: number): number {
+  return Math.ceil(total / 2);
+}
+
+/** `29 AUG` — the New Releases slot column. No year: the volume states it. */
+export function releaseDateSlot(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getUTCDate()).padStart(2, "0")} ${MONTHS_SHORT[d.getUTCMonth()]}`;
+}
+
+const MONTHS_SHORT = [
+  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
+];
+
+/**
+ * How many rows load eagerly — Revision 17 §9.
+ *
+ * The page carries roughly twenty 72px images where it used to carry ten and a
+ * portrait. Four is the count that is actually above the fold at 1280 once the
+ * title block has taken its share; every image past it is lazy, and twenty
+ * eager decodes is precisely how this page would end up slower than the one it
+ * replaces.
+ */
+export const EAGER_ROWS = 4;
+
 /** The links to actually render, in priority order, capped at three. */
 export function visibleLinks(links: TrackLinks): { key: PlatformKey; label: string; url: string }[] {
   return PLATFORMS.filter((p) => Boolean(links[p.key]))
@@ -228,4 +301,12 @@ export const trackEventLabel = (trackSlugValue: string, platform: string) =>
 export const playlistEventLabel = (volume: string, list: ListType, platform: string) =>
   `rotation:playlist:${volume}:${list}:${platform}`;
 export const volumeEventLabel = (volume: string) => `rotation:volume:${volume}`;
-export const curatorEventLabel = (igHandle: string) => `rotation:curator:${igHandle}`;
+
+/*
+ * `rotation:curator:*` IS GONE — Revision 17 §6.
+ *
+ * The curation no longer renders publicly, so there is no link left to emit it
+ * from. The historical rows in DailyStat are deliberately left alone: deleting
+ * measurements because the thing they measured moved is how a section loses its
+ * own history.
+ */

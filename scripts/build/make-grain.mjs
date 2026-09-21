@@ -6,6 +6,27 @@
  * cached. A pre-rasterized tile drawn at plain opacity reads the same and
  * costs nothing per frame.
  *
+ * REVISION 19 FLIPPED THE SPECKLE FROM BLACK TO BONE. The tile was opaque-ish
+ * BLACK dots at low alpha — paper tooth for the sand ground. On #0E0C0B dark
+ * speckle is invisible by construction, so the specks are --bone (237,231,219)
+ * now and `.grain` drops to 5% opacity: light noise on near-black registers far
+ * more per unit of alpha than dark noise on sand did, and 8.5% bone read as a
+ * haze rather than as grain.
+ *
+ * The alpha DISTRIBUTION is unchanged — mostly-transparent with occasional
+ * brighter specks, which is what reads as tooth rather than as TV static — and
+ * the seed is the same, so the dot POSITIONS are identical to the old tile.
+ * Only their colour moved. `npm run audit:grain` measures the result.
+ *
+ * REVISION 20 WRITES TWO TILES, because the site now alternates grounds:
+ *
+ *   public/grain.png       BONE speckle, for the black sections (opacity .08)
+ *   public/grain-dark.png  INK  speckle, for the light  sections (opacity .055)
+ *
+ * Same seed, so the dot POSITIONS are identical in both and the texture does
+ * not appear to change as the page scrolls from one ground to the other. Only
+ * the colour differs.
+ *
  * Run once: node scripts/build/make-grain.mjs
  */
 import { deflateSync } from "node:zlib";
@@ -41,18 +62,26 @@ const rand = () => {
   return seed / 0xffffffff;
 };
 
-// RGBA rows, each prefixed with a filter byte (0 = none).
-const raw = Buffer.alloc(SIZE * (1 + SIZE * 4));
-let p = 0;
-for (let y = 0; y < SIZE; y++) {
-  raw[p++] = 0;
-  for (let x = 0; x < SIZE; x++) {
-    // Bias toward mostly-transparent with occasional darker specks, which is
-    // what reads as paper tooth rather than TV static.
-    const n = rand();
-    const a = n > 0.86 ? Math.floor(90 + rand() * 165) : Math.floor(rand() * 60);
-    raw[p++] = 0; raw[p++] = 0; raw[p++] = 0; raw[p++] = a;
+/**
+ * One pass of noise in whichever colour is asked for. The seed is reset each
+ * time so both tiles carry the SAME dot positions.
+ */
+function tile([R, G, B]) {
+  seed = 0x9e3779b9;
+  // RGBA rows, each prefixed with a filter byte (0 = none).
+  const raw = Buffer.alloc(SIZE * (1 + SIZE * 4));
+  let p = 0;
+  for (let y = 0; y < SIZE; y++) {
+    raw[p++] = 0;
+    for (let x = 0; x < SIZE; x++) {
+      // Bias toward mostly-transparent with occasional stronger specks, which
+      // is what reads as paper tooth rather than TV static.
+      const n = rand();
+      const a = n > 0.86 ? Math.floor(90 + rand() * 165) : Math.floor(rand() * 60);
+      raw[p++] = R; raw[p++] = G; raw[p++] = B; raw[p++] = a;
+    }
   }
+  return raw;
 }
 
 const ihdr = Buffer.alloc(13);
@@ -62,12 +91,18 @@ ihdr[8] = 8;   // bit depth
 ihdr[9] = 6;   // colour type: RGBA
 ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0;
 
-const png = Buffer.concat([
-  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-  chunk("IHDR", ihdr),
-  chunk("IDAT", deflateSync(raw, { level: 9 })),
-  chunk("IEND", Buffer.alloc(0)),
-]);
+function write(path, rgb) {
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk("IHDR", ihdr),
+    chunk("IDAT", deflateSync(tile(rgb), { level: 9 })),
+    chunk("IEND", Buffer.alloc(0)),
+  ]);
+  writeFileSync(path, png);
+  console.log(`${path} written — ${SIZE}x${SIZE}, ${(png.length / 1024).toFixed(1)}KB`);
+}
 
-writeFileSync("public/grain.png", png);
-console.log(`public/grain.png written — ${SIZE}x${SIZE}, ${(png.length / 1024).toFixed(1)}KB`);
+// --bone, so the grain lifts off the black ground rather than sinking into it.
+write("public/grain.png", [237, 231, 219]);
+// --ink, for the light sections, where bone speckle is invisible by definition.
+write("public/grain-dark.png", [14, 12, 11]);

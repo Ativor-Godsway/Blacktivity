@@ -34,7 +34,7 @@ export function VolumesList({ items }: { items: VolumeListItem[] }) {
             ["Slug", `/rotation/${v.slug}`],
             ["Published", v.published || "Not published"],
             ["Chart entries", `${v.chartCount} of 10`],
-            ["New music", String(v.newMusicCount)],
+            ["New releases", String(v.newMusicCount)],
             ["Curator", v.curator || "None"],
           ].map(([k, value]) => (
             <div key={k} className="flex justify-between gap-4">
@@ -62,7 +62,7 @@ export function VolumesList({ items }: { items: VolumeListItem[] }) {
       columns={[
         { key: "published", label: "Published", width: "18%" },
         { key: "chart", label: "Chart", width: "10%" },
-        { key: "newMusic", label: "New music", width: "12%" },
+        { key: "newMusic", label: "New releases", width: "12%" },
         { key: "curator", label: "Curator", width: "22%" },
       ]}
       rows={rows}

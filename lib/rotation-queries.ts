@@ -168,7 +168,7 @@ async function hydrate(doc: Record<string, any>): Promise<VolumeDTO> {
     publishedAt: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
     intro: doc.intro ?? "",
     coverImage: doc.coverImage?.url ? toDTO<VolumeDTO["coverImage"]>(doc.coverImage) : null,
-    // Newest release first, and unranked — see the New Music treatment.
+    // Newest release first, and unranked — see the New Releases treatment.
     newMusic: entryList(doc.newMusic).sort(
       (a, b) => +new Date(b.track.releaseDate) - +new Date(a.track.releaseDate),
     ),
@@ -267,7 +267,7 @@ export async function getRotationPoster(): Promise<RotationPosterData | null> {
   /*
    * DISTINCT tracks, not the sum of the three list lengths.
    *
-   * A track can sit in New Music and on the Chart in the same fortnight — that
+   * A track can sit in New Releases and on the Chart in the same fortnight — that
    * is the normal case for a strong new release, not an edge case — so adding
    * the lengths would print a number larger than the volume actually holds.
    * The poster makes a factual claim in large type; it should be true.

@@ -51,6 +51,25 @@ async function scan(path, js) {
       const cs = getComputedStyle(el);
       if (cs.visibility === "hidden" || cs.display === "none") continue;
 
+      /*
+       * NOT RENDERED AT ALL — skip. This checks the whole ancestor chain, which
+       * `cs.display` on the element alone does not.
+       *
+       * An element inside a `display: none` subtree keeps a computed display of
+       * its own ("inline-block", say) and inherits its ancestors' opacity, so
+       * the effective-opacity test below counted it as invisible text. It is
+       * not invisible text; it is not text. Revision 19's cover hides every
+       * inactive slide's cover line this way without scripting, and five
+       * correctly-absent strings were reported as failures.
+       *
+       * `getClientRects()` is the standard "is this laid out" test and is
+       * exactly the right one here: it is empty for a `display: none` subtree,
+       * and NOT empty for an element translated outside an overflow-hidden mask
+       * — which is the real failure this audit was written for and which the
+       * clipping check below still catches.
+       */
+      if (el.getClientRects().length === 0) continue;
+
       // Effective opacity is the product of every ancestor's opacity.
       let eff = 1;
       for (let n = el; n && n !== document.body; n = n.parentElement) {
@@ -61,9 +80,24 @@ async function scan(path, js) {
         continue;
       }
 
+      /*
+       * DELIBERATELY VISUALLY HIDDEN — skip, for both checks below.
+       *
+       * `sr-only` is a 1x1 absolutely-positioned box with a negative margin,
+       * which lands it a pixel outside whatever contains it. Inside an
+       * `overflow: hidden` ancestor — a carousel, a masked heading — the
+       * clipping test below reads that as "translated outside its mask" and
+       * reports a live region or a skip link as invisible text.
+       *
+       * It is invisible text, on purpose, announced rather than read. The size
+       * test is the signal: nothing meant to be seen is one pixel square.
+       */
+      const box = el.getBoundingClientRect();
+      if (cs.position === "absolute" && box.width <= 1 && box.height <= 1) continue;
+
       // Translated entirely outside an overflow-hidden ancestor is invisible
       // just as surely as opacity 0, and is easy to miss.
-      const r = el.getBoundingClientRect();
+      const r = box;
       const clipper = el.parentElement;
       if (clipper && getComputedStyle(clipper).overflow === "hidden") {
         const cr = clipper.getBoundingClientRect();

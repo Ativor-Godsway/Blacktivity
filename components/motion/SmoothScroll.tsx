@@ -49,7 +49,7 @@ import Lenis from "lenis";
  *
  * HASH ARRIVALS (Revision 14 §3)
  *
- * The homepage's three doors link to /rotation#new-music, #chart and #curation.
+ * The homepage's category line links to /rotation#chart and #new-releases.
  * The native anchor jump works on its own with JavaScript disabled — that is
  * the baseline, and it is not negotiable — but LENIS FIGHTS IT. Lenis
  * initialises after paint with an internal position of 0, so the browser lands
@@ -100,7 +100,7 @@ function scrollToHash(lenis: Lenis): boolean {
    *
    * The first call measures the element against the FALLBACK font's metrics.
    * The masthead headline is display serif at up to 9rem, so when Zodiak swaps
-   * in, everything below it moves — #curation landed 77px short of its mark on
+   * in, everything below it moves — #new-releases lands short of its mark on
    * exactly this. The browser re-anchors a native fragment jump on its own;
    * Lenis, which has taken the scroll position over, does not.
    *

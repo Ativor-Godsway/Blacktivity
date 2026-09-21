@@ -22,7 +22,7 @@ export const PLACEHOLDER_IMAGES = {
   ],
   /**
    * Rotation. Square crops — album art is square, and the 64px slots on the
-   * New Music rows are the only square imagery on the site.
+   * Rotation rows are the only square imagery on the site.
    */
   artwork: [
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop",

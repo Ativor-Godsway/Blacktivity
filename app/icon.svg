@@ -1,5 +1,11 @@
+<!--
+  Revision 19: regenerated in the black palette. The ground was #0B0B0B and the
+  letter #F2F1EE — both near-misses of the real tokens, from before the palette
+  had names. They are --black and --bone now, so the tab icon is the same two
+  values as the page.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" fill="#0B0B0B"/>
+  <rect width="64" height="64" fill="#0E0C0B"/>
   <text x="32" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="46"
-        text-anchor="middle" fill="#F2F1EE">B</text>
+        text-anchor="middle" fill="#EDE7DB">B</text>
 </svg>

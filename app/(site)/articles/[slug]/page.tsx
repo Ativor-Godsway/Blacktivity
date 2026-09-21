@@ -35,7 +35,11 @@ export async function generateMetadata({
   if (!article) return { title: "Not found" };
 
   const url = absoluteUrl(`/articles/${article.slug}`);
-  const og = absoluteUrl(`/api/og?title=${encodeURIComponent(article.title)}&label=${encodeURIComponent(article.category)}`);
+  // `theme=light` — Revision 20 §3. An article page is white, so its preview
+  // is too; the site-level card stays dark.
+  const og = absoluteUrl(
+    `/api/og?theme=light&title=${encodeURIComponent(article.title)}&label=${encodeURIComponent(article.category)}`,
+  );
 
   return {
     title: article.title,
@@ -93,7 +97,20 @@ export default async function ArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <article>
+      {/*
+        THE WHOLE ARTICLE IS LIGHT — Revision 20 §3.
+
+        Reading long-form text on black is tiring, and the owner asked for
+        white. This is the one place on the site where the ground is chosen for
+        the reader rather than for the composition: everything from the eyebrow
+        to the last paragraph sits on --paper with --ink-2 body text at the
+        existing measure.
+
+        The band below it is dark, which is the page's single alternation and a
+        deliberate full stop — it says "you have finished reading" before the
+        footer, rather than letting the article dissolve into the chrome.
+      */}
+      <article data-theme="light">
         <header className="px-(--gutter) pt-16 pb-12 md:pt-24">
           <div className="mx-auto max-w-[1600px]">
             {/* A persistent way out. An article should never be a dead end. */}
@@ -234,29 +251,41 @@ export default async function ArticlePage({
         </div>
       </article>
 
-      {related.length > 0 ? (
-        <section className="mx-auto max-w-[1600px] px-(--gutter) pb-8">
-          <div className="flex items-baseline justify-between gap-6">
-            <MonoLabel as="h2">Keep reading</MonoLabel>
-          </div>
+      {/*
+        "MORE FROM BLACKTIVITY" IS THE DARK BAND — §3. One alternation at the
+        foot of the page, and the reason it is here rather than anywhere else is
+        that it marks the end of the read.
 
-          <div className="mt-8 grid grid-cols-1 border-t border-l border-rule sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((item) => (
-              <ArticleCell key={item.id} article={item} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+        THE ONWARD LINKS ARE INSIDE THE SAME BAND, not in a second section
+        below it. They used to be their own block, and on a light page that was
+        invisible; on an alternating page it would have been a third stripe —
+        light, dark, light, dark — for two links. One band, two rows.
+      */}
+      <div data-theme="dark" className="px-(--gutter) pt-16 pb-24">
+        <div className="mx-auto max-w-[1600px]">
+          {related.length > 0 ? (
+            <section className="pb-12">
+              <div className="flex items-baseline justify-between gap-6">
+                <MonoLabel as="h2">More from Blacktivity</MonoLabel>
+              </div>
 
-      {/* The route onward, present whether or not there are related pieces. */}
-      <section className="mx-auto max-w-[1600px] px-(--gutter) pb-24">
-        <div className="flex flex-wrap items-center gap-3 border-t border-rule pt-10">
-          <ActionLink href="/articles" arrow="←" back>
-            Back to all articles
-          </ActionLink>
-          <ActionLink href="/">Home</ActionLink>
+              <div className="mt-8 grid grid-cols-1 border-t border-l border-rule sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item) => (
+                  <ArticleCell key={item.id} article={item} />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {/* The route onward, present whether or not there are related pieces. */}
+          <div className="flex flex-wrap items-center gap-3 border-t border-rule pt-10">
+            <ActionLink href="/articles" arrow="←" back>
+              Back to all articles
+            </ActionLink>
+            <ActionLink href="/">Home</ActionLink>
+          </div>
         </div>
-      </section>
+      </div>
     </>
   );
 }

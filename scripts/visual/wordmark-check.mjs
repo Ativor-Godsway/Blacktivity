@@ -1,6 +1,15 @@
 /**
- * The hero wordmark must read as "blacktivity" — descender included — at every
- * breakpoint.
+ * The cover's masthead must read as "blacktivity" — descender included — at
+ * every breakpoint. §7 names 360, 390 and 430 specifically, because this
+ * regression has shipped three times.
+ *
+ * REVISION 19 MOVED THE MARK FROM THE BOTTOM OF THE HERO TO THE TOP OF THE
+ * COVER, so the clearance that matters changed with it. "Above the fold" was
+ * the binding edge when the mark sat on the marquee; now the mark is at the top
+ * and the binding edges are LEFT and RIGHT — it is full-width inside the
+ * editorial grid and its descender has a whole viewport below it. Both are
+ * still asserted, because a check that only measures the edge that is currently
+ * tight stops being a check the moment the layout moves again.
  *
  * THIS CHECK ASSERTS CLEARANCE, NOT CONTAINMENT.
  *
@@ -41,7 +50,9 @@ for (const [w, h] of WIDTHS) {
   await new Promise((r) => setTimeout(r, 1400));
 
   const g = await p.evaluate(() => {
-    const svg = document.querySelector("section[aria-label] svg[data-wordmark]");
+    // The COVER's masthead specifically — the header carries a second
+    // wordmark, held at opacity 0, and measuring that one would pass forever.
+    const svg = document.querySelector("[data-cover-masthead] svg[data-wordmark]");
     if (!svg) return null;
     const r = svg.getBoundingClientRect();
     return { vw: innerWidth, vh: innerHeight, l: r.left, r: r.right, b: r.bottom, w: r.width, h: r.height };

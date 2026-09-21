@@ -4,14 +4,20 @@ import MonoLabel from "@/components/ui/MonoLabel";
 import ActionLink from "@/components/site/ActionLink";
 
 /**
- * Full-bleed black. Its job is rhythm and orientation, not exposition — the
+ * REVISION 19 TOOK ITS GROUND AWAY, and that is the change worth naming: this
+ * was a full-bleed espresso break inside a sand page, and the break was doing
+ * structural work. The page is black now, so there is nothing to break FROM —
+ * the section keeps its generous vertical rhythm and drops `.on-espresso` and
+ * the `data-surface="dark"` marker the retired header observer watched.
+ *
+ * Its job is rhythm and orientation, not exposition — the
  * lead line, two or three sentences, and a way through to /about. The black
  * break is doing structural work in the page, which is why the treatment stays
  * even though the content changed.
  */
 export function AboutSection() {
   return (
-    <section data-surface="dark" className="on-espresso py-28 md:py-44">
+    <section data-theme="light" className="py-28 md:py-44">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <MonoLabel className="text-fg-muted">
           <TextType text="Who we are" />

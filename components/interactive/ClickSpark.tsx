@@ -16,7 +16,7 @@ type Spark = { x: number; y: number; angle: number; start: number };
  * black sections, never a hue.
  */
 export function ClickSpark({
-  sparkColor = "#2A211A",
+  sparkColor = "#EDE7DB",
   sparkCount = 7,
   sparkRadius = 14,
   sparkLength = 8,

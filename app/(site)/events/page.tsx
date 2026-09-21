@@ -24,7 +24,14 @@ export default async function EventsPage() {
         intro="Exhibitions, listening sessions and meetups. Everything happens in the room, in person."
       />
 
-      <div className="mx-auto max-w-[1600px] px-(--gutter) py-20">
+      {/*
+        DARK MASTHEAD, LIGHT BAND BELOW — Revision 20 §2.3. The wrapper carries
+        the theme and the gutter; the 1600px grid moves inside it, because a
+        themed block has to paint edge to edge and the grid is what is centred
+        within it.
+      */}
+      <div data-theme="light" className="px-(--gutter) py-20">
+        <div className="mx-auto max-w-[1600px]">
         <section>
           <div className="flex items-baseline justify-between border-b border-rule pb-4">
             <MonoLabel as="h2">Upcoming</MonoLabel>
@@ -61,6 +68,7 @@ export default async function EventsPage() {
             </div>
           </section>
         ) : null}
+        </div>
       </div>
     </>
   );

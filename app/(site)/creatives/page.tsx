@@ -26,7 +26,14 @@ export default async function CreativesPage() {
         intro="A small studio. Photographers, stylists, editors and producers who make the work happen."
       />
 
-      <div className="mx-auto max-w-[1600px] px-(--gutter) py-20">
+      {/*
+        DARK MASTHEAD, LIGHT BAND BELOW — Revision 20 §2.3. The wrapper carries
+        the theme and the gutter; the 1600px grid moves inside it, because a
+        themed block has to paint edge to edge and the grid is what is centred
+        within it.
+      */}
+      <div data-theme="light" className="px-(--gutter) py-20">
+        <div className="mx-auto max-w-[1600px]">
         <ul className="grid grid-cols-4 gap-x-(--gutter) gap-y-16 md:grid-cols-12">
           {TEAM.map((member, i) => (
             <Reveal
@@ -122,6 +129,7 @@ export default async function CreativesPage() {
             </ul>
           </section>
         ) : null}
+        </div>
       </div>
     </>
   );

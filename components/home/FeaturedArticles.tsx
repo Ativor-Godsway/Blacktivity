@@ -12,7 +12,13 @@ export function FeaturedArticles({ articles }: { articles: ArticleDTO[] }) {
   if (articles.length === 0) return null;
 
   return (
-    <section className="mt-(--spacing-section-lg)">
+    /*
+      PADDING, NOT MARGIN — Revision 20 §2.
+      Every themed section paints its own ground, so a top MARGIN between two
+      of them shows the page ground in the gap and the alternation breaks into
+      stripes. The rhythm is identical; it is just inside the section now.
+    */
+    <section data-theme="dark" className="py-(--spacing-section-lg)">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <ScrollReveal
           as="h2"

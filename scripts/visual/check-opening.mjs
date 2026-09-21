@@ -164,10 +164,10 @@ for (const width of WIDTHS) {
   if (width === 1440 && slug === slugs[0]) {
     const drift = [];
     if (m.fontSize !== 17) drift.push(`font-size ${m.fontSize} (file assumes 17)`);
-    if (Math.abs(m.lineHeight - 29.75) > 0.5) drift.push(`line-height ${m.lineHeight} (file assumes 29.75)`);
+    if (Math.abs(m.lineHeight - 28.9) > 0.5) drift.push(`line-height ${m.lineHeight} (file assumes 28.9)`);
     if (m.measuredCharW && Math.abs(m.measuredCharW - 7.62) > 0.4) drift.push(`char width ${m.measuredCharW.toFixed(2)} (file assumes 7.62)`);
     if (drift.length) fail(`lib/split-opening.ts metrics are stale: ${drift.join("; ")}`);
-    else ok(`type metrics match lib/split-opening.ts (17px / 29.75px / ${m.measuredCharW?.toFixed(2)}px per char)`);
+    else ok(`type metrics match lib/split-opening.ts (17px / 28.9px / ${m.measuredCharW?.toFixed(2)}px per char)`);
   }
  }
 }

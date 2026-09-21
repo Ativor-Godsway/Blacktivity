@@ -132,7 +132,7 @@ export function TrackPicker({
       return;
     }
     if (!fields.releaseDate) {
-      setStatus("A release date is required — New Music groups by it.");
+      setStatus("A release date is required — New Releases orders and labels rows by it.");
       return;
     }
 

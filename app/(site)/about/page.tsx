@@ -20,9 +20,20 @@ const FACTS = [
 export default function AboutPage() {
   return (
     <>
-      <PageHeader label="Studio" lines={["A room", "of our own."]} />
+      {/*
+        "WHAT WE ARE" IS LIGHT THROUGHOUT — Revision 20 §2.3, and it is the one
+        page that does not open on a dark masthead. The owner asked for this
+        page specifically to stay white; it is the page about the people rather
+        than the work, and it is the longest continuous read on the site outside
+        an article.
 
-      <div className="mx-auto max-w-[1600px] px-(--gutter) py-20">
+        The footer below is dark, which is the page's only alternation and the
+        same full stop an article ends on.
+      */}
+      <PageHeader theme="light" label="Studio" lines={["A room", "of our own."]} />
+
+      <div data-theme="light" className="px-(--gutter) py-20">
+        <div className="mx-auto max-w-[1600px]">
         <div className="grid grid-cols-4 gap-x-(--gutter) gap-y-14 md:grid-cols-12">
           <aside className="col-span-4 md:col-span-3">
             <dl className="border-t border-rule">
@@ -75,6 +86,7 @@ export default function AboutPage() {
               Read the archive
             </ButtonLink>
           </div>
+        </div>
         </div>
       </div>
     </>

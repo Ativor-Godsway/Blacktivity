@@ -36,7 +36,7 @@ export async function generateMetadata({
 
   return {
     title: `Rotation ${label}`,
-    description: volume.intro || "New music, the Blacktivity Chart, and one guest curator.",
+    description: volume.intro || "The Blacktivity Chart, and every new release of the fortnight.",
     alternates: { canonical: url },
     openGraph: {
       title: `Rotation ${label} — Blacktivity`,

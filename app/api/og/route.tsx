@@ -35,19 +35,41 @@ async function loadFonts() {
  * list as everything else, so a drift here fails the build rather than shipping
  * the wrong brand to every link preview.
  */
-const SAND = "#EDE7DB";
-const INK = "#2A211A";
-const MUTED = "#6B5D50";
+const BLACK = "#0E0C0B";
+const BONE = "#EDE7DB";
+const MUTED = "#8F8476";
+/* Revision 20's light ground, for article cards — §3. */
+const PAPER = "#F6F4F0";
+const INK = "#0E0C0B";
+const INK_MUTED = "#6B635A";
 
 /**
- * Warm-neutral OG cards mirroring the magazine-cover layout: mono labels top
- * and bottom, oversized serif headline, a barcode rule. Every shared link
- * becomes brand collateral.
+ * OG cards mirroring the magazine-cover layout: mono labels top and bottom,
+ * oversized serif headline, a barcode rule. Every shared link becomes brand
+ * collateral.
+ *
+ * REVISION 19 REGENERATED THESE IN THE BLACK PALETTE, and the card that used to
+ * be the inverse of /api/og/rotation now matches it. That is not a loss of
+ * distinction — the two differ by layout and by the Anton word, which is what
+ * actually told them apart at thumbnail size.
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const title = (searchParams.get("title") ?? `${SITE.name} — ${SITE.tagline}`).slice(0, 110);
   const label = (searchParams.get("label") ?? SITE.established).slice(0, 40);
+
+  /*
+   * ARTICLE CARDS ARE LIGHT — Revision 20 §3. The site-level card stays dark.
+   *
+   * A preview should look like the page it links to, and an article page is
+   * white from the header to the last paragraph. `?theme=light` is opt-in, so
+   * every existing caller keeps the dark card it already had; the article
+   * metadata is the only thing that asks for the other one.
+   */
+  const light = searchParams.get("theme") === "light";
+  const ground = light ? PAPER : BLACK;
+  const fg = light ? INK : BONE;
+  const dim = light ? INK_MUTED : MUTED;
 
   // Deterministic "barcode" so a given title always renders the same card.
   const seed = [...title].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
@@ -66,8 +88,8 @@ export async function GET(req: NextRequest) {
           justifyContent: "space-between",
           width: "100%",
           height: "100%",
-          backgroundColor: SAND,
-          color: INK,
+          backgroundColor: ground,
+          color: fg,
           padding: "56px 64px",
           fontFamily: "Zodiak",
         }}
@@ -80,7 +102,7 @@ export async function GET(req: NextRequest) {
             fontSize: 20,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: MUTED,
+            color: dim,
           }}
         >
           <div style={{ display: "flex" }}>
@@ -106,7 +128,7 @@ export async function GET(req: NextRequest) {
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
-            borderTop: "1px solid rgba(42,33,26,0.18)",
+            borderTop: `1px solid ${light ? "rgba(14,12,11,0.18)" : "rgba(237,231,219,0.18)"}`,
             paddingTop: 28,
           }}
         >
@@ -117,7 +139,7 @@ export async function GET(req: NextRequest) {
               fontSize: 20,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
-              color: MUTED,
+              color: dim,
             }}
           >
             {SITE.edition} — ACCRA, GHANA
@@ -131,7 +153,7 @@ export async function GET(req: NextRequest) {
                   display: "flex",
                   width: w,
                   height: i % 7 === 0 ? 46 : 34,
-                  backgroundColor: INK,
+                  backgroundColor: fg,
                 }}
               />
             ))}

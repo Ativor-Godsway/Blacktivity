@@ -8,7 +8,7 @@ export function UpcomingEvents({ events }: { events: EventDTO[] }) {
   if (events.length === 0) return null;
 
   return (
-    <section className="mt-(--spacing-section-lg)">
+    <section data-theme="light" className="py-(--spacing-section-lg)">
       <div className="mx-auto max-w-[1600px] px-(--gutter)">
         <div className="flex items-baseline justify-between border-b border-rule pb-4">
           <MonoLabel>Upcoming</MonoLabel>

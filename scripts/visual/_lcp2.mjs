@@ -1,0 +1,23 @@
+import puppeteer from "puppeteer-core";
+const URL = process.argv[2];
+const b = await puppeteer.launch({ executablePath:"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless:"new", args:["--disable-gpu","--no-sandbox"]});
+const p = await b.newPage();
+await p.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
+const cdp = await p.createCDPSession();
+await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+await cdp.send("Network.emulateNetworkConditions", { offline:false, latency:150, downloadThroughput:1.6*1024*1024/8, uploadThroughput:750*1024/8 });
+let bytes = 0; const perType = {};
+p.on("response", async (r) => { try { const l = Number(r.headers()["content-length"] ?? 0); const t = r.request().resourceType(); bytes += l; perType[t] = (perType[t]??0)+l; } catch {} });
+await p.evaluateOnNewDocument(() => { window.__lcp=[]; new PerformanceObserver(l=>{for(const e of l.getEntries())window.__lcp.push({t:Math.round(e.startTime),tag:e.element?.tagName,cls:(e.element?.className||"").toString().slice(0,50),size:e.size});}).observe({type:"largest-contentful-paint",buffered:true}); });
+await p.goto(URL, { waitUntil:"load", timeout:120000 });
+await new Promise(r=>setTimeout(r,5000));
+const out = await p.evaluate(()=>({ lcp:window.__lcp, fcp:Math.round(performance.getEntriesByName("first-contentful-paint")[0]?.startTime||0),
+  cls:(()=>{let v=0;try{new PerformanceObserver(()=>{}).disconnect()}catch{};return v;})() }));
+const shifts = await p.evaluate(()=>new Promise(res=>{const o=[];new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)o.push({v:+e.value.toFixed(5),src:(e.sources||[]).map(s=>s.node?(s.node.tagName+"."+(s.node.className||"").toString().slice(0,40)):"?")});}).observe({type:"layout-shift",buffered:true});setTimeout(()=>res(o),400);}));
+console.log("  shifts:", JSON.stringify(shifts));
+const clsVal = await p.evaluate(()=>new Promise(res=>{let v=0;new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)v+=e.value;}).observe({type:"layout-shift",buffered:true});setTimeout(()=>res(v),400);}));
+const last = out.lcp[out.lcp.length-1];
+for (const c of out.lcp) console.log(`  cand ${String(c.t).padStart(5)}ms ${c.tag} size=${c.size} ${c.cls}`);
+console.log(`${URL}\n  FCP ${out.fcp}ms   LCP ${last?last.t:"?"}ms  (${last?last.tag:"-"} ${last?last.cls:""})  CLS ${clsVal.toFixed(4)}`);
+console.log(`  transferred ~${(bytes/1024).toFixed(0)}KB  ` + Object.entries(perType).map(([k,v])=>`${k}=${(v/1024).toFixed(0)}KB`).join(" "));
+await b.close(); process.exit(0);
