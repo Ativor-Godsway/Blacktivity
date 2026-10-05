@@ -16,6 +16,7 @@ const ADMIN_TOKENS = [
   "--admin-ink-2", "--admin-muted", "--admin-rule", "--admin-hover",
   "--status-ok", "--status-wait", "--status-bad",
   "--series-1", "--series-2", "--series-3",
+  "--a-plane", "--a-surface", "--a-ink", "--a-muted", "--a-border", "--a-error",
 ];
 
 /**
@@ -33,6 +34,12 @@ const ADMIN_ALLOWED = new Set([
   "#2a78d6", "#eb6834", "#1baf7a",
   "#232320", // a-btn-primary hover
   "#ff8b8b", // destructive label on the dark bulk bar
+  // Revision 25 — the auth forms' --a-* tokens (contrast in admin.css).
+  "#14110f", // --a-ink: 18.80 on white
+  "#625b52", // --a-muted: 6.69 on white, 5.44 on the plane
+  "#8a8277", // --a-border: 3.79 on white (non-text)
+  "#b42318", // --a-error: 6.57 on white
+  "#2e2824", // a-btn-submit hover
 ]);
 
 let failed = 0;

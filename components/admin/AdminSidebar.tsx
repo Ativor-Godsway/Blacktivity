@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Wordmark from "@/components/brand/Wordmark";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,16 @@ export function AdminSidebar({
   defaultCollapsed?: boolean;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function signOut() {
+    setSigningOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/admin/login");
+    router.refresh();
+  }
 
   useEffect(() => {
     try {
@@ -131,6 +140,36 @@ export function AdminSidebar({
               <span className="block truncate text-[11px] text-white/45">{email}</span>
             </span>
           )}
+        </div>
+
+        {/* ACCOUNT sits beside sign-out — Revision 25 §3.1. */}
+        <div className="mt-1 flex flex-col gap-0.5">
+          <Link
+            href="/admin/account"
+            aria-current={pathname.startsWith("/admin/account") ? "page" : undefined}
+            title={collapsed ? "Account" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] uppercase tracking-[0.08em] whitespace-nowrap hover:bg-white/[0.07] hover:text-white",
+              pathname.startsWith("/admin/account") ? "bg-white/[0.14] text-white" : "text-white/70",
+              collapsed && "justify-center px-0",
+            )}
+          >
+            <span aria-hidden="true" className="w-4 shrink-0 text-center">◉</span>
+            {collapsed ? <span className="sr-only">Account</span> : "Account"}
+          </Link>
+          <button
+            type="button"
+            onClick={signOut}
+            disabled={signingOut}
+            title={collapsed ? "Sign out" : undefined}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] uppercase tracking-[0.08em] whitespace-nowrap text-white/70 hover:bg-white/[0.07] hover:text-white disabled:opacity-50",
+              collapsed && "justify-center px-0",
+            )}
+          >
+            <span aria-hidden="true" className="w-4 shrink-0 text-center">⎋</span>
+            {collapsed ? <span className="sr-only">Sign out</span> : signingOut ? "Signing out…" : "Sign out"}
+          </button>
         </div>
 
         <button

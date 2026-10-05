@@ -38,7 +38,7 @@
     "test:hero": "node scripts/visual/test-hero.mjs",
     "audit:images": "node scripts/audit-images.mjs",
     "audit:admin-colour": "node scripts/audit-admin-colour.mjs",
-    "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run check:cover && npm run check:rotation-image && npm run check:stamp && npm run check:devonly && npm run test:render",
+    "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run check:cover && npm run check:rotation-image && npm run check:stamp && npm run check:devonly && npm run test:render && npm run test:seed-admin",
     "test:render": "tsx --tsconfig tests/tsconfig.json tests/tiptap-render.test.tsx",
     "check:wordmark": "node scripts/visual/wordmark-check.mjs",
     "check:raf": "node scripts/visual/raf-check.mjs",
@@ -51,6 +51,9 @@
     "check:cards": "node scripts/visual/check-cards.mjs",
     "check:console": "node scripts/visual/console-sweep.mjs",
     "audit:contrast": "node scripts/audit-contrast.mjs",
+    "test:seed-admin": "tsx --tsconfig tests/tsconfig.json tests/seed-admin.test.ts",
+    "test:admin-login": "node tests/e2e/admin-login.e2e.mjs",
+    "test:admin-password": "node tests/e2e/admin-password.e2e.mjs",
     "test:nav": "node tests/e2e/nav.e2e.mjs"
   },
   "dependencies": {

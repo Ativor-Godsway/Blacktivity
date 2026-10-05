@@ -231,3 +231,153 @@
 }
 
 /* The admin uses native scrolling — Lenis is mounted on the public site only. */
+
+/* ===========================================================================
+   AUTH FORMS — sign-in and /admin/account. Revision 25 §2.
+
+   WHY THESE TOKENS EXIST: the sign-in page used to be built from the PUBLIC
+   site's Field / Input / Button. Those paint with --color-fg and --color-rule,
+   which since Revision 19 resolve to the dark-ground palette (light bone). On
+   the admin's sand plane that meant cream on cream: no visible boxes, typed
+   text and password dots the colour of the page, and a button that was just
+   floating text.
+
+   So every colour below is ADMIN-OWNED. Nothing here reads a public token,
+   and nothing in components/ui may be used on these screens.
+   ------------------------------------------------------------------------- */
+.admin {
+  --a-plane: var(--admin-plane);  /* #ede7db */
+  --a-surface: #ffffff;           /* fields and the card */
+  --a-ink: #14110f;               /* 18.80:1 on white, 15.27:1 on the plane */
+  --a-muted: #625b52;             /* 6.69:1 on white, 5.44:1 on the plane */
+  --a-border: #8a8277;            /* field edge: 3.79:1 on white (non-text, ≥3) */
+  --a-error: #b42318;             /* 6.57:1 on white, 5.34:1 on the plane */
+}
+
+.a-auth-card {
+  background: var(--a-surface);
+  border: 1px solid var(--admin-rule);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(20, 17, 15, 0.05), 0 8px 24px rgba(20, 17, 15, 0.06);
+  color: var(--a-ink);
+}
+
+.a-auth-heading { color: var(--a-ink); }
+.a-auth-mono {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+
+.a-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a-ink);
+}
+.a-field-hint { font-size: 12.5px; color: var(--a-muted); }
+.a-field-error { font-size: 12.5px; font-weight: 500; color: var(--a-error); }
+
+/* The colour rule is written for BOTH input types on purpose: Safari paints
+   -webkit-text-security dots from `color`, so a password field that loses this
+   rule has invisible dots even when its text would have been fine. */
+.a-field,
+.a-field[type="password"],
+.a-field[type="text"],
+.a-field[type="email"] {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 0.875rem;
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: 8px;
+  font-size: 16px;               /* 16px: iOS zooms the page into anything smaller */
+  line-height: 1.4;
+  color: var(--a-ink);
+  -webkit-text-fill-color: var(--a-ink);
+  caret-color: var(--a-ink);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.a-field::placeholder { color: var(--a-muted); -webkit-text-fill-color: var(--a-muted); opacity: 1; }
+.a-field:hover { border-color: var(--a-ink); }
+.a-field:focus,
+.a-field:focus-visible {
+  outline: none;
+  border-color: var(--a-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-ink) 22%, transparent);
+}
+.a-field[aria-invalid="true"] { border-color: var(--a-error); }
+.a-field[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-error) 25%, transparent);
+}
+/* Chrome's autofill repaints the ground pale blue/yellow and the text with it. */
+.a-field:-webkit-autofill,
+.a-field:-webkit-autofill:hover,
+.a-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--a-ink);
+  box-shadow: 0 0 0 1000px var(--a-surface) inset;
+}
+
+/* --- password field with the eye toggle ---------------------------------- */
+.a-password { position: relative; }
+/* 52px of right padding: the 44px toggle plus air, so text never runs under it. */
+.a-password > .a-field { padding-right: 52px; }
+.a-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  color: var(--a-muted);
+  background: transparent;
+}
+.a-password-toggle:hover { color: var(--a-ink); }
+.a-password-toggle:focus-visible { outline: 2px solid var(--a-ink); outline-offset: -4px; }
+/* Safari's Keychain key sits at the right edge, exactly where the eye is.
+   Moving it left of the toggle keeps Keychain fill available — hiding it
+   outright would take away the manual "fill from Keychain" affordance. */
+.a-password > .a-field::-webkit-credentials-auto-fill-button {
+  margin-right: 40px;
+}
+
+/* --- the filled submit --------------------------------------------------- */
+.a-btn-submit {
+  display: inline-flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  background: var(--a-ink);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 120ms ease;
+}
+.a-btn-submit:hover { background: #2e2824; }
+.a-btn-submit:focus-visible { outline: 2px solid var(--a-ink); outline-offset: 3px; }
+.a-btn-submit:disabled { opacity: 0.6; cursor: progress; }
+
+.a-status-ok {
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--status-ok) 45%, transparent);
+  background: color-mix(in srgb, var(--status-ok) 10%, var(--a-surface));
+  color: var(--a-ink);
+  padding: 0.75rem 0.875rem;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}

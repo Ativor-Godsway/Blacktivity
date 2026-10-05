@@ -52,3 +52,26 @@ export const sessionCookieOptions = {
   path: "/",
   maxAge: MAX_AGE_SECONDS,
 };
+
+/**
+ * True when a token was issued at or after the last password change.
+ *
+ * `iat` is whole seconds, so the change time is compared at second
+ * resolution: the fresh cookie issued in the same second as the change must
+ * still count as current.
+ */
+export function issuedAfterPasswordChange(
+  iat: number | undefined,
+  passwordChangedAt: Date | null | undefined,
+): boolean {
+  if (!passwordChangedAt) return true;
+  if (typeof iat !== "number") return false;
+  return iat >= Math.floor(passwordChangedAt.getTime() / 1000);
+}
+
+/**
+ * Where a server-side check sends a rejected session. The proxy clears the
+ * cookie on this URL — without that, a token rejected here but still valid as
+ * a JWT would bounce between /admin and /admin/login forever.
+ */
+export const LOGIN_EXPIRED_PATH = "/admin/login?expired=1";

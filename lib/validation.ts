@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isAllowedImageUrl } from "@/lib/image-hosts";
 import { ARTICLE_CATEGORIES, ARTICLE_STATUSES, DISCIPLINES, SUBMISSION_STATUSES } from "./constants";
+import { PASSWORD_MAX, PASSWORD_MIN } from "./password";
 
 const optionalUrl = z
   .union([z.string().url(), z.literal("")])
@@ -83,6 +84,19 @@ export const loginSchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(8, "At least 8 characters"),
 });
+
+export const passwordChangeSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password.").max(PASSWORD_MAX),
+    newPassword: z
+      .string()
+      .min(PASSWORD_MIN, `At least ${PASSWORD_MIN} characters.`)
+      .max(PASSWORD_MAX, `At most ${PASSWORD_MAX} characters.`),
+  })
+  .refine((d) => d.newPassword !== d.currentPassword, {
+    path: ["newPassword"],
+    message: "Choose a password different from the current one.",
+  });
 
 export const submissionStatusSchema = z.object({
   status: z.enum(SUBMISSION_STATUSES),

@@ -1,14 +1,17 @@
 import { config } from "dotenv";
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 import AdminUser from "../models/AdminUser";
+import { ensureAdmin } from "../lib/admin-bootstrap";
 
 config({ path: ".env.local" });
 config();
 
 /**
- * Creates or resets the single admin account from ADMIN_EMAIL / ADMIN_PASSWORD.
- * Safe to re-run — it upserts.
+ * Creates the single admin account from ADMIN_EMAIL / ADMIN_PASSWORD — once.
+ *
+ * Safe to re-run: if an admin already exists it does nothing, so it can never
+ * reset a password changed in the admin. To recover a forgotten password use
+ * scripts/reset-admin-password.ts.
  */
 async function main() {
   const uri = process.env.MONGODB_URI;
@@ -21,14 +24,12 @@ async function main() {
 
   await mongoose.connect(uri);
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  await AdminUser.findOneAndUpdate(
-    { email: email.toLowerCase() },
-    { email: email.toLowerCase(), passwordHash, name: "Blacktivity" },
-    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
+  const result = await ensureAdmin(AdminUser, { email, password });
+  console.log(
+    result === "created"
+      ? `Admin created: ${email}`
+      : "An admin already exists — password left unchanged.",
   );
-
-  console.log(`Admin ready: ${email}`);
   await mongoose.disconnect();
 }
 

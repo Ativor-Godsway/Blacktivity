@@ -16,8 +16,16 @@ export async function proxy(req: NextRequest) {
   const token = req.cookies.get(AUTH_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 
-  // Already signed in — skip the login screen.
   if (pathname === "/admin/login") {
+    // A server-side check rejected this token (the password changed since it
+    // was issued). Its signature is still fine, so without clearing it here
+    // this branch would send it straight back to /admin — a redirect loop.
+    if (req.nextUrl.searchParams.has("expired")) {
+      const res = NextResponse.next();
+      res.cookies.delete(AUTH_COOKIE);
+      return res;
+    }
+    // Already signed in — skip the login screen.
     if (session) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }

@@ -4,11 +4,11 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config();
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 import Article from "../models/Article";
 import EventModel from "../models/Event";
 import Submission from "../models/Submission";
 import AdminUser from "../models/AdminUser";
+import { ensureAdmin } from "../lib/admin-bootstrap";
 import AnalyticsEvent from "../models/AnalyticsEvent";
 import Track from "../models/Track";
 import ChartVolume from "../models/ChartVolume";
@@ -160,14 +160,13 @@ async function seedAdmin() {
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  await AdminUser.findOneAndUpdate(
-    { email: email.toLowerCase() },
-    { email: email.toLowerCase(), passwordHash, name: "Blacktivity" },
-    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
+  // Never overwrites an existing admin's password — see lib/admin-bootstrap.
+  const result = await ensureAdmin(AdminUser, { email, password });
+  console.log(
+    result === "created"
+      ? `  admin         ${email} (created)`
+      : "  admin         exists — password left unchanged",
   );
-
-  console.log(`  admin         ${email}`);
 }
 
 /**

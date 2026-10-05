@@ -11,6 +11,7 @@ import CategorySplit from "@/components/admin/charts/CategorySplit";
 import TopArticlesTable from "@/components/admin/TopArticlesTable";
 import VitalsPanel from "@/components/admin/VitalsPanel";
 import { getSession } from "@/lib/session";
+import { LOGIN_EXPIRED_PATH } from "@/lib/auth";
 import { getAdminContext } from "@/lib/admin-context";
 import { getDashboardData, type RangeDays } from "@/lib/analytics-queries";
 import { getNeedsAttention, titlesForPaths } from "@/lib/admin-queries";
@@ -25,7 +26,7 @@ export default async function AdminDashboard({
   searchParams: Promise<{ range?: string }>;
 }) {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session) redirect(LOGIN_EXPIRED_PATH);
 
   const { range: rawRange } = await searchParams;
   const parsed = Number(rawRange);

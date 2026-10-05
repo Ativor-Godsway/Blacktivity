@@ -5,6 +5,7 @@ import Card from "@/components/admin/ui/Card";
 import StatusPill from "@/components/admin/StatusPill";
 import LogoutButton from "@/components/admin/LogoutButton";
 import { getSession } from "@/lib/session";
+import { LOGIN_EXPIRED_PATH } from "@/lib/auth";
 import { getAdminContext } from "@/lib/admin-context";
 import { SITE } from "@/lib/constants";
 
@@ -18,7 +19,7 @@ function configured(value: string | undefined) {
 
 export default async function SettingsPage() {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session) redirect(LOGIN_EXPIRED_PATH);
 
   const ctx = await getAdminContext();
 

@@ -25,7 +25,7 @@ Set every key from `.env.example` in Vercel (Production **and** Preview):
 |---|---|
 | `MONGODB_URI` | Atlas. Not the in-memory dev instance. Allow Vercel's egress in Atlas Network Access. |
 | `JWT_SECRET` | 32+ random bytes. `openssl rand -base64 48` |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seeds the single admin account |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Creates the single admin account if none exists — never resets an existing password |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | See §5 — the current key is disabled |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Same value as `CLOUDINARY_CLOUD_NAME`. It was blank locally, which silently breaks the client uploader. |
 | `ANALYTICS_SALT` | Rotates the visitor hash daily |

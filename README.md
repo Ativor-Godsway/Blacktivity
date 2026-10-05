@@ -282,7 +282,12 @@ npm run dev
 > It refuses to run against any non-local host; override only if you are
 > certain, with `SEED_ALLOW_REMOTE=yes npm run seed`.
 
-Admin panel: `/admin/login`, using `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+Admin panel: `/admin/login`. `ADMIN_EMAIL` / `ADMIN_PASSWORD` only create the
+admin the first time; after that, change the password at `/admin/account`.
+
+**Forgotten admin password:** run `MONGODB_URI="<production URI>" npx tsx scripts/reset-admin-password.ts`.
+It asks for the new password twice, with hidden input, and never takes it as an argument.
+Saving it signs out every existing session.
 
 ### Without an Atlas cluster
 

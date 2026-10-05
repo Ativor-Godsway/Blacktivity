@@ -5,6 +5,9 @@ const AdminUserSchema = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     name: { type: String, default: "Admin" },
+    // Any session token issued before this is rejected server-side — set on
+    // every password change so other signed-in devices are signed out.
+    passwordChangedAt: { type: Date, default: null },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
 );
