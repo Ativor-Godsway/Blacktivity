@@ -182,7 +182,7 @@
      A content hash of this file, compared in development against the same
      value rendered into the HTML. They disagree only when the browser is
      using a stylesheet from an older build. */
-  --stylesheet-build: "19960aeec7d0";
+  --stylesheet-build: "bc1a32cc701b";
   --gutter: 1.25rem;
   color-scheme: dark;
 
@@ -210,7 +210,7 @@
    * them. They collided: a 2px gap at every width from 768 to 2560.
    *
    * 34px = the header bar's `py-5` top padding (20px) plus one mono line
-   * (14px). The nav is `hidden md:flex` and never wraps — six short labels at
+   * (14px). The nav is `hidden md:flex` and never wraps — five short labels at
    * gap-8 fit from 768 up — so this is one line at every width the overlay
    * header exists at.
    *

@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "Creatives",
   description: "The Blacktivity roster, and the work sent in by the community.",
   alternates: { canonical: "/creatives" },
+  // Hidden from the nav for now (data/nav.ts) — still resolves, but kept out of
+  // search until it comes back.
+  robots: { index: false },
 };
 
 export default async function CreativesPage() {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/constants";
 import Marquee from "@/components/ui/Marquee";
 import Wordmark from "@/components/brand/Wordmark";
+import { isHiddenRoute } from "@/data/nav";
 
 const COLUMNS = [
   {
@@ -50,7 +51,7 @@ export function Footer() {
           <nav key={col.title} className="col-span-2 md:col-span-2">
             <p className="mono mb-5 text-fg-dim">{col.title}</p>
             <ul className="flex flex-col gap-3">
-              {col.links.map((l) => (
+              {col.links.filter((l) => !isHiddenRoute(l.href)).map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}

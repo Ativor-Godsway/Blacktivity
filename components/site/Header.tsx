@@ -6,15 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { SITE } from "@/lib/constants";
 import Wordmark from "@/components/brand/Wordmark";
 import { cn } from "@/lib/utils";
-
-const NAV = [
-  { href: "/articles", label: "Articles" },
-  { href: "/rotation", label: "Rotation" },
-  { href: "/events", label: "Events" },
-  { href: "/creatives", label: "Creatives" },
-  { href: "/about", label: "About" },
-  { href: "/submit", label: "Submit" },
-];
+import { VISIBLE_NAV } from "@/data/nav";
 
 /**
  * THE BAND THE OBSERVER WATCHES — Revision 20 §2.4.
@@ -245,7 +237,7 @@ export function Header() {
           className="pointer-events-auto hidden items-center gap-8 md:flex"
           aria-label="Primary"
         >
-          {NAV.map((item) => (
+          {VISIBLE_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -288,7 +280,7 @@ export function Header() {
           aria-label="Primary mobile"
           className="pointer-events-auto border-t border-rule bg-bg md:hidden"
         >
-          {NAV.map((item) => (
+          {VISIBLE_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}

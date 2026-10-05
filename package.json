@@ -50,7 +50,8 @@
     "check:opening": "node scripts/visual/check-opening.mjs",
     "check:cards": "node scripts/visual/check-cards.mjs",
     "check:console": "node scripts/visual/console-sweep.mjs",
-    "audit:contrast": "node scripts/audit-contrast.mjs"
+    "audit:contrast": "node scripts/audit-contrast.mjs",
+    "test:nav": "node tests/e2e/nav.e2e.mjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",

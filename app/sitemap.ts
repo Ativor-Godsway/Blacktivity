@@ -2,11 +2,12 @@ import type { MetadataRoute } from "next";
 import { getAllArticleSlugs, getAllEventSlugs } from "@/lib/queries";
 import { getPublishedVolumeSlugs } from "@/lib/rotation-queries";
 import { absoluteUrl } from "@/lib/utils";
+import { isHiddenRoute } from "@/data/nav";
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes: MetadataRoute.Sitemap = [
+  const staticRoutes: MetadataRoute.Sitemap = ([
     { url: absoluteUrl("/"), changeFrequency: "daily", priority: 1 },
     { url: absoluteUrl("/articles"), changeFrequency: "daily", priority: 0.9 },
     { url: absoluteUrl("/events"), changeFrequency: "weekly", priority: 0.8 },
@@ -14,7 +15,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/creatives"), changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.5 },
     { url: absoluteUrl("/submit"), changeFrequency: "monthly", priority: 0.6 },
-  ];
+  ] satisfies MetadataRoute.Sitemap).filter(
+    // A section hidden from the nav (Creatives, for now) is left out here too.
+    (r) => !isHiddenRoute(new URL(r.url).pathname),
+  );
 
   try {
     const [articles, events, volumes] = await Promise.all([
