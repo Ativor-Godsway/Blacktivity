@@ -108,10 +108,13 @@ async function resolveAdminDynamic(context) {
   const events = await get("/api/admin/events", "events");
   const volumes = await get("/api/admin/rotation", "volumes");
   const id = (d) => (d ? String(d.id ?? d._id) : null);
+  // volumes arrive newest first: [0] is the current rotation, [1] an archived one.
+  const archived = volumes.find((v, i) => i > 0 && v.status === "published") ?? volumes[1];
   return {
     "/admin/articles/[id]": makola ? `/admin/articles/${id(makola)}` : null,
     "/admin/events/[id]": events[0] ? `/admin/events/${id(events[0])}` : null,
-    "/admin/rotation/[id]": volumes[0] ? `/admin/rotation/${id(volumes[0])}` : null,
+    "/admin/rotation/[id]": archived ? `/admin/rotation/${id(archived)}` : null,
+    "/admin/rotation/past/[id]": archived ? `/admin/rotation/past/${id(archived)}` : null,
   };
 }
 
@@ -232,6 +235,30 @@ async function auditWidth(width, lastOnly = false) {
       if (s.run) await s.run(page, { password: PASSWORD, email: EMAIL });
       await page.waitForTimeout(300);
 
+      // Revision 27: the admin never says "volume" or "slug" — except in the
+      // Past rotations view, which is where the archive is browsed.
+      const words =
+        admin && !route.startsWith("/admin/rotation/past") && !page.url().includes("/admin/rotation/past")
+          ? await page.evaluate(() => {
+              const hits = [];
+              const re = /\b(volumes?|slugs?|chartvolumes?)\b/i;
+              const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+              for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+                const el = n.parentElement;
+                // Form values are the owner's own content, not the admin's wording.
+                if (!el || /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|OPTION)$/.test(el.tagName)) continue;
+                if (re.test(n.textContent) && el.getClientRects().length) hits.push(n.textContent.trim().slice(0, 80));
+              }
+              for (const el of document.querySelectorAll("[aria-label],[title],[placeholder]")) {
+                for (const attr of ["aria-label", "title", "placeholder"]) {
+                  const v = el.getAttribute(attr);
+                  if (v && re.test(v)) hits.push(`${attr}="${v.slice(0, 80)}"`);
+                }
+              }
+              return [...new Set(hits)];
+            })
+          : [];
+
       const axe = await axeContrast(page);
       const sw = await sweep(page);
       const boxes = await page.evaluate(measureFieldBoxes);
@@ -248,8 +275,10 @@ async function auditWidth(width, lastOnly = false) {
         overImage: sw.overImage,
         skippedNodes: sw.skipped,
         invisibleFields: boxes.filter((b) => !b.visible),
+        forbiddenWords: words,
       });
-      row.pass = axe.contrast.length === 0 && sw.fails.length === 0 && row.invisibleFields.length === 0;
+      row.pass =
+        axe.contrast.length === 0 && sw.fails.length === 0 && row.invisibleFields.length === 0 && words.length === 0;
     } catch (err) {
       row.pass = false;
       row.error = String(err.message ?? err).split("\n")[0];
@@ -261,7 +290,7 @@ async function auditWidth(width, lastOnly = false) {
     }
     results.push(row);
     const mark = row.pass ? "pass" : "FAIL";
-    const why = row.error ?? (row.pass ? "" : `${row.axe?.length ?? 0} axe, ${row.contrastFails?.length ?? 0} computed, ${row.invisibleFields?.length ?? 0} boxes`);
+    const why = row.error ?? (row.pass ? "" : `${row.axe?.length ?? 0} axe, ${row.contrastFails?.length ?? 0} computed, ${row.invisibleFields?.length ?? 0} boxes, ${row.forbiddenWords?.length ?? 0} words`);
     console.log(`${mark}  ${String(width).padEnd(4)} ${route.padEnd(24)} ${s.name.padEnd(26)} ${why}`);
     await page.close();
   }

@@ -39,7 +39,7 @@ type Collision = {
   volumes: { number: number; slug: string; lists: string[] }[];
 };
 
-const volLabel = (n: number) => `Vol. ${String(n).padStart(2, "0")}`;
+const volLabel = (n: number) => `Rotation ${String(n).padStart(2, "0")}`;
 
 export function TrackEditPanel({
   trackId,
@@ -199,7 +199,7 @@ export function TrackEditPanel({
       {usage && usage.volumes.length > 0 ? (
         <p className="a-ink2 mb-5 border-l-2 a-border-ink pl-3 text-[13px]">
           This track appears in {usage.volumes.length}{" "}
-          {usage.volumes.length === 1 ? "volume" : "volumes"}. Changes apply to all of them.{" "}
+          {usage.volumes.length === 1 ? "rotation" : "rotations"}. Changes apply to all of them.{" "}
           {usage.volumes.map((v, i) => (
             <span key={v.id}>
               {i > 0 ? ", " : ""}
@@ -211,7 +211,7 @@ export function TrackEditPanel({
           {usage.peak !== null ? ` · peak ${String(usage.peak).padStart(2, "0")}` : ""}
         </p>
       ) : (
-        <p className="a-muted mb-5 text-[13px]">This track is not used by any volume yet.</p>
+        <p className="a-muted mb-5 text-[13px]">This track is not in any rotation yet.</p>
       )}
 
       {/* The merge offer, shown instead of an error. */}
@@ -221,9 +221,8 @@ export function TrackEditPanel({
             That name already belongs to another track.
           </p>
           <p className="a-ink2 mt-1.5 text-[13px]">
-            <span className="a-num">{collision.keep.artist}</span> — {collision.keep.title} already
-            uses the slug <code>{collision.slug}</code>. This is almost always the same song saved
-            twice.
+            <span className="a-num">{collision.keep.artist}</span> — {collision.keep.title} has the
+            same artist and title. This is almost always the same song saved twice.
           </p>
           <p className="a-ink2 mt-2 text-[13px]">
             Merging repoints <strong>{collision.willRepoint}</strong>{" "}

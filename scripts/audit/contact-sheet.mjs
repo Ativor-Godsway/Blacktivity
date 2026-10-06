@@ -19,6 +19,9 @@ function failureList(r) {
       `<li><b>${f.ratio.toFixed(2)}:1</b> (needs ${f.required}) <code>${esc(f.selector)}</code> “${esc(f.text)}” <span class="sw" style="background:${f.fg}"></span>${f.fg} on <span class="sw" style="background:${f.bg}"></span>${f.bg}</li>`,
     );
   }
+  for (const w of r.forbiddenWords ?? []) {
+    items.push(`<li><b>says “volume” or “slug”</b> ${esc(w)}</li>`);
+  }
   for (const b of r.invisibleFields ?? []) {
     items.push(`<li><b>no visible box</b> <code>${esc(b.selector)}</code> (edge ${b.edge}:1, ground ${b.groundStep}:1)</li>`);
   }

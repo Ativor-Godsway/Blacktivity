@@ -140,5 +140,5 @@ export async function getRotationClicks(limit = 12): Promise<{
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
 
-  return { volumeLabel: `Vol. ${String(volumes[0]!.number).padStart(2, "0")}`, rows };
+  return { volumeLabel: `Rotation ${String(volumes[0]!.number).padStart(2, "0")}`, rows };
 }

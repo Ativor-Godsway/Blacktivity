@@ -64,10 +64,10 @@ export default async function TrackLibraryPage() {
     <AdminShell
       {...ctx}
       title="Track library"
-      subtitle={`${items.length} tracks · ${orphans} not used by any volume`}
+      subtitle={`${items.length} tracks · ${orphans} not in any rotation`}
       actions={
         <Link href="/admin/rotation" className="a-btn a-btn-ghost">
-          Volumes
+          ← Back to Rotation
         </Link>
       }
     >

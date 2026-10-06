@@ -15,10 +15,11 @@ export type TrackLite = {
 
 export type EntryValue = { trackId: string; note: string };
 
-export type VolumeFormValues = {
-  number: number;
-  status: "draft" | "published";
-  publishedAt: string;
+/**
+ * What /admin/rotation edits: the CURRENT rotation's lists. No number, status
+ * or date — the server owns those (Revision 27).
+ */
+export type RotationFormValues = {
   intro: string;
   newMusic: EntryValue[];
   chart: EntryValue[];

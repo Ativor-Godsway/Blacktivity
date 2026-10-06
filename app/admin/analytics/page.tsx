@@ -134,8 +134,8 @@ export default async function AnalyticsPage({
         </div>
 
         <Card
-          title="Rotation — most opened, last volume"
-          note={rotation.volumeLabel || "No volume published"}
+          title="Rotation — most opened, last rotation"
+          note={rotation.volumeLabel || "Nothing published yet"}
           padded={false}
         >
           <div className="px-5 pt-4 pb-1">

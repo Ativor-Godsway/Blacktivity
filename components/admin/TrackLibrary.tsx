@@ -75,7 +75,7 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
           className="a-input max-w-[320px]"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search artist, title or slug…"
+          placeholder="Search artist or title…"
           aria-label="Search tracks"
         />
         <div className="flex gap-2">
@@ -114,7 +114,7 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
             title={tracks.length === 0 ? "No tracks yet" : "Nothing matches that search"}
             body={
               tracks.length === 0
-                ? "Tracks are created from the volume editor — paste a platform link and they appear here."
+                ? "Tracks are created on the Rotation page — paste a platform link and they appear here."
                 : "Try the artist's name, or part of the title."
             }
           />
@@ -127,7 +127,7 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
                     <span className="sr-only">Artwork</span>
                   </th>
                   <th>Track</th>
-                  <th className="w-[20%]">Volumes</th>
+                  <th className="w-[20%]">Rotations</th>
                   <th className="w-[10%]">Peak</th>
                   <th className="w-[16%] text-right">
                     <span className="sr-only">Actions</span>
@@ -151,7 +151,7 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
                     <td className="a-ink2 text-[13px]">
                       {t.volumes.length === 0
                         ? "—"
-                        : t.volumes.map((n) => `Vol. ${String(n).padStart(2, "0")}`).join(", ")}
+                        : t.volumes.map((n) => String(n).padStart(2, "0")).join(", ")}
                     </td>
                     <td className="a-num a-ink2 text-[13px]">
                       {t.peak === null ? "—" : String(t.peak).padStart(2, "0")}
@@ -168,7 +168,7 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
                           onClick={() => remove(t)}
                           title={
                             t.volumes.length > 0
-                              ? `Used by ${t.volumes.map((n) => `Vol. ${String(n).padStart(2, "0")}`).join(", ")} — remove it from those volumes first.`
+                              ? `Used in rotation ${t.volumes.map((n) => String(n).padStart(2, "0")).join(", ")} — remove it from those rotations first.`
                               : undefined
                           }
                         >
@@ -185,10 +185,10 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
       </Card>
 
       <p className="a-muted text-[12px]">
-        Deleting is blocked while a volume still references the track — a deleted track takes its
-        chart history with it, and movement in every later volume would change.{" "}
+        Deleting is blocked while a rotation still uses the track — a deleted track takes its
+        chart history with it, and the movement arrows in every later rotation would change.{" "}
         <Link href="/admin/rotation" className="underline">
-          Back to volumes
+          Back to Rotation
         </Link>
       </p>
     </div>

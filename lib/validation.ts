@@ -249,3 +249,20 @@ export const chartVolumeSchema = z.object({
 export const oembedSchema = z.object({
   url: z.string().url("Paste a full track URL."),
 });
+
+/**
+ * The one Rotation save — Revision 27. No number, status or date: the server
+ * owns all three. Counts are checked by rotationProblem() so the message is
+ * the same plain sentence the Save button shows.
+ */
+export const currentRotationSchema = z.object({
+  intro: z.string().trim().max(240).default(""),
+  chart: z.array(listEntry).max(10),
+  newMusic: z.array(listEntry).max(30),
+  playlists: z
+    .object({ chart: playlistSet.prefault({}), newMusic: playlistSet.prefault({}) })
+    .prefault({ chart: {}, newMusic: {} }),
+  // Sent only when the curation editor is switched on (ROTATION_CURATION_EDITOR).
+  // Absent = leave the stored curation exactly as it is.
+  curation: chartVolumeSchema.shape.curation,
+});

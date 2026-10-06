@@ -310,3 +310,17 @@ export const volumeEventLabel = (volume: string) => `rotation:volume:${volume}`;
  * measurements because the thing they measured moved is how a section loses its
  * own history.
  */
+
+/**
+ * THE CURATION EDITOR IS OFF — Revision 27 §1.2.
+ *
+ * The public page doesn't show the curation (Revision 17 §6), and an editor for
+ * invisible content confuses a first-time owner. The data and the editor code
+ * are kept; set this to true to bring the panel back on /admin/rotation.
+ */
+export const ROTATION_CURATION_EDITOR = false;
+
+/** The admin's name for a past period: "Rotation 07". Never "volume". */
+export function rotationLabel(number: number): string {
+  return `Rotation ${String(number).padStart(2, "0")}`;
+}

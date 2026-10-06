@@ -192,20 +192,25 @@ export const STATES = {
     { name: "table view", run: clickText(/^table$/i) },
     { name: "empty queue", phase: "empty" },
   ],
-  "/admin/rotation": [{ name: "list" }, { name: "empty", phase: "empty" }],
-  "/admin/rotation/new": [
-    { name: "editor" },
-    { name: "start from last volume", run: clickText(/^Start from Vol/) },
-    { name: "track picker open", run: clickText(/^Add track$/) },
+  "/admin/rotation": [
+    { name: "Top 10 and New Releases" },
+    { name: "unsaved edits", run: click('button[aria-label^="Move "][aria-label*="down"]') },
+    { name: "Top 10 incomplete", run: click('button[aria-label^="Remove "]') },
+    { name: "track picker open", run: clickText(/^\+ Add track$/) },
     {
       name: "track picker: existing track",
       run: async (page) => {
-        await clickText(/^Add track$/)(page);
+        await clickText(/^\+ Add track$/)(page);
         await clickText(/^Existing track$/)(page);
       },
     },
+    { name: "edit track panel", run: click('button[aria-label^="Edit "]') },
+    { name: "start new rotation: confirm", run: clickText(/^Start a new rotation$/i) },
+    { name: "empty (first save creates it)", phase: "empty" },
   ],
-  "/admin/rotation/[id]": [{ name: "editor" }],
+  "/admin/rotation/past": [{ name: "list" }, { name: "row detail open", run: click('button[aria-label^="Open "]') }],
+  "/admin/rotation/past/[id]": [{ name: "view only" }],
+  "/admin/rotation/[id]": [{ name: "old address redirects" }],
   "/admin/rotation/tracks": [
     { name: "library" },
     {

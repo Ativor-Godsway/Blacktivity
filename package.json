@@ -57,7 +57,8 @@
     "test:nav": "node tests/e2e/nav.e2e.mjs",
     "audit:contrast-tokens": "node scripts/audit-contrast.mjs",
     "audit:contrast:local": "node scripts/audit-contrast.mjs && node scripts/audit-undefined-vars.mjs && node scripts/audit/local.mjs",
-    "audit:undefined-vars": "node scripts/audit-undefined-vars.mjs"
+    "audit:undefined-vars": "node scripts/audit-undefined-vars.mjs",
+    "test:rotation": "node tests/e2e/rotation.e2e.mjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",

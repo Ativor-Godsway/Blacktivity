@@ -12,8 +12,8 @@ export function RotationClicksTable({ rows }: { rows: RotationClickRow[] }) {
   if (rows.length === 0) {
     return (
       <p className="a-muted text-[13px]">
-        No Rotation link opens recorded yet. Every platform link on a volume page carries a
-        data-track label, so this fills in as soon as one is published and opened.
+        No Rotation link opens recorded yet. This fills in as soon as readers open a track or
+        playlist link on the Rotation page.
       </p>
     );
   }
