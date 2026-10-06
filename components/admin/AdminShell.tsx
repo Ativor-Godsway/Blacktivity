@@ -42,7 +42,7 @@ export function AdminShell({
       />
 
       <div className="flex min-w-0 flex-1">
-        <main className="min-w-0 flex-1 px-6 py-7 lg:px-8">
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 outline-none px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
           <header className="mb-7 flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               <h1 className="text-[22px] leading-tight font-medium tracking-[-0.01em]">

@@ -165,6 +165,8 @@ export function ImageUploader({
         type="file"
         accept={ACCEPT_ATTR}
         className="sr-only"
+        tabIndex={-1}
+        aria-label={`Upload ${label.toLowerCase()}`}
         onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f); e.target.value = ""; }}
       />
 
@@ -184,7 +186,7 @@ export function ImageUploader({
       </details>
 
       {error ? (
-        <p className="text-[12.5px]" role="alert" style={{ color: "var(--status-bad)" }}>{error}</p>
+        <p className="a-field-error" role="alert">{error}</p>
       ) : null}
     </div>
   );

@@ -182,7 +182,7 @@
      A content hash of this file, compared in development against the same
      value rendered into the HTML. They disagree only when the browser is
      using a stylesheet from an older build. */
-  --stylesheet-build: "bc1a32cc701b";
+  --stylesheet-build: "1d8a958924fd";
   --gutter: 1.25rem;
   color-scheme: dark;
 
@@ -437,7 +437,18 @@
   color: var(--color-fg);
 }
 
-* { border-color: var(--color-rule); }
+/*
+ * The default border colour, IN @layer base — Revision 26.
+ *
+ * Unlayered, this rule beat every Tailwind border-colour utility (they live in
+ * @layer utilities, and unlayered styles win over any layer). So every
+ * `border-fg`, `border-rule-strong` and `focus:border-fg` on the public site
+ * rendered as the 14%-alpha hairline: the submit form's only visible edge
+ * measured 1.35:1, and its focus state never showed at all.
+ */
+@layer base {
+  * { border-color: var(--color-rule); }
+}
 
 html {
   background: var(--color-black);

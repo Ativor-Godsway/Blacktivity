@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import AuthField, { describedBy } from "@/components/admin/AuthField";
+import AdminField, { describedBy } from "@/components/admin/ui/Field";
 import PasswordInput, { type PasswordInputHandle } from "@/components/admin/PasswordInput";
 import { PASSWORD_MAX, PASSWORD_MIN } from "@/lib/password";
 
@@ -94,7 +94,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
       {/* Lets a password manager file the new password against the right account. */}
       <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
 
-      <AuthField label="Current password" htmlFor="currentPassword" error={errors.currentPassword}>
+      <AdminField label="Current password" htmlFor="currentPassword" error={errors.currentPassword}>
         <PasswordInput
           handle={current}
           id="currentPassword"
@@ -104,9 +104,9 @@ export function ChangePasswordForm({ email }: { email: string }) {
           aria-invalid={errors.currentPassword ? true : undefined}
           aria-describedby={describedBy("currentPassword", errors.currentPassword)}
         />
-      </AuthField>
+      </AdminField>
 
-      <AuthField label="New password" htmlFor="newPassword" error={errors.newPassword} hint={HINT}>
+      <AdminField label="New password" htmlFor="newPassword" error={errors.newPassword} hint={HINT}>
         <PasswordInput
           handle={next}
           id="newPassword"
@@ -118,9 +118,9 @@ export function ChangePasswordForm({ email }: { email: string }) {
           aria-invalid={errors.newPassword ? true : undefined}
           aria-describedby={describedBy("newPassword", errors.newPassword, HINT)}
         />
-      </AuthField>
+      </AdminField>
 
-      <AuthField label="Confirm new password" htmlFor="confirmPassword" error={errors.confirmPassword}>
+      <AdminField label="Confirm new password" htmlFor="confirmPassword" error={errors.confirmPassword}>
         <PasswordInput
           handle={confirm}
           id="confirmPassword"
@@ -131,7 +131,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
           aria-invalid={errors.confirmPassword ? true : undefined}
           aria-describedby={describedBy("confirmPassword", errors.confirmPassword)}
         />
-      </AuthField>
+      </AdminField>
 
       {errors.form ? (
         <p className="a-field-error uppercase tracking-[0.06em]" role="alert">

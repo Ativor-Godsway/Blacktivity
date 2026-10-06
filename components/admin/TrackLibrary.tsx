@@ -146,7 +146,7 @@ export function TrackLibrary({ tracks }: { tracks: LibraryTrack[] }) {
                     </td>
                     <td className="max-w-0">
                       <span className="block truncate text-[13.5px]">{t.artist}</span>
-                      <span className="a-muted block truncate text-[11.5px]">{t.title}</span>
+                      <span className="a-muted block truncate text-[12px]">{t.title}</span>
                     </td>
                     <td className="a-ink2 text-[13px]">
                       {t.volumes.length === 0

@@ -30,17 +30,16 @@ export function NeedsAttention({ items }: { items: QueueItem[] }) {
       {items.map((item, i) => (
         <li
           key={`${item.kind}-${item.id}`}
-          className="flex items-center gap-4 px-5"
-          style={{
-            height: 56,
-            borderTop: i === 0 ? undefined : "1px solid var(--admin-rule)",
-          }}
+          // Wraps on a phone: kind and title on the first line, status and the
+          // action on the second, instead of pushing the page sideways.
+          className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:min-h-14 sm:flex-nowrap sm:px-5 sm:py-0"
+          style={{ borderTop: i === 0 ? undefined : "1px solid var(--admin-rule)" }}
         >
-          <span className="a-meta w-[86px] flex-none">{KIND_LABEL[item.kind]}</span>
+          <span className="a-meta flex-none sm:w-[86px]">{KIND_LABEL[item.kind]}</span>
 
-          <span className="min-w-0 flex-1">
+          <span className="min-w-0 basis-full sm:basis-auto sm:flex-1">
             <span className="block truncate text-[13.5px]">{item.title}</span>
-            <span className="a-muted block truncate text-[11.5px]">{item.meta}</span>
+            <span className="a-muted block truncate text-[12px]">{item.meta}</span>
           </span>
 
           <StatusPill status={item.status} className="flex-none" />

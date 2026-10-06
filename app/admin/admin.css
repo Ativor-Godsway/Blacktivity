@@ -32,7 +32,7 @@
      way — chart axis ticks, which every chart repeats in a tooltip or a direct
      label. Anything a reader must actually read uses --admin-ink-2 (7.94:1).
      See `node scripts/audit-admin-colour.mjs` and the contrast note in README. */
-  --admin-muted: #898781;     /* chart axis ticks only */
+  --admin-muted: #6b665e;     /* chart axis ticks — 5.70:1 on white (was 3.59, Revision 26) */
   --admin-rule: #ded6c8;      /* hairlines, gridlines — warmed */
   --admin-hover: #f7f4ee;     /* row hover — warmed */
 
@@ -78,7 +78,7 @@
   gap: 0.4rem;
   padding: 0.2rem 0.55rem 0.2rem 0.45rem;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.4;
   white-space: nowrap;
   color: var(--admin-ink);
@@ -102,7 +102,7 @@
 .a-table th {
   text-align: left;
   font-weight: 500;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--admin-ink-2);
@@ -119,15 +119,22 @@
 .a-table tbody tr:last-child td { border-bottom: 0; }
 
 /* --- forms --------------------------------------------------------------- */
+/* The compact field used across Rotation, the image dialogs and the track
+   panel. Revision 26: its border was --admin-rule (1.3:1 on white — no visible
+   box) and it set no placeholder or fill colour; it now shares .a-field's
+   tokens and differs only in density. */
 .a-input {
   width: 100%;
-  background: var(--admin-surface);
-  border: 1px solid var(--admin-rule);
+  background: var(--a-surface);
+  border: 1px solid var(--a-line);
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
   font-size: 14px;
-  color: var(--admin-ink);
+  color: var(--a-ink);
+  -webkit-text-fill-color: var(--a-ink);
+  caret-color: var(--a-ink);
 }
+.a-input[readonly] { background: var(--a-bg); }
 /**
  * Auto-growing textarea, CSS only.
  *
@@ -146,7 +153,7 @@
   font: inherit;
   letter-spacing: inherit;
   padding: 7px 10px;
-  border: 1px solid var(--admin-rule);
+  border: 1px solid var(--a-line);
   border-radius: 8px;
   min-height: calc(2lh + 16px);
   white-space: pre-wrap;
@@ -157,10 +164,28 @@
   visibility: hidden;
   border-color: transparent;
 }
-.a-autogrow > textarea { resize: none; overflow: hidden; }
+.a-autogrow > textarea {
+  resize: none;
+  overflow: hidden;
+  background: var(--a-surface);
+  color: var(--a-ink);
+  -webkit-text-fill-color: var(--a-ink);
+  caret-color: var(--a-ink);
+}
+.a-autogrow > textarea::placeholder { color: var(--a-muted); -webkit-text-fill-color: var(--a-muted); opacity: 1; }
+.a-autogrow > textarea:focus {
+  outline: none;
+  border-color: var(--a-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-ink) 22%, transparent);
+}
+.a-autogrow > textarea[aria-invalid="true"] { border-color: var(--a-error); }
 
-.a-input::placeholder { color: var(--admin-ink-2); }
-.a-input:focus { outline: 2px solid var(--admin-ink); outline-offset: -1px; }
+.a-input::placeholder { color: var(--a-muted); -webkit-text-fill-color: var(--a-muted); opacity: 1; }
+.a-input:focus {
+  outline: none;
+  border-color: var(--a-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-ink) 22%, transparent);
+}
 
 /* --- buttons ------------------------------------------------------------- */
 .a-btn {
@@ -179,7 +204,8 @@
 .a-btn-primary:hover { background: #232320; }
 .a-btn-ghost { border-color: var(--admin-rule); background: var(--admin-surface); color: var(--admin-ink); }
 .a-btn-ghost:hover { background: var(--admin-hover); }
-.a-btn-danger { border-color: var(--admin-rule); background: var(--admin-surface); color: var(--status-bad); }
+/* --a-error, not --status-bad: status hues are never text (#d03b3b is 4.4:1 on the hover tint). */
+.a-btn-danger { border-color: var(--admin-rule); background: var(--admin-surface); color: var(--a-error); }
 .a-btn-danger:hover { background: color-mix(in srgb, var(--status-bad) 8%, transparent); }
 .a-btn:disabled { opacity: 0.5; pointer-events: none; }
 
@@ -202,7 +228,9 @@
   border-color: var(--admin-ink);
   color: var(--admin-plane);
 }
-.a-chip-count { font-variant-numeric: tabular-nums; opacity: 0.6; }
+/* A colour, not opacity: opacity-faded counts measured 2.94:1. */
+.a-chip-count { font-variant-numeric: tabular-nums; color: var(--a-muted); }
+.a-chip[aria-pressed="true"] .a-chip-count { color: var(--admin-plane); }
 
 /* --- misc ---------------------------------------------------------------- */
 /* Secondary copy that is still read — never the 3.59:1 muted token. */
@@ -224,7 +252,7 @@
 .a-num { font-variant-numeric: tabular-nums; }
 
 .a-meta {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--admin-ink-2);
@@ -252,6 +280,16 @@
   --a-muted: #625b52;             /* 6.69:1 on white, 5.44:1 on the plane */
   --a-border: #8a8277;            /* field edge: 3.79:1 on white (non-text, ≥3) */
   --a-error: #b42318;             /* 6.57:1 on white, 5.34:1 on the plane */
+
+  /* The names Revision 26 §1 uses, as aliases — one value each. */
+  --a-bg: var(--a-plane);
+  --a-line: var(--a-border);
+  --a-ink-2: #45403a;             /* 10.26:1 on white, 8.33:1 on the plane */
+
+  /* The dark rail. Rest is a light warm grey (9.92:1 on the rail); the active
+     item sits on --a-surface with --a-ink text. */
+  --a-rail: var(--admin-sidebar);
+  --a-rail-ink: #cfc6b8;
 }
 
 .a-auth-card {
@@ -265,7 +303,7 @@
 .a-auth-heading { color: var(--a-ink); }
 .a-auth-mono {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--a-muted);
@@ -274,10 +312,10 @@
 .a-field-label {
   display: block;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--a-ink);
+  color: var(--a-ink-2);
 }
 .a-field-hint { font-size: 12.5px; color: var(--a-muted); }
 .a-field-error { font-size: 12.5px; font-weight: 500; color: var(--a-error); }
@@ -381,3 +419,171 @@
   font-weight: 600;
   letter-spacing: 0.08em;
 }
+
+/* ===========================================================================
+   EDITING SURFACES — Revision 26 §1. Every control is a visible box with its
+   value in --a-ink. Nothing here may read a public token.
+   ------------------------------------------------------------------------- */
+.a-textarea { min-height: 96px; resize: vertical; }
+
+/* Native select, visibly a control: the value in ink and a chevron. */
+.a-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%2314110f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.95rem center;
+  cursor: pointer;
+}
+.a-select option { color: var(--a-ink); background: var(--a-surface); }
+
+/* The article title: grows with the headline, never clips it. */
+.a-autogrow-field > textarea,
+.a-autogrow-field::after {
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding: 0.7rem 0.875rem;
+  min-height: 0;
+}
+
+/* Tags: chips inside a field-styled box. */
+.a-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 6px 8px;
+  background: var(--a-surface);
+  border: 1px solid var(--a-line);
+  border-radius: 8px;
+}
+.a-tags:focus-within {
+  border-color: var(--a-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-ink) 22%, transparent);
+}
+.a-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 2px 2px 10px;
+  font-size: 13px;
+  color: var(--a-ink);
+  background: var(--a-bg);
+  border: 1px solid var(--a-line);
+  border-radius: 999px;
+}
+.a-tag-remove {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--a-ink-2);
+}
+.a-tag-remove:hover { background: var(--admin-rule); color: var(--a-ink); }
+.a-tags-input {
+  flex: 1;
+  min-width: 8ch;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 6px 4px;
+  font-size: 16px;
+  color: var(--a-ink);
+  -webkit-text-fill-color: var(--a-ink);
+  caret-color: var(--a-ink);
+}
+.a-tags-input::placeholder { color: var(--a-muted); -webkit-text-fill-color: var(--a-muted); opacity: 1; }
+
+/* The checkbox row — a label in ink, not a faded mono line. */
+.a-check { display: flex; align-items: center; gap: 0.75rem; font-size: 14px; color: var(--a-ink); cursor: pointer; }
+.a-check input { width: 18px; height: 18px; accent-color: var(--a-ink); }
+
+/* --- the Tiptap body ------------------------------------------------------
+   The editing area is a white box with a border so it is obvious where to
+   type, and its content reads as content: 18px ink at 1.6, never the
+   placeholder-grey of the public .prose-editorial it used to borrow
+   (#b9af9f on the sand — 1.76:1). */
+.a-editor {
+  background: var(--a-surface);
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  overflow: clip;
+}
+.a-editor:focus-within { border-color: var(--a-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--a-ink) 18%, transparent); }
+.a-editor .a-toolbar { border-bottom: 1px solid var(--admin-rule); background: var(--a-surface); }
+
+.a-prose {
+  padding: 1.5rem 1.25rem 2.5rem;
+  min-height: 50vh;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--a-ink);
+  caret-color: var(--a-ink);
+  outline: none;
+}
+@media (min-width: 768px) { .a-prose { padding: 2rem 2.25rem 3rem; } }
+.a-prose > * + * { margin-top: 1em; }
+.a-prose p { color: var(--a-ink); }
+.a-prose h2 { font-size: 28px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; margin-top: 1.6em; color: var(--a-ink); }
+.a-prose h3 { font-size: 22px; line-height: 1.25; font-weight: 600; margin-top: 1.4em; color: var(--a-ink); }
+.a-prose h4 { font-size: 18px; font-weight: 700; margin-top: 1.2em; color: var(--a-ink); }
+.a-prose strong { font-weight: 700; color: var(--a-ink); }
+.a-prose em { font-style: italic; }
+.a-prose a { color: var(--a-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.a-prose blockquote {
+  border-left: 3px solid var(--a-ink);
+  padding-left: 1rem;
+  font-size: 20px;
+  color: var(--a-ink-2);
+}
+.a-prose ul { list-style: disc; padding-left: 1.5em; }
+.a-prose ol { list-style: decimal; padding-left: 1.5em; }
+.a-prose li { margin-block: 0.35em; }
+.a-prose li::marker { color: var(--a-ink-2); }
+.a-prose hr { border: 0; border-top: 1px solid var(--a-line); margin-block: 2em; }
+.a-prose figcaption { font-size: 13px; color: var(--a-muted); margin-top: 0.5rem; }
+.a-prose img { border-radius: 6px; }
+.a-prose iframe { width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--admin-rule); border-radius: 6px; }
+.a-prose code { font-size: 0.9em; background: var(--a-bg); color: var(--a-ink); padding: 0.1em 0.3em; border-radius: 4px; }
+.a-prose .ProseMirror-selectednode { outline: 2px solid var(--a-ink); outline-offset: 2px; }
+.a-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--a-muted);
+}
+
+/* The preview renders the PUBLIC article styles inside a light section
+   (data-theme="light"), so it shows the page as a reader will see it. That
+   box is the one place in the admin where public tokens are allowed. */
+.a-preview {
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  overflow: clip;
+}
+
+/* --- the rail — Revision 26 §1 -------------------------------------------
+   Icons are 20px. Rest: --a-rail-ink, 9.92:1 on the rail (was white at 60%
+   alpha and an extra 80% opacity on the icon). Active: --a-surface ground
+   with --a-ink text, 18.8:1. */
+.a-rail-item { color: var(--a-rail-ink); }
+.a-rail-item:hover { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
+.a-rail-item[aria-current="page"] { background: var(--a-surface); color: var(--a-ink); }
+.a-rail-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  font-size: 18px;
+  line-height: 1;
+}
+.a-rail-sub { color: var(--a-rail-ink); }

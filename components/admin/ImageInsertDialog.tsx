@@ -204,7 +204,7 @@ export function ImageInsertDialog({
         )}
 
         {error ? (
-          <p className="mt-3 text-[12.5px]" style={{ color: "var(--status-bad)" }} role="alert">
+          <p className="a-field-error mt-3" role="alert">
             {error}
           </p>
         ) : null}

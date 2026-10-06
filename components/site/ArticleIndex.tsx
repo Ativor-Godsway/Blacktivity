@@ -52,11 +52,11 @@ export function ArticleIndex({ articles }: { articles: ArticleDTO[] }) {
             aria-label="Filter articles by category"
           >
             <Pill active={active === null} onClick={() => choose(null)}>
-              All <span className="opacity-60">{articles.length}</span>
+              All <span className="tabular-nums">{articles.length}</span>
             </Pill>
             {ARTICLE_CATEGORIES.filter((c) => counts.get(c)).map((c) => (
               <Pill key={c} active={active === c} onClick={() => choose(c)}>
-                {c} <span className="opacity-60">{counts.get(c)}</span>
+                {c} <span className="tabular-nums">{counts.get(c)}</span>
               </Pill>
             ))}
           </div>

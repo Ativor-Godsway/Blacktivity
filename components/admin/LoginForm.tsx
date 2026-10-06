@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
-import AuthField from "@/components/admin/AuthField";
+import AdminField from "@/components/admin/ui/Field";
 import PasswordInput, { type PasswordInputHandle } from "@/components/admin/PasswordInput";
 
 export function LoginForm() {
@@ -59,7 +59,7 @@ export function LoginForm() {
         </p>
       ) : null}
 
-      <AuthField label="Email" htmlFor="email">
+      <AdminField label="Email" htmlFor="email">
         <input
           id="email"
           name="email"
@@ -74,9 +74,9 @@ export function LoginForm() {
           aria-invalid={invalid}
           aria-describedby={error ? "login-error" : undefined}
         />
-      </AuthField>
+      </AdminField>
 
-      <AuthField label="Password" htmlFor="password">
+      <AdminField label="Password" htmlFor="password">
         <PasswordInput
           handle={password}
           id="password"
@@ -86,7 +86,7 @@ export function LoginForm() {
           aria-invalid={invalid}
           aria-describedby={error ? "login-error" : undefined}
         />
-      </AuthField>
+      </AdminField>
 
       {error ? (
         <p id="login-error" className="a-field-error -mt-2 uppercase tracking-[0.06em]" role="alert">

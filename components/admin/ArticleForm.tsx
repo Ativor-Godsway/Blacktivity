@@ -3,9 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Field, Input, Select, Textarea } from "@/components/ui/Field";
-import Button from "@/components/ui/Button";
-import MonoLabel from "@/components/ui/MonoLabel";
+import {
+  AdminField,
+  AutoGrowTextarea,
+  SelectInput,
+  TagInput,
+  TextArea,
+  TextInput,
+} from "@/components/admin/ui/Field";
 import ImageUploader from "./ImageUploader";
 import TiptapContent from "@/lib/tiptap-render";
 import { ARTICLE_CATEGORIES } from "@/lib/constants";
@@ -108,12 +113,30 @@ export function ArticleForm({
     }));
   }
 
+  /** Mirrors articleSchema, so the common mistakes never cost a round trip. */
+  function validate(): Record<string, string> {
+    const e: Record<string, string> = {};
+    const title = values.title.trim();
+    if (title.length < 3) e.title = "A title of at least 3 characters.";
+    else if (title.length > 160) e.title = "At most 160 characters.";
+    if (values.slug.trim().length < 3) e.slug = "A slug of at least 3 characters.";
+    else if (!/^[a-z0-9-]+$/.test(values.slug)) e.slug = "Lowercase letters, numbers and dashes only.";
+    if (values.excerpt.trim().length < 10) e.excerpt = "An excerpt of at least 10 characters.";
+    if (values.authorName.trim().length < 2) e["author.name"] = "Who wrote it?";
+    return e;
+  }
+
   async function save(status: "draft" | "published") {
     setErrors({});
     setFormError("");
 
-    if (!values.coverImage) {
-      setFormError("A cover image is required.");
+    const found = validate();
+    if (!values.coverImage) found.coverImage = "A cover image is required.";
+    if (Object.keys(found).length) {
+      setErrors(found);
+      setFormError("Fix the highlighted fields.");
+      const first = ["title", "slug", "excerpt", "author.name"].find((k) => found[k]);
+      if (first) document.getElementById(first === "author.name" ? "authorName" : first)?.focus();
       return;
     }
 
@@ -166,145 +189,169 @@ export function ArticleForm({
     }
   }
 
+  const excerptHint = `${values.excerpt.length} / 200 — used on cards and as the meta description`;
+
   return (
-    <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="min-w-0">
         {restored ? (
-          <p className="a-meta mb-6 border a-border px-4 py-3 a-muted">
-            ↳ Restored an unsaved draft from this browser.
+          <p className="a-field-hint mb-6 rounded-lg border a-border a-bg-surface px-4 py-3">
+            Restored an unsaved draft from this browser.
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-8">
-          <Field label="Title" htmlFor="title" error={errors.title}>
-            <Input
+        <div className="flex flex-col gap-7">
+          <AdminField label="Title" htmlFor="title" error={errors.title}>
+            <AutoGrowTextarea
               id="title"
               value={values.title}
-              onChange={(e) => onTitleChange(e.target.value)}
+              onChange={(e) => onTitleChange(e.target.value.replace(/\n/g, " "))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.preventDefault();
+              }}
               placeholder="The headline is the artwork"
+              invalid={Boolean(errors.title)}
             />
-          </Field>
+          </AdminField>
 
-          <Field label="Slug" htmlFor="slug" error={errors.slug} hint="/articles/…">
-            <Input
+          <AdminField label="Slug" htmlFor="slug" error={errors.slug} hint={`/articles/${values.slug || "…"}`}>
+            <TextInput
               id="slug"
               value={values.slug}
+              spellCheck={false}
+              autoCapitalize="off"
               onChange={(e) => {
                 setSlugTouched(true);
                 set("slug", slugify(e.target.value));
               }}
+              invalid={Boolean(errors.slug)}
+              hint="slug"
             />
-          </Field>
+          </AdminField>
 
-          <Field
-            label="Excerpt"
-            htmlFor="excerpt"
-            error={errors.excerpt}
-            hint={`${values.excerpt.length} / 200 — used on cards and as the meta description`}
-          >
-            <Textarea
+          <AdminField label="Excerpt" htmlFor="excerpt" error={errors.excerpt} hint={excerptHint}>
+            <TextArea
               id="excerpt"
               rows={3}
               maxLength={200}
               value={values.excerpt}
               onChange={(e) => set("excerpt", e.target.value)}
+              invalid={Boolean(errors.excerpt)}
+              hint={excerptHint}
             />
-          </Field>
+          </AdminField>
         </div>
 
-        <div className="mt-12 border-t a-border pt-6">
-          <div className="flex items-center justify-between">
-            <MonoLabel dim>Body</MonoLabel>
-            <button
-              type="button"
-              onClick={() => setPreview((p) => !p)}
-              className="a-meta a-muted hover:a-ink"
-            >
+        <div className="mt-10">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="a-field-label" id="body-label">
+              Body
+            </span>
+            <button type="button" onClick={() => setPreview((p) => !p)} className="a-btn a-btn-ghost">
               {preview ? "Back to editing" : "Preview ↗"}
             </button>
           </div>
 
           {preview ? (
-            <div className="prose-editorial py-8">
-              <TiptapContent content={values.content} />
-            </div>
+            // The public renderer in a light section: the article as readers see it.
+            <section data-theme="light" className="a-preview">
+              <div className="prose-editorial px-6 py-8 md:px-10">
+                <TiptapContent content={values.content} />
+              </div>
+            </section>
           ) : (
             <Editor content={values.content} onChange={(json) => set("content", json)} />
           )}
         </div>
       </div>
 
-      <aside className="flex flex-col gap-10 lg:sticky lg:top-24 lg:self-start">
-        <ImageUploader value={values.coverImage} onChange={(img) => set("coverImage", img)} />
+      <aside className="flex flex-col gap-7 lg:sticky lg:top-6 lg:self-start">
+        <div>
+          <ImageUploader value={values.coverImage} onChange={(img) => set("coverImage", img)} />
+          {errors.coverImage ? <p className="a-field-error mt-2">{errors.coverImage}</p> : null}
+        </div>
 
-        <Field label="Category" htmlFor="category" error={errors.category}>
-          <Select
+        <AdminField label="Category" htmlFor="category" error={errors.category}>
+          <SelectInput
             id="category"
             value={values.category}
             onChange={(e) => set("category", e.target.value)}
+            invalid={Boolean(errors.category)}
           >
             {ARTICLE_CATEGORIES.map((c) => (
-              <option key={c} value={c} className="a-bg-surface">
+              <option key={c} value={c}>
                 {c}
               </option>
             ))}
-          </Select>
-        </Field>
+          </SelectInput>
+        </AdminField>
 
-        <Field label="Tags" htmlFor="tags" hint="Comma separated">
-          <Input id="tags" value={values.tags} onChange={(e) => set("tags", e.target.value)} />
-        </Field>
+        <AdminField label="Tags" htmlFor="tags" hint="Press Enter or comma to add a tag">
+          <TagInput
+            id="tags"
+            value={values.tags}
+            onChange={(v) => set("tags", v)}
+            hint="Press Enter or comma to add a tag"
+          />
+        </AdminField>
 
-        <Field label="Author" htmlFor="authorName" error={errors["author.name"]}>
-          <Input
+        <AdminField label="Author" htmlFor="authorName" error={errors["author.name"]}>
+          <TextInput
             id="authorName"
             value={values.authorName}
             onChange={(e) => set("authorName", e.target.value)}
+            invalid={Boolean(errors["author.name"])}
           />
-        </Field>
+        </AdminField>
 
-        <Field label="Author Instagram" htmlFor="authorIg">
-          <Input
+        <AdminField label="Author Instagram" htmlFor="authorIg">
+          <TextInput
             id="authorIg"
             value={values.authorIg}
             onChange={(e) => set("authorIg", e.target.value)}
             placeholder="@handle"
+            autoCapitalize="off"
+            spellCheck={false}
           />
-        </Field>
+        </AdminField>
 
-        <label className="flex items-center gap-3">
+        <label className="a-check">
           <input
             type="checkbox"
             checked={values.featured}
             onChange={(e) => set("featured", e.target.checked)}
-            className="size-4 accent-[currentColor]"
           />
-          <MonoLabel>Feature on the home page</MonoLabel>
+          Feature on the home page
         </label>
 
         {formError ? (
-          <p className="a-meta a-ink" role="alert">
-            ↳ {formError}
+          <p className="a-field-error" role="alert">
+            {formError}
           </p>
         ) : null}
 
         <div className="flex flex-col gap-3 border-t a-border pt-6">
-          <Button
+          <button
             type="button"
-            variant="outline"
+            className="a-btn a-btn-ghost justify-center py-3"
             disabled={pending !== null}
             onClick={() => save("draft")}
           >
             {pending === "draft" ? "Saving…" : "Save as draft"}
-          </Button>
-          <Button type="button" disabled={pending !== null} onClick={() => save("published")}>
+          </button>
+          <button
+            type="button"
+            className="a-btn a-btn-primary justify-center py-3"
+            disabled={pending !== null}
+            onClick={() => save("published")}
+          >
             {pending === "published"
               ? "Publishing…"
               : initialStatus === "published"
                 ? "Update published"
                 : "Publish ↗"}
-          </Button>
-          {savedAt ? <MonoLabel dim>Autosaved locally {savedAt}</MonoLabel> : null}
+          </button>
+          {savedAt ? <p className="a-field-hint">Autosaved locally {savedAt}</p> : null}
         </div>
       </aside>
     </div>

@@ -55,7 +55,7 @@ export function VitalsPanel({
             <span className="a-pill self-start" data-state={s.key}>
               {s.label}
             </span>
-            <span className="a-muted text-[11.5px]">
+            <span className="a-muted text-[12px]">
               p75 · {v.samples.toLocaleString()} {v.samples === 1 ? "sample" : "samples"}
             </span>
           </li>

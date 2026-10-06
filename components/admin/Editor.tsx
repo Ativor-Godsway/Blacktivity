@@ -61,7 +61,7 @@ function Toolbar({ editor, onImage }: { editor: TiptapEditor; onImage: () => voi
   }, [editor]);
 
   return (
-    <div className="sticky top-16 z-20 flex flex-wrap gap-2 border-b a-border a-bg-surface py-3">
+    <div className="a-toolbar sticky top-0 z-20 flex flex-wrap gap-2 px-3 py-3" role="toolbar" aria-label="Formatting">
       <ToolbarButton
         title="Heading 2"
         active={editor.isActive("heading", { level: 2 })}
@@ -156,7 +156,12 @@ export function Editor({
     content: (content as object) ?? { type: "doc", content: [{ type: "paragraph" }] },
     editorProps: {
       attributes: {
-        class: "prose-editorial min-h-[50vh] focus:outline-none",
+        // Admin prose, not the public .prose-editorial: that paints body text
+        // in --color-fg-muted (#b9af9f), 1.76:1 on the admin's sand.
+        class: "a-prose",
+        "aria-label": "Article body",
+        role: "textbox",
+        "aria-multiline": "true",
       },
 
       /**
@@ -224,7 +229,7 @@ export function Editor({
   }
 
   return (
-    <div>
+    <div className="a-editor">
       <Toolbar
         editor={editor}
         onImage={() => {
@@ -232,7 +237,7 @@ export function Editor({
           setDialogOpen(true);
         }}
       />
-      <EditorContent editor={editor} className="py-8" />
+      <EditorContent editor={editor} />
 
       <ImageInsertDialog
         open={dialogOpen}

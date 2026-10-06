@@ -563,6 +563,32 @@ connections throttled and reports healthy URLs as broken.
 with `HEADED=1`. Headless Chrome is vsync-capped at 30fps and rasterizes in
 software, so both its frame times and its raster totals are misleading.
 
+### Readable text on every screen
+
+```bash
+npm run audit:contrast:local   # in-memory DB + build + every route and state, then an empty-DB pass
+BASE=https://blacktivity.vercel.app AUDIT_ADMIN_EMAIL=… AUDIT_ADMIN_PASSWORD=… npm run audit:contrast
+node scripts/audit/lighthouse.mjs   # Lighthouse accessibility on the four key pages
+```
+
+`audit:contrast` visits every route found in `app/` (a new route without
+states in `scripts/audit/states.mjs` fails the run) at 1440 and 390, in every
+state listed there. For each one it runs axe, and then a computed check that
+axe doesn't do: every visible text node and every field value is measured
+against what is actually painted beneath it, found through the paint stack
+rather than DOM ancestors, so the overlay header and fixed bars are judged
+against the section they cover. "typed" states fill every field first, so a
+value painted in its ground colour fails even when its label passes. That is
+exactly how the article editor shipped invisible. Every control must also have
+a visible box.
+
+It writes `audit/contact-sheet.html`: every screen, grouped Admin / Public,
+with a pass/fail badge and the failing elements and ratios. Against a deployed
+URL it never saves, publishes or deletes. States that write data run on
+localhost only, and admin routes without credentials are reported as
+skipped, never as passed. CI runs it on every PR and after every production
+deploy (`.github/workflows/audit-contrast.yml`).
+
 `scripts/visual/` also holds `shot.mjs` (screenshots at real breakpoints, and
 reports any element wider than the viewport) and `lcp.mjs` (LCP element and
 timing under emulated 4G + 4x CPU). All of these drive the installed Chrome via

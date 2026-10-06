@@ -35,7 +35,7 @@ export function RotationClicksTable({ rows }: { rows: RotationClickRow[] }) {
             <tr key={row.label}>
               <td className="max-w-0">
                 <span className="block truncate text-[13.5px]">{row.title}</span>
-                <span className="a-muted block truncate text-[11.5px]">{row.label}</span>
+                <span className="a-muted block truncate text-[12px]">{row.label}</span>
               </td>
               <td className="a-ink2 text-[13px]">{row.artist}</td>
               <td>

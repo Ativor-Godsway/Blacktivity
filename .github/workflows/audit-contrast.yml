@@ -1,0 +1,68 @@
+# Revision 26 §3.5 — readable text on every screen, checked on every PR and
+# against production after every deploy. The contact sheet is uploaded as a
+# build artifact either way.
+name: audit:contrast
+
+on:
+  pull_request:
+  deployment_status:
+
+jobs:
+  pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Static checks
+        run: npm run typecheck && node scripts/audit-admin-colour.mjs
+      - name: Build, seed an in-memory database, audit every route and state
+        run: npm run audit:contrast:local
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+      - name: Undefined custom properties
+        if: always()
+        run: node scripts/audit-undefined-vars.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contact-sheet
+          path: audit/
+
+  deployed:
+    # Vercel reports each deployment to GitHub; audit production once it is live.
+    if: >-
+      github.event_name == 'deployment_status' &&
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Audit the deployed site
+        run: node scripts/audit/run.mjs
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+          BASE: ${{ github.event.deployment_status.environment_url || 'https://blacktivity.vercel.app' }}
+          AUDIT_COMMIT: ${{ github.event.deployment.sha }}
+          # Admin routes need a sign-in. Without these secrets they are
+          # reported as skipped, never as passed.
+          AUDIT_ADMIN_EMAIL: ${{ secrets.AUDIT_ADMIN_EMAIL }}
+          AUDIT_ADMIN_PASSWORD: ${{ secrets.AUDIT_ADMIN_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contact-sheet-production
+          path: audit/

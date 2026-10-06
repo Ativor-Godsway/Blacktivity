@@ -29,7 +29,7 @@ const ADMIN_TOKENS = [
  * changing a single line that looks like a contrast decision.
  */
 const ADMIN_ALLOWED = new Set([
-  "#2a211a", "#241c16", "#ede7db", "#ffffff", "#52514e", "#898781", "#ded6c8", "#f7f4ee",
+  "#2a211a", "#241c16", "#ede7db", "#ffffff", "#52514e", "#6b665e", "#ded6c8", "#f7f4ee",
   "#0ca30c", "#fab219", "#d03b3b",
   "#2a78d6", "#eb6834", "#1baf7a",
   "#232320", // a-btn-primary hover
@@ -40,6 +40,9 @@ const ADMIN_ALLOWED = new Set([
   "#8a8277", // --a-border: 3.79 on white (non-text)
   "#b42318", // --a-error: 6.57 on white
   "#2e2824", // a-btn-submit hover
+  // Revision 26
+  "#45403a", // --a-ink-2: 10.26 on white, 8.33 on the plane
+  "#cfc6b8", // --a-rail-ink: 9.92 on the rail
 ]);
 
 let failed = 0;
@@ -91,6 +94,29 @@ for (const f of adminFiles) {
 }
 if (stray.length) fail("admin uses a colour outside its palette", stray);
 else console.log("  ok  admin uses only its approved palette");
+
+// --- 2b. the admin never borrows the public palette — Revision 26 ---------
+// The article editor's fields rendered their values in the ground colour
+// because they were public components: --color-fg is #ede7db, which is also
+// the admin's sand. So: no public component imports, no public colour
+// utilities, no .prose-editorial outside the preview box, and no opacity used
+// to fade text (disabled: variants are allowed — they fade a control).
+const borrowed = [];
+const PUBLIC_UTIL = /(?:^|[\s"'`])(?:[a-z-]+:)*(?:text|bg|border|placeholder|decoration|ring|outline|divide)-(?:fg|fg-muted|fg-dim|fg-faint|bg|bg-raised|rule|rule-soft|rule-strong|accent|bone|bone-2|tan|paper|paper-raised|ink-2|ink-muted)(?=[\s"'`/]|$)/gm;
+for (const f of adminFiles) {
+  const src = stripComments(readFileSync(f, "utf8"));
+  if (/from\s+["']@\/components\/ui\//.test(src)) borrowed.push(`${f}: imports a public components/ui component`);
+  for (const m of src.matchAll(PUBLIC_UTIL)) borrowed.push(`${f}: ${m[0].trim()}`);
+  for (const m of src.matchAll(/(?:^|[\s"'`])(opacity-\d+)(?=[\s"'`]|$)/gm)) borrowed.push(`${f}: ${m[1]} (fade the control with disabled:, never text)`);
+  for (const m of src.matchAll(/\bvar\(--color-[a-z0-9-]+\)/g)) borrowed.push(`${f}: ${m[0]}`);
+  // Status hues are reinforcement, never text: #fab219 and #d03b3b both fail 4.5:1.
+  for (const m of src.matchAll(/(?<![-\w])color:\s*["']?var\(--status-[a-z]+\)/g)) borrowed.push(`${f}: ${m[0]} (use --a-error for text)`);
+  const prose = src.match(/prose-editorial/g)?.length ?? 0;
+  const previews = src.match(/data-theme="light"/g)?.length ?? 0;
+  if (prose > previews) borrowed.push(`${f}: .prose-editorial outside a data-theme="light" preview`);
+}
+if (borrowed.length) fail("admin borrows the public palette", borrowed);
+else console.log("  ok  admin uses no public component, colour utility, or text opacity");
 
 // --- 3. admin tokens must be confined to their own built chunk -----------
 const cssFiles = globSync(".next/static/chunks/**/*.css");

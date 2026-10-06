@@ -2,9 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Field, Input, Textarea } from "@/components/ui/Field";
-import Button from "@/components/ui/Button";
-import MonoLabel from "@/components/ui/MonoLabel";
+import { AdminField, TextArea, TextInput } from "@/components/admin/ui/Field";
 import ImageUploader from "./ImageUploader";
 import { slugify } from "@/lib/utils";
 import type { ImageRef } from "@/lib/types";
@@ -51,14 +49,22 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
     setErrors({});
     setFormError("");
 
-    if (!values.poster) {
-      setFormError("A poster image is required.");
+    // Mirrors eventSchema, so the common mistakes never cost a round trip.
+    const found: Record<string, string> = {};
+    if (values.title.trim().length < 3) found.title = "A title of at least 3 characters.";
+    if (values.slug.trim().length < 3) found.slug = "A slug of at least 3 characters.";
+    if (values.description.trim().length < 10) found.description = "A description of at least 10 characters.";
+    if (!values.startDate) found.startDate = "A start date is required.";
+    if (values.venue.trim().length < 2) found.venue = "Where is it?";
+    if (!values.poster) found.poster = "A poster image is required.";
+    if (Object.keys(found).length) {
+      setErrors(found);
+      setFormError("Fix the highlighted fields.");
+      const first = ["title", "slug", "description", "startDate", "venue"].find((k) => found[k]);
+      if (first) document.getElementById(first)?.focus();
       return;
     }
-    if (!values.startDate) {
-      setFormError("A start date is required.");
-      return;
-    }
+    if (!values.poster) return;
 
     setPending(true);
 
@@ -102,10 +108,10 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
   }
 
   return (
-    <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_320px]">
-      <div className="flex min-w-0 flex-col gap-8">
-        <Field label="Title" htmlFor="title" error={errors.title}>
-          <Input
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="flex min-w-0 flex-col gap-7">
+        <AdminField label="Title" htmlFor="title" error={errors.title}>
+          <TextInput
             id="title"
             value={values.title}
             onChange={(e) =>
@@ -115,92 +121,114 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
                 slug: slugTouched ? v.slug : slugify(e.target.value),
               }))
             }
+            invalid={Boolean(errors.title)}
           />
-        </Field>
+        </AdminField>
 
-        <Field label="Slug" htmlFor="slug" error={errors.slug} hint="/events/…">
-          <Input
+        <AdminField label="Slug" htmlFor="slug" error={errors.slug} hint={`/events/${values.slug || "…"}`}>
+          <TextInput
             id="slug"
             value={values.slug}
+            spellCheck={false}
+            autoCapitalize="off"
             onChange={(e) => {
               setSlugTouched(true);
               set("slug", slugify(e.target.value));
             }}
+            invalid={Boolean(errors.slug)}
+            hint="slug"
           />
-        </Field>
+        </AdminField>
 
-        <Field label="Description" htmlFor="description" error={errors.description}>
-          <Textarea
+        <AdminField label="Description" htmlFor="description" error={errors.description}>
+          <TextArea
             id="description"
             rows={10}
             value={values.description}
             onChange={(e) => set("description", e.target.value)}
             placeholder="What is it, who is it for, what should people expect?"
+            invalid={Boolean(errors.description)}
           />
-        </Field>
+        </AdminField>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Field label="Starts" htmlFor="startDate" error={errors.startDate}>
-            <Input
+        <div className="grid grid-cols-1 gap-7 md:grid-cols-2">
+          <AdminField label="Starts" htmlFor="startDate" error={errors.startDate}>
+            <TextInput
               id="startDate"
               type="datetime-local"
               value={values.startDate}
               onChange={(e) => set("startDate", e.target.value)}
+              invalid={Boolean(errors.startDate)}
             />
-          </Field>
+          </AdminField>
 
-          <Field label="Ends" htmlFor="endDate" hint="Optional">
-            <Input
+          <AdminField label="Ends" htmlFor="endDate" hint="Optional">
+            <TextInput
               id="endDate"
               type="datetime-local"
               value={values.endDate}
               onChange={(e) => set("endDate", e.target.value)}
+              hint="Optional"
             />
-          </Field>
+          </AdminField>
         </div>
       </div>
 
-      <aside className="flex flex-col gap-10 lg:sticky lg:top-24 lg:self-start">
-        <ImageUploader label="Poster" value={values.poster} onChange={(img) => set("poster", img)} />
+      <aside className="flex flex-col gap-7 lg:sticky lg:top-6 lg:self-start">
+        <div>
+          <ImageUploader label="Poster" value={values.poster} onChange={(img) => set("poster", img)} />
+          {errors.poster ? <p className="a-field-error mt-2">{errors.poster}</p> : null}
+        </div>
 
-        <Field label="Venue" htmlFor="venue" error={errors.venue}>
-          <Input id="venue" value={values.venue} onChange={(e) => set("venue", e.target.value)} />
-        </Field>
+        <AdminField label="Venue" htmlFor="venue" error={errors.venue}>
+          <TextInput
+            id="venue"
+            value={values.venue}
+            onChange={(e) => set("venue", e.target.value)}
+            invalid={Boolean(errors.venue)}
+          />
+        </AdminField>
 
-        <Field label="City" htmlFor="city">
-          <Input id="city" value={values.city} onChange={(e) => set("city", e.target.value)} />
-        </Field>
+        <AdminField label="City" htmlFor="city">
+          <TextInput id="city" value={values.city} onChange={(e) => set("city", e.target.value)} />
+        </AdminField>
 
-        <Field label="Ticket URL" htmlFor="ticketUrl" error={errors.ticketUrl} hint="Optional">
-          <Input
+        <AdminField label="Ticket URL" htmlFor="ticketUrl" error={errors.ticketUrl} hint="Optional">
+          <TextInput
             id="ticketUrl"
             type="url"
             value={values.ticketUrl}
             onChange={(e) => set("ticketUrl", e.target.value)}
             placeholder="https://"
+            invalid={Boolean(errors.ticketUrl)}
+            hint="Optional"
           />
-        </Field>
+        </AdminField>
 
-        <label className="flex items-center gap-3">
+        <label className="a-check">
           <input
             type="checkbox"
             checked={values.featured}
             onChange={(e) => set("featured", e.target.checked)}
-            className="size-4 accent-[currentColor]"
           />
-          <MonoLabel>Featured event</MonoLabel>
+          Featured event
         </label>
 
         {formError ? (
-          <p className="a-meta a-ink" role="alert">
-            ↳ {formError}
+          <p className="a-field-error" role="alert">
+            {formError}
           </p>
         ) : null}
 
         <div className="border-t a-border pt-6">
-          <Button type="button" disabled={pending} onClick={save} className="w-full">
+          <button
+            type="button"
+            className="a-btn a-btn-primary w-full justify-center py-3"
+            disabled={pending}
+            onClick={save}
+          >
             {pending ? "Saving…" : id ? "Update event" : "Create event ↗"}
-          </Button>
+          </button>
         </div>
       </aside>
     </div>

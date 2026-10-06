@@ -236,7 +236,7 @@ export function VolumeEditor({
                   />
                 </span>
                 {entry.note.length > 100 ? (
-                  <span className="a-muted a-num mt-1 block text-right text-[11px]">
+                  <span className="a-muted a-num mt-1 block text-right text-[12px]">
                     {entry.note.length}/120
                   </span>
                 ) : null}

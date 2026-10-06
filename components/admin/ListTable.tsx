@@ -159,7 +159,7 @@ export function ListTable({
                     <td className="max-w-0">
                       <span className="block truncate text-[13.5px]">{row.title}</span>
                       {row.subtitle ? (
-                        <span className="a-muted block truncate text-[11.5px]">{row.subtitle}</span>
+                        <span className="a-muted block truncate text-[12px]">{row.subtitle}</span>
                       ) : null}
                     </td>
 
@@ -219,7 +219,7 @@ export function ListTable({
           <button
             type="button"
             onClick={() => setSelected(new Set())}
-            className="ml-1 rounded-lg px-2 py-1.5 text-[13px] text-white/60 hover:bg-white/10 hover:text-white"
+            className="a-rail-item ml-1 rounded-lg px-2 py-1.5 text-[13px]"
           >
             <span aria-hidden="true">✕</span>
             <span className="sr-only">Clear selection</span>

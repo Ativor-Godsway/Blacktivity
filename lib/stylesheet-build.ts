@@ -6,4 +6,4 @@
  * development and complains loudly when a browser is rendering fresh HTML
  * against a stale stylesheet. See Revision 23 §2.
  */
-export const STYLESHEET_BUILD = "bc1a32cc701b";
+export const STYLESHEET_BUILD = "1d8a958924fd";

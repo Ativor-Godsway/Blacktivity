@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Sign in" };
  */
 export default function LoginPage() {
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4 py-10">
+    <main id="main" tabIndex={-1} className="flex min-h-dvh items-center justify-center px-4 py-10 outline-none">
       <div className="w-full max-w-[420px]">
         <p className="a-auth-mono">{SITE.name} — Admin</p>
         <h1 className="a-auth-heading mt-4 text-[40px] leading-none font-medium tracking-[-0.02em]">
@@ -26,6 +26,6 @@ export default function LoginPage() {
           </Suspense>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -31,7 +31,7 @@ export function TopArticlesTable({
             <tr key={r.path}>
               <td className="max-w-0">
                 <span className="block truncate text-[13.5px]">{r.title}</span>
-                <span className="a-muted block truncate text-[11.5px]">{r.path}</span>
+                <span className="a-muted block truncate text-[12px]">{r.path}</span>
               </td>
               <td>
                 <div className="flex items-center gap-3">

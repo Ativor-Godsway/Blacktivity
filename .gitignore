@@ -11,3 +11,6 @@ next-env.d.ts
 .shots
 assets/covers/*.jpg.bak
 .before
+
+# Revision 26 audit output (screenshots, results, contact sheet)
+/audit/

@@ -35,7 +35,7 @@ export function AdminSidebar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const [collapsedPref, setCollapsed] = useState(defaultCollapsed);
   const [signingOut, setSigningOut] = useState(false);
 
   async function signOut() {
@@ -54,6 +54,20 @@ export function AdminSidebar({
     }
   }, []);
 
+  // On a phone the 240px rail left the workspace ~100px wide and pushed the
+  // page sideways (Revision 26, measured at 390). Below 768 it is always the
+  // 68px icon rail, whatever was stored on a wider screen.
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  const collapsed = narrow || collapsedPref;
+
   function toggle() {
     setCollapsed((c) => {
       const next = !c;
@@ -70,7 +84,9 @@ export function AdminSidebar({
     <aside
       className={cn(
         "sticky top-0 flex h-dvh flex-none flex-col justify-between transition-[width] duration-200",
-        collapsed ? "w-[68px]" : "w-[240px]",
+        // The CSS width also applies before hydration, so a phone never
+        // paints the wide rail first.
+        collapsed ? "w-[68px]" : "w-[68px] md:w-[240px]",
       )}
       style={{ background: "var(--admin-sidebar)", color: "var(--admin-plane)" }}
     >
@@ -95,23 +111,25 @@ export function AdminSidebar({
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
+                // Collapsed, the icon is all that shows: a tooltip for the
+                // pointer and an accessible name for everyone else.
                 title={collapsed ? item.label : undefined}
+                aria-label={collapsed ? item.label : undefined}
                 className={cn(
-                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
+                  "a-rail-item relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] transition-colors",
                   collapsed && "justify-center px-0",
-                  active ? "bg-white/[0.14] text-white" : "text-white/60 hover:bg-white/[0.07] hover:text-white",
                 )}
               >
-                <span aria-hidden="true" className="w-4 shrink-0 text-center opacity-80">
+                <span aria-hidden="true" className="a-rail-icon">
                   {item.icon}
                 </span>
                 {collapsed ? null : <span className="flex-1">{item.label}</span>}
                 {item.badge && pendingCount > 0 ? (
                   <span
                     className={cn(
-                      "a-num rounded-full text-[10.5px] leading-none text-[#2a211a]",
+                      "a-num rounded-full text-[12px] leading-none text-[#2a211a]",
                       collapsed
-                        ? "absolute top-1.5 right-1.5 size-4 grid place-items-center"
+                        ? "absolute top-1 right-1 size-[18px] grid place-items-center"
                         : "px-1.5 py-0.5",
                     )}
                     style={{ background: "var(--status-wait)" }}
@@ -130,14 +148,14 @@ export function AdminSidebar({
         <div className={cn("flex items-center gap-3 px-2 py-2", collapsed && "justify-center px-0")}>
           <span
             aria-hidden="true"
-            className="grid size-7 flex-none place-items-center rounded-full bg-white/15 text-[11px] font-medium"
+            className="grid size-7 flex-none place-items-center rounded-full bg-white/15 text-[12px] font-medium"
           >
             {name.slice(0, 1).toUpperCase()}
           </span>
           {collapsed ? null : (
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px]">{name}</span>
-              <span className="block truncate text-[11px] text-white/45">{email}</span>
+              <span className="a-rail-sub block truncate text-[12px]">{email}</span>
             </span>
           )}
         </div>
@@ -148,13 +166,13 @@ export function AdminSidebar({
             href="/admin/account"
             aria-current={pathname.startsWith("/admin/account") ? "page" : undefined}
             title={collapsed ? "Account" : undefined}
+            aria-label={collapsed ? "Account" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] uppercase tracking-[0.08em] whitespace-nowrap hover:bg-white/[0.07] hover:text-white",
-              pathname.startsWith("/admin/account") ? "bg-white/[0.14] text-white" : "text-white/70",
+              "a-rail-item flex items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] uppercase tracking-[0.08em] whitespace-nowrap",
               collapsed && "justify-center px-0",
             )}
           >
-            <span aria-hidden="true" className="w-4 shrink-0 text-center">◉</span>
+            <span aria-hidden="true" className="a-rail-icon">◉</span>
             {collapsed ? <span className="sr-only">Account</span> : "Account"}
           </Link>
           <button
@@ -162,12 +180,13 @@ export function AdminSidebar({
             onClick={signOut}
             disabled={signingOut}
             title={collapsed ? "Sign out" : undefined}
+            aria-label={collapsed ? "Sign out" : undefined}
             className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] uppercase tracking-[0.08em] whitespace-nowrap text-white/70 hover:bg-white/[0.07] hover:text-white disabled:opacity-50",
+              "a-rail-item flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] uppercase tracking-[0.08em] whitespace-nowrap disabled:opacity-50",
               collapsed && "justify-center px-0",
             )}
           >
-            <span aria-hidden="true" className="w-4 shrink-0 text-center">⎋</span>
+            <span aria-hidden="true" className="a-rail-icon">⎋</span>
             {collapsed ? <span className="sr-only">Sign out</span> : signingOut ? "Signing out…" : "Sign out"}
           </button>
         </div>
@@ -175,13 +194,15 @@ export function AdminSidebar({
         <button
           type="button"
           onClick={toggle}
+          hidden={narrow}
           aria-expanded={!collapsed}
+          title={collapsed ? "Expand sidebar" : undefined}
           className={cn(
-            "mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[12.5px] text-white/55 hover:bg-white/[0.07] hover:text-white",
+            "a-rail-item mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px]",
             collapsed && "justify-center px-0",
           )}
         >
-          <span aria-hidden="true" className="w-4 shrink-0 text-center">
+          <span aria-hidden="true" className="a-rail-icon">
             {collapsed ? "»" : "«"}
           </span>
           {collapsed ? <span className="sr-only">Expand sidebar</span> : "Collapse"}

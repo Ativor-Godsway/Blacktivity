@@ -1,8 +1,11 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+// The underline is --fg-dim, not --rule-strong: the field's only visible edge
+// has to clear 3:1 against its ground (WCAG 1.4.11), and rule-strong is a 28%
+// alpha hairline that measured well under it on both grounds — Revision 26.
 const control =
-  "w-full border-0 border-b border-rule-strong bg-transparent px-0 py-3 text-[15px] " +
+  "w-full border-0 border-b border-fg-dim bg-transparent px-0 py-3 text-[15px] " +
   "text-fg placeholder:text-fg-dim transition-colors duration-300 " +
   "ease-[var(--ease-expo)] focus:border-fg focus:outline-none";
 
