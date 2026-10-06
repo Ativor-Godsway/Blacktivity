@@ -4,6 +4,8 @@ import dbConnect from "@/lib/db";
 import EventModel from "@/models/Event";
 import { eventSchema } from "@/lib/validation";
 import { withAuth } from "@/lib/guard";
+import { saveWithSlug } from "@/lib/slug-server";
+import { revalidateSlugChange } from "@/lib/slug-revalidate";
 import { badRequest, notFound, ok, serverError } from "@/lib/api";
 
 export const runtime = "nodejs";
@@ -44,18 +46,29 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     try {
       await dbConnect();
 
-      if (parsed.data.slug) {
-        const clash = await EventModel.exists({ slug: parsed.data.slug, _id: { $ne: id } });
-        if (clash) return badRequest("That slug is already taken.");
-      }
-
-      const doc = await EventModel.findByIdAndUpdate(id, parsed.data, {
-        returnDocument: "after",
-        runValidators: true,
-      }).lean();
-
+      const doc = await EventModel.findById(id);
       if (!doc) return notFound("Event not found.");
-      return ok({ id: String(doc._id) });
+
+      // Events are public from the moment they're created, so the address is
+      // locked from then on: retitling never moves it. Only "Change web
+      // address" does, and the old one keeps working (308).
+      // Only the fields the request actually sent. `.partial()` still applies
+      // each field's .default() in Zod 4, so a PATCH of just { title } used to
+      // come back with status: "draft" — silently unpublishing the article.
+      const sent = new Set(Object.keys(json as object));
+      const { slug: requested, ...all } = parsed.data;
+      const data = Object.fromEntries(Object.entries(all).filter(([k]) => sent.has(k)));
+      doc.set(data);
+      const result = await saveWithSlug(EventModel, doc, {
+        type: "event",
+        requested,
+        wasLive: true,
+        followsTitle: false,
+      });
+      if (result.error) return badRequest(result.error);
+      revalidateSlugChange("event", doc.slug, result.oldSlug);
+
+      return ok({ id: String(doc._id), slug: doc.slug });
     } catch {
       return serverError("Couldn't update the event.");
     }

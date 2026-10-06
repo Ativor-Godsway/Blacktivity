@@ -285,6 +285,17 @@ npm run dev
 Admin panel: `/admin/login`. `ADMIN_EMAIL` / `ADMIN_PASSWORD` only create the
 admin the first time; after that, change the password at `/admin/account`.
 
+**Web addresses are automatic.** Articles and events get their address from the
+title when they're saved (`lib/slug.ts`, unique per collection, reserved words
+and routes in `app/` excluded). A draft follows its title; once published the
+address is locked, and a change made under "Change web address" keeps the old
+one answering with a 308. `npm run backfill:slugs` reports documents with a
+missing or invalid address (dry run; `-- --write` applies).
+
+**Rotation** in the admin edits the current rotation's Top 10 and New Releases
+directly; "Start a new rotation" archives it and opens the next. Past rotations
+are view-only.
+
 **Forgotten admin password:** run `MONGODB_URI="<production URI>" npx tsx scripts/reset-admin-password.ts`.
 It asks for the new password twice, with hidden input, and never takes it as an argument.
 Saving it signs out every existing session.

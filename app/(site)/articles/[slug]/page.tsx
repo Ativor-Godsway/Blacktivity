@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import RevealImage from "@/components/ui/RevealImage";
 import MonoLabel from "@/components/ui/MonoLabel";
 import ArticleCell from "@/components/site/ArticleCell";
@@ -9,7 +9,7 @@ import ScrollProgress from "@/components/site/ScrollProgress";
 import ShareRow from "@/components/site/ShareRow";
 import TiptapContent from "@/lib/tiptap-render";
 import { splitOpening } from "@/lib/split-opening";
-import { getArticleBySlug, getAllArticleSlugs, getRelatedArticles } from "@/lib/queries";
+import { getArticleBySlug, getArticleRedirect, getAllArticleSlugs, getRelatedArticles } from "@/lib/queries";
 import { formatDateMono, absoluteUrl } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
 
@@ -70,7 +70,12 @@ export default async function ArticlePage({
 }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
-  if (!article) notFound();
+  if (!article) {
+    // A renamed article's old address — shared links keep working (308).
+    const moved = await getArticleRedirect(slug);
+    if (moved) permanentRedirect(`/articles/${moved}`);
+    notFound();
+  }
 
   const related = await getRelatedArticles(article, 3);
   // The paragraphs that sit beside the cover, and everything after them.

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import RevealImage from "@/components/ui/RevealImage";
 import MonoLabel from "@/components/ui/MonoLabel";
-import { getEventBySlug, getAllEventSlugs } from "@/lib/queries";
+import { getEventBySlug, getEventRedirect, getAllEventSlugs } from "@/lib/queries";
 import { formatDateMono, isUpcoming, absoluteUrl } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
 
@@ -53,7 +53,12 @@ export default async function EventPage({
 }) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
-  if (!event) notFound();
+  if (!event) {
+    // A renamed event's old address — shared links keep working (308).
+    const moved = await getEventRedirect(slug);
+    if (moved) permanentRedirect(`/events/${moved}`);
+    notFound();
+  }
 
   const upcoming = isUpcoming(event.startDate);
 

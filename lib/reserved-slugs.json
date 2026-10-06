@@ -1,0 +1,6 @@
+{
+  "generatedFrom": "app/{articles,events,rotation}/*",
+  "segments": [
+    "archive"
+  ]
+}

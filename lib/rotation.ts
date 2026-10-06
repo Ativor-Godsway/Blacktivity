@@ -1,4 +1,4 @@
-import { slugify } from "./utils";
+import { trackKeyPart } from "./slug";
 import type { ImageRef } from "./types";
 
 /**
@@ -181,7 +181,7 @@ export function volumeTitleLabel(number: number): string {
  * artist or title that already contains one cannot forge the boundary.
  */
 export function trackSlug(artist: string, title: string): string {
-  return `${slugify(artist)}--${slugify(title)}`;
+  return `${trackKeyPart(artist)}--${trackKeyPart(title)}`;
 }
 
 /**

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AdminField, TextArea, TextInput } from "@/components/admin/ui/Field";
 import ImageUploader from "./ImageUploader";
-import { slugify } from "@/lib/utils";
+import WebAddress from "./WebAddress";
 import type { ImageRef } from "@/lib/types";
 
 export type EventFormValues = {
@@ -36,7 +36,8 @@ const BLANK: EventFormValues = {
 export function EventForm({ id, initial }: { id?: string; initial?: EventFormValues }) {
   const router = useRouter();
   const [values, setValues] = useState<EventFormValues>(initial ?? BLANK);
-  const [slugTouched, setSlugTouched] = useState(Boolean(initial?.slug));
+  /** An address the owner chose in "Change web address" — sent only then. */
+  const [requestedSlug, setRequestedSlug] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [pending, setPending] = useState(false);
@@ -52,7 +53,6 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
     // Mirrors eventSchema, so the common mistakes never cost a round trip.
     const found: Record<string, string> = {};
     if (values.title.trim().length < 3) found.title = "A title of at least 3 characters.";
-    if (values.slug.trim().length < 3) found.slug = "A slug of at least 3 characters.";
     if (values.description.trim().length < 10) found.description = "A description of at least 10 characters.";
     if (!values.startDate) found.startDate = "A start date is required.";
     if (values.venue.trim().length < 2) found.venue = "Where is it?";
@@ -60,7 +60,7 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
     if (Object.keys(found).length) {
       setErrors(found);
       setFormError("Fix the highlighted fields.");
-      const first = ["title", "slug", "description", "startDate", "venue"].find((k) => found[k]);
+      const first = ["title", "description", "startDate", "venue"].find((k) => found[k]);
       if (first) document.getElementById(first)?.focus();
       return;
     }
@@ -76,7 +76,7 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: values.title,
-          slug: values.slug,
+          ...(requestedSlug ? { slug: requestedSlug } : {}),
           description: values.description,
           poster,
           startDate: values.startDate,
@@ -115,30 +115,24 @@ export function EventForm({ id, initial }: { id?: string; initial?: EventFormVal
             id="title"
             value={values.title}
             onChange={(e) =>
-              setValues((v) => ({
-                ...v,
-                title: e.target.value,
-                slug: slugTouched ? v.slug : slugify(e.target.value),
-              }))
+              setValues((v) => ({ ...v, title: e.target.value }))
             }
             invalid={Boolean(errors.title)}
           />
         </AdminField>
 
-        <AdminField label="Slug" htmlFor="slug" error={errors.slug} hint={`/events/${values.slug || "…"}`}>
-          <TextInput
-            id="slug"
-            value={values.slug}
-            spellCheck={false}
-            autoCapitalize="off"
-            onChange={(e) => {
-              setSlugTouched(true);
-              set("slug", slugify(e.target.value));
-            }}
-            invalid={Boolean(errors.slug)}
-            hint="slug"
-          />
-        </AdminField>
+        <WebAddress
+          type="event"
+          id={id}
+          title={values.title}
+          slug={values.slug}
+          // Events are public from their first save, so the address is locked then.
+          live={Boolean(id)}
+          followsTitle={!id}
+          requested={requestedSlug}
+          onRequest={setRequestedSlug}
+        />
+        {errors.slug ? <p className="a-field-error -mt-4">{errors.slug}</p> : null}
 
         <AdminField label="Description" htmlFor="description" error={errors.description}>
           <TextArea

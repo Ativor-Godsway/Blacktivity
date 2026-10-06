@@ -587,3 +587,40 @@
   line-height: 1;
 }
 .a-rail-sub { color: var(--a-rail-ink); }
+
+/* --- web address — Revision 27 §2.5 -------------------------------------
+   Read-only: the address is shown as text on the plane, not as a field, so it
+   never looks like something the owner has to fill in. */
+.a-webaddress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.875rem;
+  border: 1px dashed var(--a-line);
+  border-radius: 8px;
+  background: var(--a-bg);
+}
+.a-webaddress-url {
+  min-width: 0;
+  flex: 1;
+  font-size: 14px;
+  color: var(--a-ink);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.a-webaddress-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  background: var(--a-surface);
+}
+.a-link-button {
+  font-size: 13px;
+  color: var(--a-ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.a-link-button:hover { color: var(--a-ink); }

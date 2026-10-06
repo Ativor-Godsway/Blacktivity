@@ -14,7 +14,7 @@ import {
 import ImageUploader from "./ImageUploader";
 import TiptapContent from "@/lib/tiptap-render";
 import { ARTICLE_CATEGORIES } from "@/lib/constants";
-import { slugify } from "@/lib/utils";
+import WebAddress from "./WebAddress";
 import type { ImageRef } from "@/lib/types";
 
 // The editor pulls in ProseMirror — keep it out of the initial admin bundle.
@@ -55,16 +55,20 @@ export function ArticleForm({
   id,
   initial,
   initialStatus = "draft",
+  slugState = { live: false, setByOwner: false },
 }: {
   id?: string;
   initial?: ArticleFormValues;
   initialStatus?: "draft" | "published";
+  /** Has the address been public, and did the owner set it by hand? */
+  slugState?: { live: boolean; setByOwner: boolean };
 }) {
   const router = useRouter();
   const draftKey = `blacktivity:article-draft:${id ?? "new"}`;
 
   const [values, setValues] = useState<ArticleFormValues>(initial ?? BLANK);
-  const [slugTouched, setSlugTouched] = useState(Boolean(initial?.slug));
+  /** An address the owner chose in "Change web address" — sent only then. */
+  const [requestedSlug, setRequestedSlug] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [pending, setPending] = useState<"draft" | "published" | null>(null);
@@ -106,11 +110,8 @@ export function ArticleForm({
   }, [values, draftKey, initial]);
 
   function onTitleChange(title: string) {
-    setValues((v) => ({
-      ...v,
-      title,
-      slug: slugTouched ? v.slug : slugify(title),
-    }));
+    // The address is made from the title on the server; nothing to do here.
+    setValues((v) => ({ ...v, title }));
   }
 
   /** Mirrors articleSchema, so the common mistakes never cost a round trip. */
@@ -119,8 +120,6 @@ export function ArticleForm({
     const title = values.title.trim();
     if (title.length < 3) e.title = "A title of at least 3 characters.";
     else if (title.length > 160) e.title = "At most 160 characters.";
-    if (values.slug.trim().length < 3) e.slug = "A slug of at least 3 characters.";
-    else if (!/^[a-z0-9-]+$/.test(values.slug)) e.slug = "Lowercase letters, numbers and dashes only.";
     if (values.excerpt.trim().length < 10) e.excerpt = "An excerpt of at least 10 characters.";
     if (values.authorName.trim().length < 2) e["author.name"] = "Who wrote it?";
     return e;
@@ -135,7 +134,7 @@ export function ArticleForm({
     if (Object.keys(found).length) {
       setErrors(found);
       setFormError("Fix the highlighted fields.");
-      const first = ["title", "slug", "excerpt", "author.name"].find((k) => found[k]);
+      const first = ["title", "excerpt", "author.name"].find((k) => found[k]);
       if (first) document.getElementById(first === "author.name" ? "authorName" : first)?.focus();
       return;
     }
@@ -144,7 +143,8 @@ export function ArticleForm({
 
     const payload = {
       title: values.title,
-      slug: values.slug,
+      // Only an address the owner chose; otherwise the server makes it.
+      ...(requestedSlug ? { slug: requestedSlug } : {}),
       excerpt: values.excerpt,
       content: values.content,
       coverImage: values.coverImage,
@@ -214,20 +214,17 @@ export function ArticleForm({
             />
           </AdminField>
 
-          <AdminField label="Slug" htmlFor="slug" error={errors.slug} hint={`/articles/${values.slug || "…"}`}>
-            <TextInput
-              id="slug"
-              value={values.slug}
-              spellCheck={false}
-              autoCapitalize="off"
-              onChange={(e) => {
-                setSlugTouched(true);
-                set("slug", slugify(e.target.value));
-              }}
-              invalid={Boolean(errors.slug)}
-              hint="slug"
-            />
-          </AdminField>
+          <WebAddress
+            type="article"
+            id={id}
+            title={values.title}
+            slug={values.slug}
+            live={slugState.live}
+            followsTitle={!slugState.live && !slugState.setByOwner}
+            requested={requestedSlug}
+            onRequest={setRequestedSlug}
+          />
+          {errors.slug ? <p className="a-field-error -mt-4">{errors.slug}</p> : null}
 
           <AdminField label="Excerpt" htmlFor="excerpt" error={errors.excerpt} hint={excerptHint}>
             <TextArea

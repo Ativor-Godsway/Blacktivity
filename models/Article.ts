@@ -20,6 +20,11 @@ const ArticleSchema = new Schema(
   {
     title: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, index: true, trim: true },
+    // Revision 27 §2.4: every address this item used to have. Requests to one
+    // get a 308 to the current slug, and they count as taken for uniqueness.
+    previousSlugs: { type: [String], default: [], index: true },
+    // True once the owner set the address by hand: it stops following the title.
+    slugSetByOwner: { type: Boolean, default: false },
     excerpt: { type: String, required: true, maxlength: 200 },
     content: { type: Schema.Types.Mixed, required: true }, // Tiptap JSON
     coverImage: { type: ImageSchema, required: true },

@@ -53,7 +53,9 @@ export const imageSchema = z.object({
 
 export const articleSchema = z.object({
   title: z.string().trim().min(3).max(160),
-  slug: z.string().trim().min(3).max(80).regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and dashes only"),
+  // Optional since Revision 27: the server makes the address from the title.
+  // Sent only from "Change web address", and normalised server-side.
+  slug: z.string().trim().max(80).optional(),
   excerpt: z.string().trim().min(10).max(200),
   content: z.unknown().refine((v) => !!v && typeof v === "object", "Content is required"),
   coverImage: imageSchema,
@@ -69,7 +71,7 @@ export const articleSchema = z.object({
 
 export const eventSchema = z.object({
   title: z.string().trim().min(3).max(160),
-  slug: z.string().trim().min(3).max(80).regex(/^[a-z0-9-]+$/),
+  slug: z.string().trim().max(80).optional(), // see articleSchema
   description: z.string().trim().min(10).max(4000),
   poster: imageSchema.omit({ blurDataURL: true }),
   startDate: z.coerce.date(),

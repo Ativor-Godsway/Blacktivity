@@ -62,6 +62,13 @@ export async function getArticleBySlug(slug: string): Promise<ArticleDTO | null>
   return doc ? { ...toDTO<ArticleDTO>(doc), id: String(doc._id) } : null;
 }
 
+/** An old address (Revision 27 §2.4) → the article's current slug, for a 308. */
+export async function getArticleRedirect(slug: string): Promise<string | null> {
+  await dbConnect();
+  const doc = await Article.findOne({ previousSlugs: slug, status: "published" }).select("slug").lean();
+  return doc?.slug ?? null;
+}
+
 export async function getRelatedArticles(
   article: Pick<ArticleDTO, "slug" | "category">,
   limit = 3,
@@ -133,6 +140,13 @@ export async function getEventBySlug(slug: string): Promise<EventDTO | null> {
   await dbConnect();
   const doc = await EventModel.findOne({ slug }).lean();
   return doc ? { ...toDTO<EventDTO>(doc), id: String(doc._id) } : null;
+}
+
+/** An old address (Revision 27 §2.4) → the event's current slug, for a 308. */
+export async function getEventRedirect(slug: string): Promise<string | null> {
+  await dbConnect();
+  const doc = await EventModel.findOne({ previousSlugs: slug }).select("slug").lean();
+  return doc?.slug ?? null;
 }
 
 export async function getAllEventSlugs(): Promise<string[]> {

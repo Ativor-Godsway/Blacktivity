@@ -34,6 +34,9 @@ export default async function EditArticlePage({
       <ArticleForm
         id={id}
         initialStatus={doc.status === "published" ? "published" : "draft"}
+        // Revision 27: has the address been public, and was it set by hand?
+        // Together they decide whether it still follows the title.
+        slugState={{ live: Boolean(doc.publishedAt), setByOwner: Boolean(doc.slugSetByOwner) }}
         initial={{
           title: doc.title,
           slug: doc.slug,

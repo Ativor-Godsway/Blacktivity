@@ -157,11 +157,35 @@ export const STATES = {
     { name: "typed", run: typeEverywhere },
     { name: "validation errors", run: clickText(/^Publish/) },
     { name: "image dialog", run: clickText(/^Image$/) },
+    {
+      name: "web address preview from a title",
+      run: async (page) => {
+        await page.fill("#title", "Archive");
+        await page.waitForTimeout(900);
+      },
+    },
+    {
+      name: "change web address open",
+      run: async (page) => {
+        await page.fill("#title", "Archive");
+        await page.waitForTimeout(900);
+        await clickText(/^Change web address/)(page);
+        await page.waitForTimeout(600);
+      },
+    },
     { name: "upload in progress", run: upload("hang") },
     { name: "upload error", run: upload("error") },
   ],
   "/admin/articles/[id]": [
     { name: "filled (Makola)" },
+    {
+      name: "change web address open",
+      run: async (page) => {
+        await clickText(/^Change web address/)(page);
+        await page.locator(".a-webaddress-panel input").fill("makola-tailors");
+        await page.waitForTimeout(800);
+      },
+    },
     { name: "preview open", run: clickText(/^Preview/) },
     {
       name: "validation errors",
@@ -183,7 +207,7 @@ export const STATES = {
     { name: "typed", run: typeEverywhere },
     { name: "validation errors", run: clickText(/^(Create event|Update event)/) },
   ],
-  "/admin/events/[id]": [{ name: "filled" }],
+  "/admin/events/[id]": [{ name: "filled" }, { name: "change web address open", run: clickText(/^Change web address/) }],
   "/admin/submissions": [
     { name: "all" },
     { name: "filter: pending", run: clickText(/^Pending/) },

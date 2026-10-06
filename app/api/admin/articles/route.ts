@@ -3,6 +3,8 @@ import dbConnect from "@/lib/db";
 import Article from "@/models/Article";
 import { articleSchema } from "@/lib/validation";
 import { withAuth } from "@/lib/guard";
+import { saveWithSlug } from "@/lib/slug-server";
+import { revalidateSlugChange } from "@/lib/slug-revalidate";
 import { badRequest, ok, serverError } from "@/lib/api";
 
 export const runtime = "nodejs";
@@ -47,11 +49,18 @@ export async function POST(req: NextRequest) {
     try {
       await dbConnect();
 
-      const exists = await Article.exists({ slug: parsed.data.slug });
-      if (exists) return badRequest("That slug is already taken.");
-
-      const created = await Article.create(parsed.data);
-      return ok({ id: String(created._id) }, { status: 201 });
+      // The address is made here, from the title — never trusted from the browser.
+      const { slug: requested, ...data } = parsed.data;
+      const doc = new Article(data);
+      const result = await saveWithSlug(Article, doc, {
+        type: "article",
+        requested,
+        wasLive: false,
+        followsTitle: true,
+      });
+      if (result.error) return badRequest(result.error);
+      if (doc.status === "published") revalidateSlugChange("article", doc.slug);
+      return ok({ id: String(doc._id), slug: doc.slug }, { status: 201 });
     } catch {
       return serverError("Couldn't save the article.");
     }

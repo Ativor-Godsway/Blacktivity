@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/build/stamp-stylesheet.mjs",
+    "predev": "node scripts/build/stamp-stylesheet.mjs && node scripts/build/reserved-slugs.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/build/stamp-stylesheet.mjs && node scripts/build/check-cover.mjs && node scripts/build/check-rotation-image.mjs",
+    "prebuild": "node scripts/build/stamp-stylesheet.mjs && node scripts/build/reserved-slugs.mjs && node scripts/build/check-cover.mjs && node scripts/build/check-rotation-image.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -38,7 +38,7 @@
     "test:hero": "node scripts/visual/test-hero.mjs",
     "audit:images": "node scripts/audit-images.mjs",
     "audit:admin-colour": "node scripts/audit-admin-colour.mjs",
-    "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run check:cover && npm run check:rotation-image && npm run check:stamp && npm run check:devonly && npm run test:render && npm run test:seed-admin",
+    "audit": "npm run audit:colour && npm run audit:admin-colour && npm run audit:perf && npm run audit:images && npm run check:cover && npm run check:rotation-image && npm run check:stamp && npm run check:devonly && npm run test:render && npm run test:seed-admin && npm run test:slug && node scripts/build/reserved-slugs.mjs --check",
     "test:render": "tsx --tsconfig tests/tsconfig.json tests/tiptap-render.test.tsx",
     "check:wordmark": "node scripts/visual/wordmark-check.mjs",
     "check:raf": "node scripts/visual/raf-check.mjs",
@@ -58,7 +58,10 @@
     "audit:contrast-tokens": "node scripts/audit-contrast.mjs",
     "audit:contrast:local": "node scripts/audit-contrast.mjs && node scripts/audit-undefined-vars.mjs && node scripts/audit/local.mjs",
     "audit:undefined-vars": "node scripts/audit-undefined-vars.mjs",
-    "test:rotation": "node tests/e2e/rotation.e2e.mjs"
+    "test:rotation": "node tests/e2e/rotation.e2e.mjs",
+    "test:slug": "tsx --conditions=react-server --tsconfig tests/tsconfig.json tests/slug.test.ts",
+    "test:redirect": "node tests/e2e/slug-redirect.e2e.mjs",
+    "backfill:slugs": "tsx --conditions=react-server scripts/backfill-slugs.ts"
   },
   "dependencies": {
     "@tiptap/core": "^3.31.0",

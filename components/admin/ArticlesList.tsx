@@ -56,7 +56,7 @@ export function ArticlesList({
             ["Reading time", `${a.readingTime} min`],
             ["Last edited", a.updated],
             ["Published", a.published ?? "Not published"],
-            ["Slug", a.slug],
+            ["Web address", `/articles/${a.slug}`],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between gap-4">
               <dt className="a-muted">{k}</dt>
