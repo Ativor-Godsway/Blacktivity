@@ -5,14 +5,18 @@ import type { NextConfig } from "next";
  *
  * NEXT_PUBLIC_SITE_URL drives canonicals, OG URLs, the sitemap and the admin's
  * "Web address" line. It was never set on Vercel, so production printed
- * http://localhost:3000 in every canonical. When it's unset at build, fall
+ * http://localhost:3000 in every canonical. When it's unset at build — or
+ * set to a localhost value on Vercel, which is what production had — fall
  * back to the production hostname Vercel provides to every build. A value set
  * in the dashboard (the real domain, later) still wins. robots.ts keeps a
  * vercel.app host noindexed either way.
  */
+const configured = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+// .env.example's localhost value, copied into the dashboard, is "unset" on Vercel.
+const usable = configured && !(process.env.VERCEL && /localhost|127\.0\.0\.1/.test(configured));
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "");
+  (usable ? configured : "") ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : configured);
 
 const nextConfig: NextConfig = {
   env: siteUrl ? { NEXT_PUBLIC_SITE_URL: siteUrl } : {},
